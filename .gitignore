@@ -1,0 +1,37 @@
+# ===== data & outputs (không đẩy lên git) =====
+data/raw/**
+!data/raw/.gitkeep
+output/**
+!output/.gitkeep
+
+# (thường gặp)
+data/cache/**
+data/tmp/**
+logs/**
+notebooks/.ipynb_checkpoints/
+
+# Môi trường & bí mật
+.env
+*.env
+.env.*
+
+# File lớn/nhị phân phổ biến
+*.parquet
+*.feather
+*.h5
+*.pt
+*.pth
+*.pickle
+*.pkl
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.csv.gz
+*.log
+
+# Hệ điều hành / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

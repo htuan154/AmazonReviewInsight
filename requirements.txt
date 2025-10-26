@@ -1,0 +1,29 @@
+# Core big data / Spark
+pyspark==3.5.1
+
+# Data wrangling & IO
+pandas==2.2.2
+numpy==1.26.4
+pyarrow==16.1.0
+fastparquet==2024.5.0
+
+# Modeling & evaluation
+scikit-learn==1.4.2
+lightgbm==4.3.0
+optuna==3.6.1
+
+# NLP basics
+nltk==3.9.1
+vaderSentiment==3.3.2
+
+# Utilities & viz
+tqdm==4.66.4
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# Notebooks / dev
+jupyter==1.0.0
+ipykernel==6.29.5
+
+# Env management
+python-dotenv==1.0.1
