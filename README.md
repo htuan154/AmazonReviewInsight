@@ -158,62 +158,6 @@ project/
 ---
 
 
-## 👥 Phân công công việc chi tiết (2 thành viên)
-
-> Nhóm gồm **Lê Đăng Hoàng Tuấn** và **Võ Thị Diễm Thanh**. Bảng dưới đây mô tả phạm vi, đầu ra (deliverables) và tiêu chí hoàn thành cho từng thành viên — bám sát pipeline ETL → Features → Modeling → Evaluation → Submission.
-
-### 1) Lê Đăng Hoàng Tuấn — Hạ tầng dữ liệu & Pipeline suy luận
-- **Hạ tầng & ETL (Spark + HDFS)**
-  - Dựng cụm HDFS/Spark (Docker Compose), cấu hình IO, phân quyền HDFS.
-  - Viết **ETL Spark** đọc JSONL thô → chuẩn hoá schema → ghi **Parquet** phân vùng theo thời gian (nếu có `timestamp`).
-  - Kiểm tra chất lượng dữ liệu (null %, kiểu dữ liệu, giá trị ngoại lai) và log kết quả.
-- **Feature Store & Reproducibility**
-  - Thiết lập **feature store** cơ bản cho metadata (`star_rating`, `review_length`, time-features).
-  - Đảm bảo **không rò rỉ dữ liệu**: fit transformer trên **train-only**, persist artifact.
-- **Baseline & Inference Pipeline**
-  - Huấn luyện **Logistic Regression** (TF‑IDF + metadata) với `class_weight='balanced'`, báo cáo **AUC‑PR** baseline.
-  - Xây dựng **pipeline dự đoán theo chunk** trên HDFS (đọc → transform → predict → ghi `submission.csv`), kiểm soát bộ nhớ.
-- **Tối ưu tài nguyên**
-  - Điều chỉnh `max_features`, `min_df`, batch-size transform để tối ưu RAM/độ trễ.
-- **Deliverables**
-  - Mã: `code/etl/preprocess_spark.py`, `code/models/train_logreg.py`, `code/models/predict_pipeline.py`
-  - Artifact: `vectorizer.joblib`, `scaler.joblib`, `model_logreg.joblib`, `meta.json`
-  - **Output:** `output/submission.csv`
-  - **Báo cáo:** Kiến trúc HDFS/Spark, ETL, tối ưu I/O, baseline.
-- **Tiêu chí hoàn thành (DoD)**
-  - ETL chạy end‑to‑end trên HDFS, file Parquet phân vùng.
-  - Pipeline suy luận sinh `submission.csv` đúng định dạng (đủ số dòng, không NaN).
-  - Baseline **AUC‑PR > 0** và log đầy đủ: pos/neg ratio, thời gian chạy, tài nguyên.
-
-### 2) Võ Thị Diễm Thanh — Đặc trưng NLP & Mô hình nâng cao
-- **Tiền xử lý văn bản**
-  - Chuẩn hoá: lowercase, bỏ ký tự đặc biệt, stopwords, tính `review_length`.
-  - (Tuỳ chọn) Lemmatization/Stemming nếu chi phí chấp nhận được.
-- **Feature Engineering**
-  - **TF‑IDF** `ngram_range=(1,2)`, `min_df>=5`, kiểm soát `max_features` (10k–50k).
-  - **Sentiment (VADER)**: thêm `sentiment_compound` vào metadata.
-  - (Nâng cao) Aggregates: `user_review_count`, `product_avg_rating` (tính trên **train**, map sang val/test).
-- **Modeling & Imbalance Handling**
-  - **LightGBM** với `is_unbalance=True` **hoặc** `scale_pos_weight = n_neg/n_pos`.
-  - So sánh với baseline bằng **AUC‑PR**, thêm PR curve & điểm F1 tối ưu.
-  - Tuning nhẹ (RandomizedSearch/Optuna) cho `num_leaves`, `n_estimators`, `learning_rate`.
-- **Deliverables**
-  - Mã: `code/features/text_features.py`, `code/features/metadata_features.py`, `code/models/train_lightgbm.py`
-  - Artifact: `model_lgbm.joblib`, tham số/báo cáo tuning.
-  - **Báo cáo:** Mô tả đặc trưng, mô hình, phân tích mất cân bằng & kết quả.
-- **Tiêu chí hoàn thành (DoD)**
-  - **AUC‑PR ≥ baseline** và cải thiện ý nghĩa (kèm PR curve).
-  - Artifacts tái sử dụng được (fit trên train, transform trên val/test).
-  - Bảng so sánh: baseline vs LGBM (AP, thời gian train/infer, kích thước model).
-
-### Bảng tóm tắt (SV – Công việc – Tỷ lệ hoàn thành)
-| SV | Công việc được giao | Tỷ lệ hoàn thành |
-|---|---|---|
-| **Lê Đăng Hoàng Tuấn** | ETL Spark/HDFS; Feature store metadata; Baseline LogReg (balanced); Pipeline dự đoán theo chunk & `submission.csv`; Báo cáo phần hệ thống | …% |
-| **Võ Thị Diễm Thanh** | Tiền xử lý văn bản; TF‑IDF + Sentiment + metadata nâng cao; LightGBM + handling imbalance + tuning; Báo cáo phần NLP/Mô hình | …% |
-
-> **Chung:** mọi thí nghiệm cần log **AUC‑PR**, pos/neg ratio, `scale_pos_weight`, `max_features`, thời gian chạy; lưu `output/metrics.json`. Slide 8–12 trang (bài toán → data → pipeline → kết quả → demo).
-
 
 ## 🧩 Kết luận
 
@@ -234,3 +178,15 @@ submission.csv
 > Môn Phân tích Dữ liệu Lớn – HUIT  
 > Đề tài số 3 – Dự đoán Mức độ Hữu ích của Đánh giá trên Amazon  
 > Công cụ chính: Apache Spark + PySpark + LightGBM
+
+## 📅 Lịch Sprint 7 ngày (2 thành viên)
+
+| Ngày | Kế hoạch Sprint | 👨‍💻 Lê Đăng Hoàng Tuấn (Hạ tầng) | 👩‍🔬 Võ Thị Diễm Thanh (Mô hình) |
+|---|---|---|---|
+| 1 | EDA & Định nghĩa Target | 🚀 (Nặng) Dựng HDFS/Spark. Bắt đầu viết ETL Spark, đọc dữ liệu, khám phá (EDA) phân phối helpful_votes trên Spark. | 💡 (Nhẹ) Phối hợp định nghĩa is_helpful (target). Bắt đầu nghiên cứu thư viện (VADER) và logic tiền xử lý. |
+| 2 | Tiền xử lý & Features (v1) | 🚀 (Nặng) Hoàn thành ETL Spark: chuẩn hoá schema, ghi ra Parquet.<br>Tạo các đặc trưng metadata cơ bản (star_rating, review_length). | 🔬 (Trung bình) Hoàn thành code Tiền xử lý văn bản (lowercase, stopwords).<br>Bắt đầu code logic cho Sentiment (VADER). |
+| 3 | Baseline Model (LogReg) | 🎯 (Nặng) Xây dựng pipeline TF-IDF (1,1-gram) + LogisticRegression (class_weight='balanced').<br>Huấn luyện & báo cáo AUC-PR baseline.<br>Lưu lại vectorizer.joblib & model_logreg.joblib. | 🤝 (Nhẹ) Nhận kết quả baseline. Bắt đầu chuẩn bị code cho các đặc trưng nâng cao (aggregates). |
+| 4 | Cải tiến Features & Model | 🔗 (Nhẹ) Hỗ trợ Thanh lấy dữ liệu Parquet. Bắt đầu viết sườn cho Inference Pipeline (Ngày 7). | 🚀 (Nặng) Bắt đầu Feature Engineering (v2): TF-IDF (1,2-gram), tích hợp VADER, tính các đặc trưng aggregate (user_review_count...). |
+| 5 | Tuning & Chuẩn bị | 🔗 (Trung bình) Tối ưu pipeline suy luận, đảm bảo không rò rỉ (fit/transform). Thử nghiệm pipeline với model baseline. | 🎯 (Nặng) Huấn luyện LightGBM (v1) với đặc trưng v2. Xử lý mất cân bằng (scale_pos_weight).<br>So sánh AUC-PR với baseline. |
+| 6 | Huấn luyện Full Pipeline | 🔗 (Nhẹ) Chuẩn bị hệ thống (HDFS) cho file submission cuối cùng. Báo cáo phần của mình. | 🎯 (Nặng) Tuning LightGBM (RandomizedSearch/Optuna).<br>Huấn luyện mô hình cuối cùng. Lưu model_lgbm.joblib. |
+| 7 | Dự đoán & Nộp bài | 🚀 (Nặng) Tích hợp artifact (model, vectorizer) của Thanh vào Pipeline Dự đoán.<br>Chạy pipeline trên HDFS (theo chunk) để sinh ra submission.csv. | 🔬 (Trung bình) Kiểm tra, đối chiếu submission.csv. Hoàn thành báo cáo phần mô hình. Tổng hợp slide. |

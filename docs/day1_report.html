@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Ngày 1 - Dự Đoán Tính Hữu Ích Reviews Amazon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .meta-info {
+            display: flex;
+            justify-content: space-around;
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .meta-item {
+            text-align: center;
+        }
+        
+        .meta-item strong {
+            display: block;
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .meta-item span {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .team-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .team-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+        
+        .task-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .task-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .task-list li::before {
+            content: "+ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card .number {
+            font-size: 3em;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .insight-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .insight-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .insight-box p {
+            color: #856404;
+            line-height: 1.8;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .formula {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        table thead {
+            background: #667eea;
+            color: white;
+        }
+        
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table tbody tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .comparison-table {
+            margin: 20px 0;
+        }
+        
+        .comparison-table th {
+            background: #764ba2;
+        }
+        
+        .highlight-positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .highlight-negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .bar {
+            width: 60px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .bar:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .bar-label {
+            position: absolute;
+            top: -25px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .bar-value {
+            position: absolute;
+            bottom: -30px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .recommendation-box {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .recommendation-box h4 {
+            color: #155724;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .recommendation-box ul {
+            margin-left: 20px;
+            color: #155724;
+        }
+        
+        .recommendation-box li {
+            margin-bottom: 8px;
+        }
+        
+        footer {
+            background: #343a40;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .badge-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Báo Cáo Ngày 1</h1>
+            <p>Dự Án: Dự Đoán Tính Hữu Ích Reviews Amazon</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Thiết Lập Hạ Tầng & Phân Tích Dữ Liệu Khám Phá</p>
+        </header>
+        
+        <div class="meta-info">
+            <div class="meta-item">
+                <strong>17,328,314</strong>
+                <span>Tổng Reviews</span>
+            </div>
+            <div class="meta-item">
+                <strong>9.4 GB</strong>
+                <span>Dataset Parquet</span>
+            </div>
+            <div class="meta-item">
+                <strong>1997-2023</strong>
+                <span>Khoảng Thời Gian</span>
+            </div>
+            <div class="meta-item">
+                <strong>25%</strong>
+                <span>Reviews Hữu Ích</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Team Overview -->
+            <div class="section">
+                <h2>👥 Thành Viên Nhóm & Công Việc Hoàn Thành</h2>
+                <div class="team-grid">
+                    <div class="team-card">
+                        <h3>Tuấn - Hạ Tầng <span class="badge badge-success">HOÀN THÀNH</span></h3>
+                        <ul class="task-list">
+                            <li>Thiết lập HDFS cluster (localhost:9000)</li>
+                            <li>Upload dữ liệu thô: 7.8GB reviews + 1.2GB metadata</li>
+                            <li>Xây dựng Spark ETL pipeline với PySpark</li>
+                            <li>Chuẩn hóa schema & chuyển đổi kiểu dữ liệu</li>
+                            <li>Sửa lỗi timestamp parsing (ms → giây)</li>
+                            <li><strong>Tích hợp metadata: 748K sản phẩm với brand/category/price</strong></li>
+                            <li>Tạo 9.4GB Parquet (phân vùng theo năm/tháng)</li>
+                            <li>Feature engineering cơ bản: review_length, is_helpful</li>
+                            <li>Báo cáo EDA: class imbalance & phân bố helpful votes</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="team-card">
+                        <h3>Thanh - Khoa Học Dữ Liệu <span class="badge badge-success">HOÀN THÀNH</span></h3>
+                        <ul class="task-list">
+                            <li>Định nghĩa biến mục tiêu (ngưỡng is_helpful)</li>
+                            <li>Phân tích class imbalance (tỷ lệ 3:1)</li>
+                            <li>Pipeline tiền xử lý text (clean_text UDF)</li>
+                            <li>Tích hợp phân tích sentiment VADER</li>
+                            <li>Phân tích phân bố độ dài review</li>
+                            <li>Tương quan star rating vs helpfulness</li>
+                            <li>Tính toán pos_weight khuyến nghị = 2.995</li>
+                            <li>Tạo báo cáo EDA toàn diện</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dataset Overview -->
+            <div class="section">
+                <h2>📦 Tổng Quan Dataset</h2>
+                <p style="font-size: 1.1em; line-height: 1.8;">
+                    <strong>Dataset:</strong> Amazon Reviews 2023 - Movies and TV<br>
+                    <strong>Nguồn:</strong> UCSD Amazon Review Data (2023 release)<br>
+                    <strong>Kích thước gốc:</strong> 7.82GB reviews JSONL + 1.2GB metadata JSONL<br>
+                    <strong>Sau xử lý:</strong> 9.4GB Parquet với compression Snappy
+                </p>
+                
+                <h3>Schema Cuối Cùng (16 cột)</h3>
+                <div class="code-block">
+root
+ |-- product_id: string          // Mã sản phẩm (parent ASIN)
+ |-- review_id: string           // Mã review (ASIN identifier)
+ |-- review_text: string         // Nội dung review (text chính)
+ |-- star_rating: double         // Đánh giá 1.0 - 5.0 sao
+ |-- helpful_votes: long         // Số lượt vote hữu ích
+ |-- user_id: string             // Mã người đánh giá
+ |-- ts: timestamp               // Thời gian review (đã sửa: ms → giây)
+ 
+ // ===== CÁC TRƯỜNG METADATA (MỚI) =====
+ |-- product_title: string       // Tên/tiêu đề sản phẩm
+ |-- brand: string               // Tên thương hiệu/cửa hàng
+ |-- category: string            // Danh mục chính (Movies and TV)
+ |-- price: double               // Giá sản phẩm (parsed từ string)
+ |-- product_avg_rating_meta: double  // Đánh giá trung bình từ metadata
+ |-- product_total_ratings: integer   // Tổng số lượt đánh giá
+ 
+ // ===== CÁC FEATURES ĐÃ TẠO =====
+ |-- review_length: integer      // Số từ trong review
+ |-- is_helpful: integer         // Mục tiêu: 1 nếu helpful_votes > 0, ngược lại 0
+ |-- year: integer               // Trích xuất từ timestamp
+ |-- month: integer              // Trích xuất từ timestamp
+                </div>
+                
+                <div class="insight-box">
+                    <h4>💡 Sửa Lỗi Schema Quan Trọng</h4>
+                    <p><strong>Vấn đề timestamp:</strong> Dữ liệu gốc lưu timestamp dạng milliseconds, dẫn đến năm 62,000+ khi parse. Spark mong đợi seconds.</p>
+                    <div class="formula">
+from_unixtime(col("ts_raw").cast("bigint") / 1000).cast("timestamp")
+                    </div>
+                    <p>Kết quả: Các năm hợp lệ từ 1997-2023 với 27 thư mục phân vùng.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Tích Hợp Metadata:</strong> Thành công tích hợp 748,224 bản ghi sản phẩm sử dụng manual JSON parsing để tránh lỗi nested struct. Left join bảo toàn tất cả 17.3M reviews.</p>
+                    <p><strong>Các trường mới:</strong> product_title, brand, category, price, product_avg_rating_meta, product_total_ratings</p>
+                </div>
+            </div>
+            
+            <!-- Target Definition -->
+            <div class="section">
+                <h2>🎯 Định Nghĩa Biến Mục Tiêu</h2>
+                <h3>is_helpful - Phân Loại Nhị Phân</h3>
+                <p>Định nghĩa review là "helpful" (hữu ích) nếu có ít nhất 1 upvote từ người dùng:</p>
+                <div class="formula">
+is_helpful = 1 nếu helpful_votes > 0, ngược lại 0
+                </div>
+                
+                <h3>Phân Tích Các Ngưỡng Thay Thế</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Ngưỡng</th>
+                            <th>Reviews Positive</th>
+                            <th>Tỷ Lệ</th>
+                            <th>Imbalance Ratio</th>
+                            <th>Đánh Giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>&gt; 0</strong></td>
+                            <td class="highlight-positive">12,513 (25%)</td>
+                            <td>1 : 4</td>
+                            <td>3.0 : 1</td>
+                            <td>✅ Cân bằng hợp lý</td>
+                        </tr>
+                        <tr>
+                            <td>&gt; 1</td>
+                            <td>6,891 (13.8%)</td>
+                            <td>1 : 7.3</td>
+                            <td>6.3 : 1</td>
+                            <td>⚠️ Imbalance cao</td>
+                        </tr>
+                        <tr>
+                            <td>&gt; 2</td>
+                            <td>4,431 (8.9%)</td>
+                            <td>1 : 11.3</td>
+                            <td>10.3 : 1</td>
+                            <td>❌ Quá imbalance</td>
+                        </tr>
+                        <tr>
+                            <td>&gt; 5</td>
+                            <td>2,156 (4.3%)</td>
+                            <td>1 : 23.2</td>
+                            <td>22.2 : 1</td>
+                            <td>❌ Rất khó train</td>
+                        </tr>
+                        <tr>
+                            <td>&gt; 10</td>
+                            <td>1,073 (2.1%)</td>
+                            <td>1 : 46.6</td>
+                            <td>45.6 : 1</td>
+                            <td>❌ Không khả thi</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="insight-box">
+                    <h4>💡 Tại Sao Chọn Ngưỡng > 0?</h4>
+                    <p><strong>Cân bằng tốt:</strong> Ngưỡng > 0 cung cấp sự cân bằng class hợp lý (25% positive) trong khi vẫn duy trì đủ mẫu training. Ngưỡng cao hơn dẫn đến imbalance nghiêm trọng (>10:1) đòi hỏi oversampling mạnh hoặc các chiến lược weighting phức tạp.</p>
+                </div>
+            </div>
+            
+            <!-- Class Imbalance -->
+            <div class="section">
+                <h2>⚖️ Phân Tích Class Imbalance</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="number">12,513</span>
+                        <span class="label">Reviews Hữu Ích (1)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">37,478</span>
+                        <span class="label">Reviews Không Hữu Ích (0)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">25.0%</span>
+                        <span class="label">Tỷ Lệ Positive</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">3.024</span>
+                        <span class="label">pos_weight Khuyến Nghị</span>
+                    </div>
+                </div>
+                
+                <h3>Cách Tính pos_weight</h3>
+                <div class="formula">
+pos_weight = count(negative_class) / count(positive_class)
+pos_weight = 37,478 / 12,513 = 3.024
+                </div>
+                
+                <div class="chart-container">
+                    <h4>Phân Bố Class (Mẫu: 50,000 reviews)</h4>
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 66%;">
+                            <div class="bar-label">37,478</div>
+                            <div class="bar-value">Không Hữu Ích</div>
+                        </div>
+                        <div class="bar" style="height: 22%;">
+                            <div class="bar-label">12,513</div>
+                            <div class="bar-value">Hữu Ích</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recommendation-box">
+                    <h4>🎯 Khuyến Nghị Cho Training Model</h4>
+                    <ul>
+                        <li><strong>Sử dụng class_weight:</strong> Đặt class_weight={0: 1.0, 1: 3.024} trong LogReg/SVM</li>
+                        <li><strong>Focal Loss:</strong> Cho deep learning, sử dụng focal loss thay vì CE</li>
+                        <li><strong>Metric chính: AUC-PR</strong> thay vì accuracy (AUC-PR nhạy với imbalance hơn)</li>
+                        <li><strong>Threshold tuning:</strong> Tối ưu threshold dựa trên F1 score hoặc business metric</li>
+                        <li><strong>KHÔNG dùng random oversampling:</strong> Dễ overfit, chỉ dùng SMOTE nếu cần thiết</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Feature Analysis -->
+            <div class="section">
+                <h2>📊 Phân Tích Features</h2>
+                
+                <h3>1. Phân Bố Độ Dài Review</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="number">36.7</span>
+                        <span class="label">Mean Từ</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">84.9</span>
+                        <span class="label">Std Từ</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">1</span>
+                        <span class="label">Min Từ</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">5,373</span>
+                        <span class="label">Max Từ</span>
+                    </div>
+                </div>
+                
+                <h3>Độ Dài Review Theo Helpfulness</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Mean Length</th>
+                            <th>Std</th>
+                            <th>Min</th>
+                            <th>Max</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Helpful (1)</strong></td>
+                            <td class="highlight-positive">97.7 từ</td>
+                            <td>160.5</td>
+                            <td>1</td>
+                            <td>5,373</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Not Helpful (0)</strong></td>
+                            <td class="highlight-negative">23.9 từ</td>
+                            <td>48.4</td>
+                            <td>1</td>
+                            <td>2,935</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" style="text-align: center; background: #f8f9fa; font-weight: bold;">
+                                Helpful reviews dài gấp <span class="highlight-positive">4.08 lần</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="insight-box">
+                    <h4>💡 Review Length Là Signal Mạnh Nhất</h4>
+                    <p><strong>Phát hiện quan trọng:</strong> Reviews được vote helpful có độ dài trung bình 97.7 từ, gấp 4.08 lần so với not helpful (23.9 từ). Đây là feature đơn giản nhưng cực kỳ hiệu quả cho baseline model.</p>
+                    <p><strong>Giải thích:</strong> Reviews dài thường chứa nhiều chi tiết hơn (pros/cons, use cases, comparisons) nên hữu ích hơn với người đọc. Reviews ngắn thường chỉ là "Great!" hoặc "Bad product".</p>
+                </div>
+                
+                <h3>2. Phân Bố Star Rating</h3>
+                <div class="chart-container">
+                    <h4>Số Lượng Reviews Theo Star Rating</h4>
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 15%;">
+                            <div class="bar-label">3,824</div>
+                            <div class="bar-value">1 Sao</div>
+                        </div>
+                        <div class="bar" style="height: 10%;">
+                            <div class="bar-label">2,156</div>
+                            <div class="bar-value">2 Sao</div>
+                        </div>
+                        <div class="bar" style="height: 17%;">
+                            <div class="bar-label">4,892</div>
+                            <div class="bar-value">3 Sao</div>
+                        </div>
+                        <div class="bar" style="height: 25%;">
+                            <div class="bar-label">9,103</div>
+                            <div class="bar-value">4 Sao</div>
+                        </div>
+                        <div class="bar" style="height: 65%;">
+                            <div class="bar-label">30,016</div>
+                            <div class="bar-value">5 Sao</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>Star Rating Theo Helpfulness</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Mean Rating</th>
+                            <th>Std</th>
+                            <th>Đặc Điểm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Helpful (1)</strong></td>
+                            <td class="highlight-negative">3.82 sao</td>
+                            <td>1.39</td>
+                            <td>Có cả positive & negative reviews</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Not Helpful (0)</strong></td>
+                            <td class="highlight-positive">4.38 sao</td>
+                            <td>1.19</td>
+                            <td>Thiên về 5 sao (positive bias)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="insight-box">
+                    <h4>💡 Lower Rating Reviews Có Xu Hướng Hữu Ích Hơn</h4>
+                    <p><strong>Nghịch lý thú vị:</strong> Reviews được vote helpful có mean rating THẤP HƠN (3.82 vs 4.38 sao). Tại sao?</p>
+                    <p><strong>Giả thuyết:</strong> Người dùng thường vote helpful cho critical reviews (1-3 sao) vì chúng cảnh báo về vấn đề sản phẩm. Reviews 5 sao ngắn gọn "Love it!" ít helpful vì thiếu chi tiết.</p>
+                    <p><strong>Ý nghĩa:</strong> star_rating là feature quan trọng, nhưng mối tương quan NGƯỢC với helpfulness (lower rating → higher helpfulness probability).</p>
+                </div>
+                
+                <h3>3. Phân Tích Sentiment VADER</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Mean</th>
+                            <th>Std</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Compound</strong></td>
+                            <td>0.498</td>
+                            <td>0.493</td>
+                            <td>Tổng thể tích cực (range: -1 to +1)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Positive</strong></td>
+                            <td>0.408</td>
+                            <td>0.289</td>
+                            <td>40.8% content có positive sentiment</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Negative</strong></td>
+                            <td>0.046</td>
+                            <td>0.093</td>
+                            <td>Chỉ 4.6% content có negative sentiment</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Neutral</strong></td>
+                            <td>0.547</td>
+                            <td>0.310</td>
+                            <td>54.7% content neutral (factual descriptions)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="insight-box">
+                    <h4>💡 Sentiment Phân Bố Hợp Lý</h4>
+                    <p><strong>Positive bias nhẹ:</strong> Mean compound = 0.498 (>0) cho thấy reviews có xu hướng tích cực, phù hợp với sản phẩm Movies & TV (entertainment).</p>
+                    <p><strong>Neutral chiếm ưu thế:</strong> 54.7% content là neutral, chứng tỏ VADER hoạt động tốt - không over-detect sentiment ở text mô tả khách quan.</p>
+                    <p><strong>Feature value:</strong> Sentiment scores bổ sung thông tin ngoài star_rating. Ví dụ: Review 1 sao có thể có neutral sentiment nếu chỉ mô tả lỗi kỹ thuật (không cảm xúc).</p>
+                </div>
+            </div>
+            
+            <!-- Text Preprocessing -->
+            <div class="section">
+                <h2>🔤 Pipeline Tiền Xử Lý Text</h2>
+                <h3>Hàm clean_text_udf()</h3>
+                <div class="code-block">
+def clean_text_udf():
+    """
+    Spark UDF để làm sạch text:
+    1. Chuyển thành chữ thường
+    2. Xóa HTML tags (<.*?>)
+    3. Xóa URLs (http[s]?://...)
+    4. Xóa địa chỉ email (\\S+@\\S+)
+    5. Thay thế contractions (don't → don t)
+    6. Loại bỏ khoảng trắng thừa
+    7. Xóa khoảng trắng đầu/cuối
+    """
+    @udf(returnType=StringType())
+    def clean(text):
+        if not text:
+            return ""
+        text = text.lower()
+        text = re.sub(r'<.*?>', ' ', text)
+        text = re.sub(r'http[s]?://\S+', ' ', text)
+        text = re.sub(r'\S+@\S+', ' ', text)
+        text = re.sub(r'[^a-z0-9\s]', ' ', text)
+        text = re.sub(r'\s+', ' ', text)
+        return text.strip()
+    return clean
+                </div>
+                
+                <h3>Ví Dụ Chuyển Đổi</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Text Gốc</th>
+                            <th>Text Đã Làm Sạch</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>I LOVE this product!!! 😍</td>
+                            <td>i love this product</td>
+                        </tr>
+                        <tr>
+                            <td>Check out: http://example.com</td>
+                            <td>check out</td>
+                        </tr>
+                        <tr>
+                            <td>Contact: support@company.com</td>
+                            <td>contact</td>
+                        </tr>
+                        <tr>
+                            <td>&lt;b&gt;Great!&lt;/b&gt; Don't miss it.</td>
+                            <td>great don t miss it</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Các Giai Đoạn Spark ML Pipeline</h3>
+                <div class="code-block">
+stages = [
+    # Giai đoạn 1: Làm sạch text
+    SQLTransformer(
+        statement="SELECT *, clean_text_udf(review_text) AS clean_text FROM __THIS__"
+    ),
+    
+    # Giai đoạn 2: Tokenize (tách thành từ)
+    Tokenizer(inputCol="clean_text", outputCol="tokens"),
+    
+    # Giai đoạn 3: Xóa stopwords (the, is, and, v.v.)
+    StopWordsRemover(inputCol="tokens", outputCol="filtered_tokens")
+]
+                </div>
+            </div>
+            
+            <!-- Technical Stack -->
+            <div class="section">
+                <h2>🛠️ Technical Stack & Performance</h2>
+                <h3>Hạ Tầng</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Version/Config</th>
+                            <th>Mô Tả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Apache Spark</strong></td>
+                            <td>3.5.7</td>
+                            <td>Distributed data processing engine</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HDFS</strong></td>
+                            <td>localhost:9000</td>
+                            <td>Distributed file system, replication=3</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Python</strong></td>
+                            <td>3.11</td>
+                            <td>Via py launcher (Windows)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Driver Memory</strong></td>
+                            <td>6 GB</td>
+                            <td>Spark driver process</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Executor Memory</strong></td>
+                            <td>4 GB</td>
+                            <td>Spark worker processes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cores</strong></td>
+                            <td>local[4]</td>
+                            <td>4 parallel tasks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Thư Viện & Dependencies</h3>
+                <div class="code-block">
+# Thư Viện Python
+pyspark==3.5.7           # Xử lý dữ liệu phân tán
+vaderSentiment==3.3.2    # Phân tích sentiment
+scikit-learn             # ML models (dự kiến Ngày 3)
+lightgbm                 # Gradient boosting (dự kiến Ngày 5)
+optuna                   # Hyperparameter tuning (dự kiến Ngày 6)
+                </div>
+                
+                <h3>Performance ETL Pipeline</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="number">~1 giờ</span>
+                        <span class="label">ETL Time (17.3M)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">9.4 GB</span>
+                        <span class="label">Parquet Output</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">27</span>
+                        <span class="label">Partitions (năm)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">Snappy</span>
+                        <span class="label">Compression</span>
+                    </div>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>💡 Ghi Chú Tối Ưu Performance</h4>
+                    <ul style="margin-left: 20px; color: #856404;">
+                        <li><strong>Partitioning theo year/month:</strong> Tăng tốc queries có filter temporal</li>
+                        <li><strong>Snappy compression:</strong> Balance giữa compression ratio và tốc độ decompression</li>
+                        <li><strong>Metadata integration:</strong> Manual JSON parsing tránh nested struct errors (748K products)</li>
+                        <li><strong>Left join:</strong> Bảo toàn tất cả 17.3M reviews, null-safe cho products không có metadata</li>
+                        <li><strong>VADER trên driver:</strong> Broadcast lexicon để tránh serialization overhead</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Next Steps -->
+            <div class="section">
+                <h2>🚀 Các Bước Tiếp Theo - Ngày 2</h2>
+                <div class="recommendation-box">
+                    <h4>📋 Công Việc Tuấn - Hạ Tầng</h4>
+                    <ul>
+                        <li>Tích hợp text preprocessing vào ETL pipeline (clean_text column)</li>
+                        <li>Thêm sentiment scores (compound, pos, neg, neu) vào Parquet</li>
+                        <li>Tạo metadata features: review_length_log, is_long_review, rating_deviation</li>
+                        <li>Lưu Features V1 dataset vào HDFS</li>
+                        <li>Test train/test split với stratification</li>
+                    </ul>
+                </div>
+                
+                <div class="recommendation-box" style="background: #cce5ff; border-color: #004085;">
+                    <h4 style="color: #004085;">🔬 Công Việc Thanh - Khoa Học Dữ Liệu</h4>
+                    <ul style="color: #004085;">
+                        <li>Test TF-IDF pipeline với Spark ML (HashingTF + IDF)</li>
+                        <li>Thử nghiệm với numFeatures khác nhau (5K, 10K, 20K)</li>
+                        <li>Phân tích token distribution theo class</li>
+                        <li>Kết hợp TF-IDF + metadata features với VectorAssembler</li>
+                        <li>Chuẩn bị cho baseline Logistic Regression (Ngày 3)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Key Takeaways -->
+            <div class="section">
+                <h2>📌 Điểm Nhấn Quan Trọng</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="number">✅</span>
+                        <span class="label">HDFS Sẵn Sàng</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">✅</span>
+                        <span class="label">ETL Pipeline</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">✅</span>
+                        <span class="label">Metadata Integrated</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">✅</span>
+                        <span class="label">EDA Hoàn Thành</span>
+                    </div>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>💡 Những Phát Hiện Quan Trọng Nhất</h4>
+                    <p><strong>1. Review length là signal mạnh nhất:</strong> Helpful reviews dài gấp 4.08 lần (97.7 vs 23.9 từ).</p>
+                    <p><strong>2. Lower rating reviews helpful hơn:</strong> Mean rating 3.82 vs 4.38 - nghịch lý thú vị!</p>
+                    <p><strong>3. Class imbalance 3:1:</strong> Vừa phải, có thể xử lý bằng class_weight mà không cần SMOTE.</p>
+                    <p><strong>4. Sentiment bổ sung thông tin:</strong> VADER compound = 0.498 capture emotional tone riêng biệt với rating.</p>
+                    <p><strong>5. Metadata integration thành công:</strong> 748K products với brand/category/price sẵn sàng cho feature engineering.</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p><strong>Dự Án Dự Đoán Tính Hữu Ích Reviews Amazon</strong></p>
+            <p>GitHub Repository: <a href="https://github.com/htuan154/AmazonReviewInsight" target="_blank">github.com/htuan154/AmazonReviewInsight</a></p>
+            <p style="margin-top: 10px; opacity: 0.8;">Ngày 1 Hoàn Thành: 26/10/2025</p>
+        </footer>
+    </div>
+</body>
+</html>

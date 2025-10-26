@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Ngày 3 - Train Baseline Logistic Regression</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .metric-card h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .metric-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .metric-card .change {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .checkmark {
+            color: #38ef7d;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .warning {
+            color: #f5576c;
+            font-weight: bold;
+        }
+        
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #764ba2;
+        }
+        
+        .code-block {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .improvement {
+            color: #38ef7d;
+            font-weight: bold;
+        }
+        
+        .degradation {
+            color: #f5576c;
+            font-weight: bold;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 BÁO CÁO NGÀY 3</h1>
+        <div class="subtitle">
+            <strong>Train Baseline Logistic Regression Model</strong><br>
+            Dự án: Amazon Review Helpfulness Prediction | Nhóm HK7<br>
+            Ngày: 26/10/2025 | Thành viên: Tuấn (Infrastructure) & Thanh (Data Science)
+        </div>
+
+        <div class="highlight-box">
+            <h2 style="color: white; border: none; margin-top: 0;">🎯 MỤC TIÊU NGÀY 3</h2>
+            <ul style="font-size: 1.1em;">
+                <li><strong>Thiết lập baseline benchmark:</strong> Train dummy classifiers để xác định ngưỡng tối thiểu</li>
+                <li><strong>Train Logistic Regression baseline:</strong> Model đơn giản với TF-IDF + metadata</li>
+                <li><strong>Đánh giá hiệu suất:</strong> So sánh với baseline, xác định cải tiến cần thiết</li>
+                <li><strong>Target: AUC-PR > 0.25</strong> (cao hơn baseline dummy)</li>
+            </ul>
+        </div>
+
+        <h2>📈 KẾT QUẢ CHÍNH</h2>
+        
+        <div class="metric-grid">
+            <div class="metric-card">
+                <h3>AUC-PR Score</h3>
+                <div class="value">0.4353</div>
+                <div class="change"><span class="checkmark">✓</span> +73.3% vs baseline</div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>AUC-ROC Score</h3>
+                <div class="value">0.5967</div>
+                <div class="change">Tốt hơn random (0.5)</div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>Accuracy</h3>
+                <div class="value">70.12%</div>
+                <div class="change">Trade-off cho class balance</div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>Training Samples</h3>
+                <div class="value">80,500</div>
+                <div class="change">24.80% positive class</div>
+            </div>
+        </div>
+
+        <div class="success-box">
+            <h3 style="color: white; margin-top: 0;">🎉 THÀNH CÔNG: Vượt Mục Tiêu Ngày 3</h3>
+            <p style="font-size: 1.1em; margin-top: 10px;">
+                <strong>AUC-PR = 0.4353 >> 0.2511 (baseline dummy)</strong><br>
+                Model đã học được pattern từ text và features, không còn predict random!
+            </p>
+        </div>
+
+        <h2>🔍 SO SÁNH VỚI BASELINE</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Strategy</th>
+                    <th>AUC-PR</th>
+                    <th>AUC-ROC</th>
+                    <th>Accuracy</th>
+                    <th>Cải thiện</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Baseline Dummy</strong></td>
+                    <td>Most Frequent (predict all negative)</td>
+                    <td>0.2511</td>
+                    <td>-</td>
+                    <td>74.89%</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>Baseline Dummy</strong></td>
+                    <td>Random Stratified (prob = 0.248)</td>
+                    <td>0.2511</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>Baseline Dummy</strong></td>
+                    <td>Uniform Random (prob = 0.5)</td>
+                    <td>0.2511</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr style="background-color: #e8f5e9;">
+                    <td><strong>Logistic Regression</strong></td>
+                    <td>TF-IDF + metadata features</td>
+                    <td><strong>0.4353</strong></td>
+                    <td><strong>0.5967</strong></td>
+                    <td>70.12%</td>
+                    <td><span class="improvement">+73.3%</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>⚙️ PIPELINE & FEATURES</h2>
+        
+        <h3>1. Dữ Liệu Training</h3>
+        <ul>
+            <li><strong>Train set:</strong> 80,500 records (80.2%)</li>
+            <li><strong>Test set:</strong> 19,863 records (19.8%)</li>
+            <li><strong>Class distribution:</strong>
+                <ul>
+                    <li>Positive (helpful=1): 19,963 samples (24.80%)</li>
+                    <li>Negative (helpful=0): 60,537 samples (75.20%)</li>
+                    <li>Imbalance ratio: 3.03:1</li>
+                </ul>
+            </li>
+            <li><strong>Class weighting:</strong> pos_weight = 3.032 (để balance loss)</li>
+        </ul>
+
+        <h3>2. Feature Engineering</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature Type</th>
+                    <th>Features</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Text Features</strong></td>
+                    <td>TF-IDF</td>
+                    <td>
+                        • numFeatures: 20,000<br>
+                        • minDocFreq: 5<br>
+                        • Source: clean_text (preprocessed)
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Metadata Features</strong></td>
+                    <td>star_rating</td>
+                    <td>
+                        • Range: 1-5 stars<br>
+                        • Important signal for helpfulness
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Engineered Features</strong></td>
+                    <td>review_length</td>
+                    <td>
+                        • Log-transformed token count<br>
+                        • Helpful reviews 4.1x longer
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3. Model Configuration</h3>
+        <div class="code-block">
+LogisticRegression(
+    maxIter=80,
+    regParam=0.0,           # No regularization
+    elasticNetParam=0.0,    # Pure L2 if regularized
+    weightCol='weight',     # Class balancing
+    family='binomial'
+)
+
+Pipeline:
+  1. HashingTF (20K features, minDocFreq=5)
+  2. IDF (inverse document frequency)
+  3. VectorAssembler (tfidf + star_rating + review_length)
+  4. LogisticRegression (with class weights)
+        </div>
+
+        <h2>📊 PHÂN TÍCH KẾT QUẢ</h2>
+        
+        <h3>✅ Điểm Mạnh</h3>
+        <div class="success-box">
+            <ol>
+                <li><strong>AUC-PR tăng 73.3%:</strong> Từ 0.2511 → 0.4353
+                    <ul>
+                        <li>Chứng tỏ model thật sự học được pattern, không random</li>
+                        <li>TF-IDF đã capture được từ vựng quan trọng</li>
+                        <li>Metadata features (star_rating, review_length) có tác động</li>
+                    </ul>
+                </li>
+                <li><strong>AUC-ROC = 0.5967:</strong> Tốt hơn random guess (0.5)
+                    <ul>
+                        <li>Model có khả năng phân biệt positive/negative</li>
+                        <li>Trade-off precision/recall được cải thiện</li>
+                    </ul>
+                </li>
+                <li><strong>Class balancing hiệu quả:</strong>
+                    <ul>
+                        <li>Pos_weight = 3.032 giúp model không ignore minority class</li>
+                        <li>Không còn predict toàn negative như dummy baseline</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>⚠️ Hạn Chế & Cơ Hội Cải Tiến</h3>
+        <div class="warning-box">
+            <ol>
+                <li><strong>Accuracy giảm 6.4%:</strong> Từ 74.89% → 70.12%
+                    <ul>
+                        <li><strong>Đây là điều TỐT:</strong> Trade-off cho class balance</li>
+                        <li>Dummy baseline đạt 74.89% vì predict all negative (cheat!)</li>
+                        <li>LogReg đạt 70.12% vì cố gắng predict cả 2 classes</li>
+                    </ul>
+                </li>
+                <li><strong>AUC-PR còn thấp (0.4353):</strong>
+                    <ul>
+                        <li>Target lý tưởng: AUC-PR > 0.60</li>
+                        <li>Cần thêm features: sentiment, brand, category</li>
+                        <li>Cần thử models phức tạp hơn: LightGBM, XGBoost</li>
+                    </ul>
+                </li>
+                <li><strong>TF-IDF limitations:</strong>
+                    <ul>
+                        <li>Không capture context (word order, semantics)</li>
+                        <li>99.86% sparsity → nhiều noise</li>
+                        <li>Nên thử: embeddings, N-grams</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h2>🔬 TECHNICAL INSIGHTS</h2>
+        
+        <h3>1. Tại Sao Accuracy Giảm Lại Tốt?</h3>
+        <p>
+            Trong <strong>imbalanced dataset</strong> (75% negative, 25% positive), accuracy là metric <strong>misleading</strong>:
+        </p>
+        <ul>
+            <li><strong>Dummy baseline:</strong> Predict all negative → 74.89% accuracy (nhưng AUC-PR = 0.2511)</li>
+            <li><strong>Logistic Regression:</strong> Predict cả 2 classes → 70.12% accuracy (nhưng AUC-PR = 0.4353)</li>
+            <li><strong>Kết luận:</strong> AUC-PR là metric chính xác hơn cho imbalanced data!</li>
+        </ul>
+
+        <h3>2. Class Weighting Strategy</h3>
+        <p>
+            Pos_weight = 3.032 nghĩa là mỗi positive sample được nhân weight 3.032 trong loss function:
+        </p>
+        <div class="code-block">
+Loss = -[w_1 * y * log(p) + w_0 * (1-y) * log(1-p)]
+
+Where:
+  w_1 = 3.032 (positive class weight)
+  w_0 = 1.0 (negative class weight)
+  
+Effect:
+  - Model penalized 3x more for misclassifying positive samples
+  - Encourages model to learn positive patterns better
+        </div>
+
+        <h3>3. Sample Size Effect</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Train Size</th>
+                    <th>Positive %</th>
+                    <th>AUC-PR</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>10,000</td>
+                    <td>12.54%</td>
+                    <td>0.2019</td>
+                    <td><span class="warning">Sample bias - thấp hơn baseline!</span></td>
+                </tr>
+                <tr style="background-color: #e8f5e9;">
+                    <td><strong>80,500</strong></td>
+                    <td><strong>24.80%</strong></td>
+                    <td><strong>0.4353</strong></td>
+                    <td><span class="checkmark">✓</span> <strong>Full data - kết quả tốt</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <strong>Lesson learned:</strong> Sample nhỏ (10K) không đại diện cho distribution của full dataset → kết quả không đáng tin cậy!
+        </p>
+
+        <h2>📋 CÔNG VIỆC ĐÃ HOÀN THÀNH</h2>
+        
+        <h3>1. Infrastructure (Tuấn)</h3>
+        <ul>
+            <li><span class="checkmark">✓</span> Refactor <code>train_spark_logreg.py</code> để sử dụng pre-split data</li>
+            <li><span class="checkmark">✓</span> Implement baseline dummy classifiers (3 strategies)</li>
+            <li><span class="checkmark">✓</span> Setup train/test split với stratification (80/20)</li>
+            <li><span class="checkmark">✓</span> Configure Spark với 6GB driver, 4GB executor memory</li>
+        </ul>
+
+        <h3>2. Data Science (Thanh)</h3>
+        <ul>
+            <li><span class="checkmark">✓</span> Thiết kế TF-IDF pipeline (20K features, minDF=5)</li>
+            <li><span class="checkmark">✓</span> Implement class balancing với pos_weight</li>
+            <li><span class="checkmark">✓</span> Feature engineering: TF-IDF + star_rating + review_length</li>
+            <li><span class="checkmark">✓</span> Evaluation metrics: AUC-PR, AUC-ROC, Accuracy</li>
+        </ul>
+
+        <h3>3. Documentation</h3>
+        <ul>
+            <li><span class="checkmark">✓</span> File inventory audit (12 files, no redundancy)</li>
+            <li><span class="checkmark">✓</span> <code>file_inventory.md</code>: Complete project documentation</li>
+            <li><span class="checkmark">✓</span> Baseline benchmark results: <code>baseline_dummy.json</code></li>
+            <li><span class="checkmark">✓</span> Model artifacts saved: <code>logreg_baseline_full/</code></li>
+        </ul>
+
+        <h2>🚀 KẾ HOẠCH NGÀY 4</h2>
+        
+        <div class="highlight-box">
+            <h3 style="color: white; margin-top: 0;">Mục Tiêu: Features V2 + Model Improvements</h3>
+            <ol style="font-size: 1.05em;">
+                <li><strong>Feature Engineering V2:</strong>
+                    <ul>
+                        <li>Thêm sentiment features: compound, positive, negative, neutral scores</li>
+                        <li>Thêm metadata: brand, category, product_avg_rating, product_total_ratings</li>
+                        <li>Thêm interaction features: rating_deviation, is_long_review</li>
+                        <li>Target: 25+ features (hiện tại: TF-IDF + 2 metadata)</li>
+                    </ul>
+                </li>
+                <li><strong>Model Experimentation:</strong>
+                    <ul>
+                        <li>Hyperparameter tuning: regParam, elasticNetParam, maxIter</li>
+                        <li>Try different numFeatures: 10K, 20K, 50K</li>
+                        <li>Experiment with N-grams (unigram + bigram)</li>
+                        <li>Target: AUC-PR > 0.50</li>
+                    </ul>
+                </li>
+                <li><strong>Evaluation Framework:</strong>
+                    <ul>
+                        <li>Implement PR curve visualization</li>
+                        <li>Feature importance analysis</li>
+                        <li>Confusion matrix & classification report</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>Expected Metrics (Day 4 Target)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Features</th>
+                    <th>AUC-PR Target</th>
+                    <th>AUC-ROC Target</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="opacity: 0.5;">
+                    <td>Day 3 Baseline</td>
+                    <td>TF-IDF + 2 metadata</td>
+                    <td>0.4353</td>
+                    <td>0.5967</td>
+                </tr>
+                <tr style="background-color: #fff3e0;">
+                    <td><strong>Day 4 Target</strong></td>
+                    <td>TF-IDF + sentiment + 6 metadata + interactions</td>
+                    <td><strong>> 0.50</strong></td>
+                    <td><strong>> 0.65</strong></td>
+                </tr>
+                <tr style="background-color: #e3f2fd;">
+                    <td>Day 5 Target (LightGBM)</td>
+                    <td>All features + tuning</td>
+                    <td>> 0.60</td>
+                    <td>> 0.75</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>📁 OUTPUT FILES</h2>
+        
+        <ul>
+            <li><strong>Model artifacts:</strong> <code>output/logreg_baseline_full/</code>
+                <ul>
+                    <li><code>metadata/</code> - Pipeline metadata</li>
+                    <li><code>stages/</code> - HashingTF, IDF, VectorAssembler, LogReg stages</li>
+                    <li><code>metrics.json/</code> - Model evaluation results</li>
+                </ul>
+            </li>
+            <li><strong>Baseline benchmark:</strong> <code>output/baseline_dummy.json</code></li>
+            <li><strong>Train/test data:</strong>
+                <ul>
+                    <li><code>hdfs://localhost:9000/datasets/amazon/movies/parquet/train/</code></li>
+                    <li><code>hdfs://localhost:9000/datasets/amazon/movies/parquet/test/</code></li>
+                </ul>
+            </li>
+            <li><strong>Documentation:</strong> <code>file_inventory.md</code></li>
+        </ul>
+
+        <h2>💡 KEY TAKEAWAYS</h2>
+        
+        <div class="success-box">
+            <ol style="font-size: 1.05em;">
+                <li><strong>Baseline benchmarking is critical:</strong> Dummy classifiers cho biết ngưỡng tối thiểu (0.2511)</li>
+                <li><strong>AUC-PR > Accuracy:</strong> Trong imbalanced data, AUC-PR là metric đáng tin cậy hơn</li>
+                <li><strong>Class weighting works:</strong> Pos_weight = 3.032 giúp model học cả 2 classes</li>
+                <li><strong>Sample size matters:</strong> 10K sample không đại diện → kết quả sai lệch</li>
+                <li><strong>TF-IDF is a good start:</strong> 20K features đủ để beat baseline, nhưng cần thêm features để improve</li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            <p><strong>Amazon Review Helpfulness Prediction</strong></p>
+            <p>Nhóm HK7 | Tuấn (Infrastructure) & Thanh (Data Science)</p>
+            <p>Day 3 Completed: 26/10/2025 23:05</p>
+            <p style="margin-top: 10px;">
+                <strong>Next:</strong> Day 4 - Features V2 & Model Improvements<br>
+                <strong>Goal:</strong> AUC-PR > 0.50 | AUC-ROC > 0.65
+            </p>
+        </div>
+    </div>
+</body>
+</html>

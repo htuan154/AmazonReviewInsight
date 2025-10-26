@@ -4,18 +4,16 @@ data/raw/**
 output/**
 !output/.gitkeep
 
-# (thÆ°á»ng gáº·p)
 data/cache/**
 data/tmp/**
 logs/**
 notebooks/.ipynb_checkpoints/
 
-# MÃ´i trÆ°á»ng & bÃ­ máº­t
 .env
 *.env
 .env.*
 
-# File lá»›n/nhá»‹ phÃ¢n phá»• biáº¿n
+
 *.parquet
 *.feather
 *.h5
@@ -30,12 +28,11 @@ notebooks/.ipynb_checkpoints/
 *.csv.gz
 *.log
 
-# Há»‡ Ä‘iá»u hÃ nh / IDE
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-*.csv        # náº¿u khÃ´ng muá»‘n commit CSV lá»›n
+*.csv        
 *.tsv
 **/output/**
 !**/output/.gitkeep

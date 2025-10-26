@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Ngày 2 - Dự Đoán Tính Hữu Ích Reviews Amazon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .meta-info {
+            display: flex;
+            justify-content: space-around;
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .meta-item {
+            text-align: center;
+        }
+        
+        .meta-item strong {
+            display: block;
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .meta-item span {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .team-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .team-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+        
+        .task-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .task-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .task-list li::before {
+            content: "+ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card .number {
+            font-size: 3em;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .insight-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .insight-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .insight-box p {
+            color: #856404;
+            line-height: 1.8;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .formula {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        table thead {
+            background: #667eea;
+            color: white;
+        }
+        
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table tbody tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .comparison-table {
+            margin: 20px 0;
+        }
+        
+        .comparison-table th {
+            background: #764ba2;
+        }
+        
+        .highlight-positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .highlight-negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .bar {
+            width: 60px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .bar:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .bar-label {
+            position: absolute;
+            top: -25px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .bar-value {
+            position: absolute;
+            bottom: -30px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .recommendation-box {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .recommendation-box h4 {
+            color: #155724;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .recommendation-box ul {
+            margin-left: 20px;
+            color: #155724;
+        }
+        
+        .recommendation-box li {
+            margin-bottom: 8px;
+        }
+        
+        footer {
+            background: #343a40;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .badge-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Báo Cáo Ngày 2</h1>
+            <p>Dự Án: Dự Đoán Tính Hữu Ích Reviews Amazon</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Feature Engineering & Text Vectorization</p>
+        </header>
+        
+        <div class="meta-info">
+            <div class="meta-item">
+                <strong>Ngày 2</strong>
+                <span>26/10/2025</span>
+            </div>
+            <div class="meta-item">
+                <strong>100,363</strong>
+                <span>Records (Sample)</span>
+            </div>
+            <div class="meta-item">
+                <strong>25 cột</strong>
+                <span>Features V1</span>
+            </div>
+            <div class="meta-item">
+                <strong>99.86%</strong>
+                <span>TF-IDF Sparsity</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Tổng Quan -->
+            <div class="section">
+                <h2>📋 Tổng Quan Ngày 2</h2>
+                <p style="font-size: 1.1em; line-height: 1.8;">
+                    <strong>Mục tiêu chính:</strong> Xây dựng pipeline feature engineering hoàn chỉnh, tích hợp text preprocessing, sentiment analysis và metadata features vào Parquet format. Sau đó test TF-IDF vectorization để chuẩn bị cho baseline model ở Ngày 3.
+                </p>
+                
+                <div class="team-grid">
+                    <div class="team-card">
+                        <h3>👨‍💻 Tuấn - Infrastructure</h3>
+                        <ul class="task-list">
+                            <li>Tích hợp text preprocessing vào ETL pipeline</li>
+                            <li>Thêm VADER sentiment analysis (compound, pos, neg, neu)</li>
+                            <li>Tạo metadata features (review_length_log, is_long_review, rating_deviation)</li>
+                            <li>Lưu Features V1 vào HDFS (100K sample → 25 cột)</li>
+                            <li>Repartition theo year/month, compression Snappy</li>
+                        </ul>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;">100% Hoàn thành</div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-card">
+                        <h3>👩‍🔬 Thanh - Data Science</h3>
+                        <ul class="task-list">
+                            <li>Test TF-IDF pipeline với Spark ML</li>
+                            <li>Tokenization + StopWords removal</li>
+                            <li>HashingTF với 10,000 features</li>
+                            <li>IDF transformation (minDocFreq=5)</li>
+                            <li>Kết hợp TF-IDF + metadata features</li>
+                            <li>Phân tích token count và vector norm theo class</li>
+                        </ul>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;">100% Hoàn thành</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features V1 Pipeline -->
+            <div class="section">
+                <h2>⚙️ Features V1 Pipeline (Tuấn)</h2>
+                
+                <h3>1. Text Preprocessing</h3>
+                <p><strong>Mục tiêu:</strong> Làm sạch text để cải thiện chất lượng TF-IDF</p>
+                <div class="code-block">
+def preprocess_text_column(df, input_col="review_text", output_col="clean_text"):
+    """
+    Xử lý text với các bước:
+    1. Chuyển thành chữ thường
+    2. Xóa HTML tags
+    3. Xóa URLs và emails
+    4. Chỉ giữ lại chữ cái, số và khoảng trắng
+    5. Loại bỏ khoảng trắng thừa
+    """
+    clean_udf = clean_text_udf()
+    return df.withColumn(output_col, clean_udf(F.col(input_col)))
+                </div>
+                
+                <h3>Ví Dụ Kết Quả</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Review Text Gốc</th>
+                            <th>Clean Text</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Your show is inspiring to me because I want to build gadg...</td>
+                            <td>your show is inspiring to me because i want to build gadg...</td>
+                        </tr>
+                        <tr>
+                            <td>Very pleased !!!</td>
+                            <td>very pleased !!!</td>
+                        </tr>
+                        <tr>
+                            <td>Like many (all?) others, set was missing Treasure of Sier...</td>
+                            <td>like many all? others, set was missing treasure of sierra...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>2. VADER Sentiment Analysis</h3>
+                <p><strong>Tích hợp:</strong> Tính toán 4 sentiment scores cho mỗi review</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="number">0.493</span>
+                        <span class="label">Mean Compound</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">0.330</span>
+                        <span class="label">Mean Positive</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">0.053</span>
+                        <span class="label">Mean Negative</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">0.479</span>
+                        <span class="label">Std Compound</span>
+                    </div>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>💡 Insight: Phân Bố Sentiment</h4>
+                    <p><strong>Tích cực chiếm ưu thế:</strong> Mean compound = 0.493 cho thấy reviews có xu hướng tích cực. Mean positive (0.330) gấp 6.2 lần mean negative (0.053), phù hợp với đặc điểm sản phẩm Movies & TV.</p>
+                    <p><strong>Độ phân tán cao:</strong> Std compound = 0.479 cho thấy có sự đa dạng lớn trong sentiment, từ rất tiêu cực đến rất tích cực.</p>
+                </div>
+                
+                <h3>3. Basic Metadata Features</h3>
+                <p><strong>3 features mới:</strong> Transform metadata để tăng khả năng học của model</p>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Mean</th>
+                            <th>Std</th>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th>Mô Tả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>review_length_log</strong></td>
+                            <td>2.87</td>
+                            <td>1.28</td>
+                            <td>0.69</td>
+                            <td>8.59</td>
+                            <td>Log transform của số từ (giảm skewness)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>is_long_review</strong></td>
+                            <td>0.093</td>
+                            <td>0.291</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>Binary: 1 nếu review_length > 100 từ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>rating_deviation</strong></td>
+                            <td>1.66</td>
+                            <td>0.61</td>
+                            <td>0.0</td>
+                            <td>2.0</td>
+                            <td>Abs(star_rating - product_avg_rating_meta)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="insight-box">
+                    <h4>💡 Tại Sao Log Transform?</h4>
+                    <p><strong>Review length có phân bố skewed:</strong> Mean = 42 từ nhưng max = 5,373 từ. Log transform giúp:</p>
+                    <ul style="margin-left: 20px; color: #856404;">
+                        <li>Giảm ảnh hưởng của outliers (reviews cực dài)</li>
+                        <li>Chuyển phân bố về gần normal distribution</li>
+                        <li>Model học tốt hơn với scale đồng đều</li>
+                    </ul>
+                </div>
+                
+                <h3>4. Output Schema (25 cột)</h3>
+                <div class="code-block">
+root
+ |-- product_id: string
+ |-- review_id: string
+ |-- review_text: string
+ |-- star_rating: double
+ |-- helpful_votes: long
+ |-- user_id: string
+ |-- ts: timestamp
+ 
+ // Metadata từ Day 1
+ |-- product_title: string
+ |-- brand: string
+ |-- category: string
+ |-- price: double
+ |-- product_avg_rating_meta: double
+ |-- product_total_ratings: integer
+ 
+ // Original features
+ |-- review_length: integer
+ |-- is_helpful: integer (TARGET)
+ |-- year: integer
+ |-- month: integer
+ 
+ // NEW Day 2 Features
+ |-- clean_text: string                  // Text đã làm sạch
+ |-- sentiment_compound: double          // VADER compound score
+ |-- sentiment_pos: double               // VADER positive score
+ |-- sentiment_neg: double               // VADER negative score
+ |-- sentiment_neu: double               // VADER neutral score
+ |-- review_length_log: double           // Log(review_length)
+ |-- is_long_review: integer             // Binary: length > 100
+ |-- rating_deviation: double            // Abs deviation từ avg rating
+                </div>
+            </div>
+            
+            <!-- TF-IDF Testing -->
+            <div class="section">
+                <h2>📊 TF-IDF Testing (Thanh)</h2>
+                
+                <h3>Pipeline Architecture</h3>
+                <div class="code-block">
+pipeline = Pipeline(stages=[
+    # Stage 1: Tokenization
+    Tokenizer(inputCol="clean_text", outputCol="tokens"),
+    
+    # Stage 2: Remove stopwords
+    StopWordsRemover(inputCol="tokens", outputCol="filtered_tokens"),
+    
+    # Stage 3: Hashing TF
+    HashingTF(inputCol="filtered_tokens", outputCol="tf", numFeatures=10000),
+    
+    # Stage 4: IDF
+    IDF(inputCol="tf", outputCol="tfidf", minDocFreq=5),
+    
+    # Stage 5: Combine với metadata
+    VectorAssembler(
+        inputCols=["tfidf", "star_rating", "review_length", "sentiment_compound"],
+        outputCol="features"
+    )
+])
+                </div>
+                
+                <h3>Kết Quả Chính</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="number">10,003</span>
+                        <span class="label">Feature Vector Size</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">14</span>
+                        <span class="label">Non-zero Elements (avg)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">99.86%</span>
+                        <span class="label">Sparsity</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">50,000</span>
+                        <span class="label">Sample Size</span>
+                    </div>
+                </div>
+                
+                <h3>Phân Tích Token Count Theo Class</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Avg Tokens</th>
+                            <th>Std Tokens</th>
+                            <th>Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Helpful (1)</strong></td>
+                            <td class="highlight-positive">53.35</td>
+                            <td>86.68</td>
+                            <td rowspan="2" style="vertical-align: middle; font-size: 1.5em; color: #667eea;">4.10x</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Not Helpful (0)</strong></td>
+                            <td class="highlight-negative">13.00</td>
+                            <td>24.38</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="insight-box">
+                    <h4>💡 Quan Sát Quan Trọng</h4>
+                    <p><strong>Helpful reviews dài hơn 4.1 lần:</strong> Reviews được vote helpful có trung bình 53.35 tokens sau khi loại stopwords, trong khi not helpful chỉ có 13 tokens. Đây là signal mạnh cho model!</p>
+                    <p><strong>Độ phân tán cao ở Helpful class:</strong> Std = 86.68 cho thấy helpful reviews có độ dài rất đa dạng (từ ngắn gọn đến rất chi tiết).</p>
+                </div>
+                
+                <h3>Phân Tích TF-IDF Vector Norm</h3>
+                <div class="chart-container">
+                    <h4>TF-IDF Vector Norm Theo Helpfulness</h4>
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 80%;">
+                            <div class="bar-label">35.95</div>
+                            <div class="bar-value">Helpful</div>
+                        </div>
+                        <div class="bar" style="height: 34%;">
+                            <div class="bar-label">15.22</div>
+                            <div class="bar-value">Not Helpful</div>
+                        </div>
+                    </div>
+                    <p style="margin-top: 40px; color: #666;">
+                        <strong>Norm ratio: 2.36x</strong> - Helpful reviews có vector norm cao hơn đáng kể, 
+                        chứng tỏ chúng chứa nhiều thông tin hơn (more informative content).
+                    </p>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Avg Norm</th>
+                            <th>Std Norm</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Helpful (1)</strong></td>
+                            <td class="highlight-positive">35.95</td>
+                            <td>32.95</td>
+                            <td>High information density</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Not Helpful (0)</strong></td>
+                            <td class="highlight-negative">15.22</td>
+                            <td>12.57</td>
+                            <td>Low information density</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Technical Performance -->
+            <div class="section">
+                <h2>⚡ Performance Metrics</h2>
+                
+                <h3>Pipeline Execution Time</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stage</th>
+                            <th>Time</th>
+                            <th>Records</th>
+                            <th>Output</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Features V1 Generation</strong></td>
+                            <td>~3 phút</td>
+                            <td>100,000 (sample)</td>
+                            <td>25 cột features</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TF-IDF Pipeline Fit</strong></td>
+                            <td>~1 phút</td>
+                            <td>50,000 (sample)</td>
+                            <td>10,003 dims vector</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transform</strong></td>
+                            <td>~30 giây</td>
+                            <td>50,000</td>
+                            <td>Combined features</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Resource Usage</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="number">6 GB</span>
+                        <span class="label">Driver Memory (Tuan)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">4 GB</span>
+                        <span class="label">Executor Memory (Tuan)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">4 GB</span>
+                        <span class="label">Driver Memory (Thanh)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">8</span>
+                        <span class="label">Partitions</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Key Findings -->
+            <div class="section">
+                <h2>🔍 Phát Hiện Quan Trọng</h2>
+                
+                <div class="recommendation-box">
+                    <h4>✅ Features Có Phân Biệt Tốt</h4>
+                    <ul>
+                        <li><strong>Token count:</strong> Helpful 4.1x dài hơn Not Helpful (53 vs 13 tokens)</li>
+                        <li><strong>TF-IDF norm:</strong> Helpful 2.4x cao hơn (35.95 vs 15.22)</li>
+                        <li><strong>Sentiment compound:</strong> Mean = 0.493, có thể phân biệt emotional tone</li>
+                        <li><strong>Review length log:</strong> Giảm được skewness, scale đồng đều cho model</li>
+                    </ul>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>💡 Sparsity 99.86% - Tốt Hay Xấu?</h4>
+                    <p><strong>ĐÂY LÀ BÌN THƯỜNG với TF-IDF:</strong></p>
+                    <ul style="margin-left: 20px; color: #856404;">
+                        <li>Mỗi review chỉ chứa trung bình 14/10,000 features (từ vựng rất đa dạng)</li>
+                        <li>Sparse matrix giúp tiết kiệm memory và tốc độ tính toán</li>
+                        <li>Linear models (LogReg, SVM) xử lý sparse data rất hiệu quả</li>
+                        <li>Gradient boosting models có thể cần feature selection để giảm dims</li>
+                    </ul>
+                </div>
+                
+                <div class="insight-box" style="background: #d1ecf1; border-color: #0c5460;">
+                    <h4 style="color: #0c5460;">🎯 Rating Deviation Feature</h4>
+                    <p style="color: #0c5460;"><strong>Mean = 1.66:</strong> Trung bình người dùng vote rating lệch 1.66 sao so với average rating của sản phẩm. Feature này capture "controversiality" - reviews controversial thường nhận được nhiều attention hơn.</p>
+                </div>
+            </div>
+            
+            <!-- Next Steps -->
+            <div class="section">
+                <h2>🚀 Kế Hoạch Ngày 3</h2>
+                
+                <div class="recommendation-box">
+                    <h4>📋 Công Việc Tuấn - Infrastructure</h4>
+                    <ul>
+                        <li>Chạy Features V1 pipeline trên toàn bộ 17.3M reviews (không sample)</li>
+                        <li>Thực hiện train/test split (80/20) với stratification</li>
+                        <li>Tạo baseline dummy classifier để benchmark (expected AUC-PR ~0.25)</li>
+                        <li>Chuẩn bị artifacts để Thanh train model</li>
+                    </ul>
+                </div>
+                
+                <div class="recommendation-box" style="background: #cce5ff; border-color: #004085;">
+                    <h4 style="color: #004085;">🔬 Công Việc Thanh - Data Science</h4>
+                    <ul style="color: #004085;">
+                        <li>Train baseline Logistic Regression với TF-IDF (1,1-gram)</li>
+                        <li>Kết hợp TF-IDF + sentiment + metadata features</li>
+                        <li>Tính AUC-PR trên test set (target: > 0.40)</li>
+                        <li>Phân tích feature importance</li>
+                        <li>Thử nghiệm class_weight để xử lý imbalance (pos_weight=3.024)</li>
+                    </ul>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>💡 Tại Sao AUC-PR Thay Vì AUC-ROC?</h4>
+                    <p><strong>Imbalanced data (3:1 ratio):</strong> AUC-PR nhạy cảm hơn với positive class performance. Trong bài toán này, chúng ta quan tâm đến việc dự đoán chính xác "helpful reviews" (minority class), không chỉ phân biệt 2 classes.</p>
+                    <p><strong>Baseline expected:</strong> Random classifier sẽ có AUC-PR ≈ 0.25 (tỉ lệ positive class). Model tốt cần đạt > 0.40.</p>
+                </div>
+            </div>
+            
+            <!-- Summary -->
+            <div class="section">
+                <h2>📌 Tổng Kết Ngày 2</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="number">✅</span>
+                        <span class="label">Features V1 Pipeline</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">✅</span>
+                        <span class="label">VADER Integration</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">✅</span>
+                        <span class="label">TF-IDF Testing</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="number">✅</span>
+                        <span class="label">Feature Analysis</span>
+                    </div>
+                </div>
+                
+                <div class="recommendation-box">
+                    <h4>🎉 Thành Tựu Chính</h4>
+                    <ul>
+                        <li><strong>25 features</strong> được tạo ra từ raw data (từ 11 cột ban đầu)</li>
+                        <li><strong>4 sentiment scores</strong> tích hợp thành công với VADER</li>
+                        <li><strong>TF-IDF pipeline</strong> hoạt động tốt với 99.86% sparsity</li>
+                        <li><strong>Strong signal:</strong> Token count và TF-IDF norm phân biệt rõ 2 classes</li>
+                        <li><strong>Scalable:</strong> Pipeline sẵn sàng chạy trên 17.3M reviews</li>
+                    </ul>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>💡 Bài Học Kinh Nghiệm</h4>
+                    <p><strong>1. Log transform là必:</strong> Review length có phân bố rất skewed (max 5,373 từ), log transform giúp model học tốt hơn.</p>
+                    <p><strong>2. Sparse is good:</strong> TF-IDF 99.86% sparsity là bình thường, không phải vấn đề. Linear models xử lý rất hiệu quả.</p>
+                    <p><strong>3. Text length matters:</strong> Helpful reviews dài hơn 4.1x, đây là feature mạnh nhất cho baseline model.</p>
+                    <p><strong>4. Sentiment adds value:</strong> VADER compound score capture emotional tone, bổ sung thông tin ngoài length và rating.</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p><strong>Amazon Review Helpfulness Prediction</strong></p>
+            <p>Project Repository: <a href="https://github.com/htuan154/AmazonReviewInsight" target="_blank">github.com/htuan154/AmazonReviewInsight</a></p>
+            <p style="margin-top: 10px; opacity: 0.8;">Ngày 2 Hoàn Thành: 26/10/2025 | Tiếp theo: Train Baseline Model</p>
+        </footer>
+    </div>
+</body>
+</html>

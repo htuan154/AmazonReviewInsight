@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Day 6 - Ensemble & Feature Engineering V3</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .status-banner {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-bottom: 4px solid #d63031;
+        }
+        
+        .status-banner .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .metric-card.winner {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border: 3px solid #00b894;
+        }
+        
+        .metric-card.failed {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border: 3px solid #e17055;
+        }
+        
+        .metric-card h4 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+        
+        .metric-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .metric-card .label {
+            font-size: 0.9em;
+            color: #636e72;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dfe6e9;
+        }
+        
+        .comparison-table tr:hover {
+            background-color: #f5f7fa;
+        }
+        
+        .comparison-table tr.best {
+            background-color: #d5f4e6;
+            font-weight: bold;
+        }
+        
+        .comparison-table tr.failed {
+            background-color: #fff4e6;
+        }
+        
+        .chart-container {
+            position: relative;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f7fa;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .insight-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-left: 5px solid #f39c12;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .insight-box h4 {
+            color: #d35400;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .insight-box ul {
+            margin-left: 20px;
+        }
+        
+        .insight-box li {
+            margin: 8px 0;
+            color: #2d3436;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-left: 5px solid #00b894;
+        }
+        
+        .success-box h4 {
+            color: #00695c;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .warning-box h4 {
+            color: #c0392b;
+        }
+        
+        .action-plan {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .action-plan h3 {
+            color: #0984e3;
+            margin-bottom: 20px;
+        }
+        
+        .action-item {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 5px solid #0984e3;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .action-item h4 {
+            color: #0984e3;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .badge.success {
+            background: #00b894;
+            color: white;
+        }
+        
+        .badge.failed {
+            background: #e17055;
+            color: white;
+        }
+        
+        .badge.winner {
+            background: #fdcb6e;
+            color: #2d3436;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #dfe6e9;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 1s ease;
+        }
+        
+        .footer {
+            background: #2d3436;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        code {
+            background: #f5f7fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .feature-item h5 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .feature-item p {
+            color: #636e72;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 BÁO CÁO DAY 6</h1>
+            <p>Ensemble Voting & Feature Engineering V3</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Dự Án: Amazon Review Helpfulness Prediction | Nhóm: Lê Đăng Hoàng Tuấn & Võ Thị Diễm Thanh</p>
+            <p style="font-size: 0.9em;">Ngày: 27/10/2025</p>
+        </div>
+        
+        <!-- Status Banner -->
+        <div class="status-banner">
+            <div class="icon">⚠️</div>
+            <div>MỤC TIÊU DAY 6 CHƯA ĐẠT: AUC-PR = 0.6548 (Target: 0.70)</div>
+            <div style="font-size: 0.8em; margin-top: 10px;">Gap: -0.0452 (-6.5%) | Cần Day 7 Recovery Plan</div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            
+            <!-- Section 1: Tổng Quan -->
+            <div class="section">
+                <h2>📋 1. TỔNG QUAN DAY 6</h2>
+                
+                <div class="insight-box">
+                    <h4>🎯 Mục Tiêu Day 6</h4>
+                    <ul>
+                        <li><strong>Target:</strong> AUC-PR ≥ 0.70 (+7% so với Day 5)</li>
+                        <li><strong>Chiến lược:</strong> Feature Engineering V3 + Ensemble Voting</li>
+                        <li><strong>Baseline:</strong> LightGBM V2 = 0.6548 (Day 5)</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>❌ Kết Quả Day 6</h4>
+                    <ul>
+                        <li><strong>Feature V3:</strong> 6 features mới → <span class="badge failed">THẤT BẠI</span> (AUC-PR giảm xuống 0.6531)</li>
+                        <li><strong>Ensemble Voting:</strong> LogReg + LightGBM → <span class="badge failed">THẤT BẠI</span> (AUC-PR giảm xuống 0.6371)</li>
+                        <li><strong>Final Model:</strong> Giữ LightGBM V2 (0.6548) <span class="badge winner">TỐT NHẤT</span></li>
+                        <li><strong>Gap với Target:</strong> -0.0452 (-6.5%)</li>
+                    </ul>
+                </div>
+                
+                <h3>🔄 Quy Trình Thực Hiện</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 75%;">75% Hoàn Thành</div>
+                </div>
+                <p style="margin-top: 10px; color: #636e72;">
+                    ✅ Feature V3 → ✅ Train LightGBM V3 → ✅ Ensemble Voting → ⏳ Day 7 Recovery Plan
+                </p>
+            </div>
+            
+            <!-- Section 2: Feature Engineering V3 -->
+            <div class="section">
+                <h2>🔧 2. FEATURE ENGINEERING V3 (THẤT BẠI)</h2>
+                
+                <h3>📦 6 Features Mới Được Tạo</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h5>1. is_very_long_review</h5>
+                        <p><strong>Loại:</strong> Binary (0/1)<br>
+                        <strong>Logic:</strong> review_length > 200<br>
+                        <strong>Insight:</strong> Reviews dài 3.75x khả năng helpful hơn</p>
+                    </div>
+                    <div class="feature-item">
+                        <h5>2. is_critical_review</h5>
+                        <p><strong>Loại:</strong> Binary (0/1)<br>
+                        <strong>Logic:</strong> star_rating ≤ 2<br>
+                        <strong>Insight:</strong> Reviews 1-2 sao có 49.9% helpful (vs 17.1% cho 5 sao)</p>
+                    </div>
+                    <div class="feature-item">
+                        <h5>3. is_too_positive</h5>
+                        <p><strong>Loại:</strong> Binary (0/1)<br>
+                        <strong>Logic:</strong> sentiment_pos > 0.4<br>
+                        <strong>Insight:</strong> Quá positive có tương quan âm với helpful</p>
+                    </div>
+                    <div class="feature-item">
+                        <h5>4. price_tier</h5>
+                        <p><strong>Loại:</strong> Categorical (0/1/2)<br>
+                        <strong>Logic:</strong> 0=rẻ (<$10), 1=trung ($10-$20), 2=đắt (>$20)<br>
+                        <strong>Insight:</strong> Sản phẩm đắt → reviews chi tiết hơn</p>
+                    </div>
+                    <div class="feature-item">
+                        <h5>5. sentiment_balance</h5>
+                        <p><strong>Loại:</strong> Continuous [0-1]<br>
+                        <strong>Logic:</strong> abs(sentiment_pos - sentiment_neg)<br>
+                        <strong>Insight:</strong> Reviews cân bằng có độ tin cậy cao</p>
+                    </div>
+                    <div class="feature-item">
+                        <h5>6. length_sentiment_interaction</h5>
+                        <p><strong>Loại:</strong> Continuous<br>
+                        <strong>Logic:</strong> review_length × sentiment_neg<br>
+                        <strong>Insight:</strong> Reviews dài + negative = phê bình chi tiết</p>
+                    </div>
+                </div>
+                
+                <h3>⚡ Kết Quả Thực Thi</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h4>Thời Gian</h4>
+                        <div class="value">24.2s</div>
+                        <div class="label">Áp dụng lên train/test</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Train Records</h4>
+                        <div class="value">80,500</div>
+                        <div class="label">Đã xử lý</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Test Records</h4>
+                        <div class="value">19,863</div>
+                        <div class="label">Đã xử lý</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Features Tạo</h4>
+                        <div class="value">6</div>
+                        <div class="label">100% thành công</div>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>❌ Tại Sao V3 Thất Bại?</h4>
+                    <ul>
+                        <li><strong>Nguyên nhân chính:</strong> Tree models (LightGBM) TỰ ĐỘNG học các threshold và interaction</li>
+                        <li><strong>is_very_long_review:</strong> LightGBM đã tự tìm ra điểm cắt tối ưu cho review_length (không cần threshold cứng 200)</li>
+                        <li><strong>is_critical_review:</strong> star_rating đã có trong model, tree tự phân chia ≤2 vs >2</li>
+                        <li><strong>is_too_positive:</strong> sentiment_pos đã có, tree tự học threshold >0.4</li>
+                        <li><strong>price_tier:</strong> price đã có, tree tự phân categorical bins</li>
+                        <li><strong>Interactions:</strong> Tree models tự động tìm interactions giữa features (không cần tạo thủ công)</li>
+                        <li><strong>Kết luận:</strong> Manual feature engineering PHÙ HỢP với Linear models (LogReg), KHÔNG CẦN THIẾT với Tree models</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Section 3: LightGBM V3 Results -->
+            <div class="section">
+                <h2>🌳 3. LIGHTGBM V3 - TRAINING RESULTS</h2>
+                
+                <h3>📊 Performance Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card failed">
+                        <h4>AUC-PR</h4>
+                        <div class="value">0.6531</div>
+                        <div class="label">↓ -0.26% vs V2</div>
+                    </div>
+                    <div class="metric-card failed">
+                        <h4>AUC-ROC</h4>
+                        <div class="value">0.8392</div>
+                        <div class="label">↓ -0.05% vs V2</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Accuracy</h4>
+                        <div class="value">76.84%</div>
+                        <div class="label">↑ +0.39% vs V2</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Training Time</h4>
+                        <div class="value">103.1s</div>
+                        <div class="label">1.7 phút</div>
+                    </div>
+                </div>
+                
+                <h3>🔍 So Sánh Feature Importance (V2 vs V3)</h3>
+                <div class="chart-container">
+                    <canvas id="featureImportanceChart"></canvas>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>💡 Phân Tích Feature Importance</h4>
+                    <ul>
+                        <li><strong>Top 3 features KHÔNG ĐỔI:</strong> product_total_ratings (299 vs 306), review_length_log (201), star_rating (133)</li>
+                        <li><strong>V3 features KHÔNG xuất hiện trong Top 11:</strong> Tất cả 6 features mới có importance < 10</li>
+                        <li><strong>Kết luận:</strong> Model hoàn toàn BỎ QUA các features V3, chứng minh chúng redundant</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Section 4: Ensemble Voting -->
+            <div class="section">
+                <h2>🗳️ 4. ENSEMBLE VOTING CLASSIFIER</h2>
+                
+                <h3>⚙️ Cấu Hình Ensemble</h3>
+                <div class="insight-box">
+                    <h4>🎛️ Thiết Kế</h4>
+                    <ul>
+                        <li><strong>Chiến lược:</strong> Weighted Average (Soft Voting)</li>
+                        <li><strong>Model 1:</strong> Tuned LogReg (AUC-PR: 0.5441) - Weight: 0.3</li>
+                        <li><strong>Model 2:</strong> LightGBM V2 (AUC-PR: 0.6548) - Weight: 0.7</li>
+                        <li><strong>Công thức:</strong> P(ensemble) = 0.3 × P(LogReg) + 0.7 × P(LightGBM)</li>
+                        <li><strong>Lý do weights:</strong> LightGBM mạnh hơn nhiều → cho weight cao hơn</li>
+                    </ul>
+                </div>
+                
+                <h3>📊 Kết Quả Ensemble</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card failed">
+                        <h4>AUC-PR</h4>
+                        <div class="value">0.6371</div>
+                        <div class="label">↓ -2.7% vs LightGBM</div>
+                    </div>
+                    <div class="metric-card failed">
+                        <h4>AUC-ROC</h4>
+                        <div class="value">0.8327</div>
+                        <div class="label">↓ -0.8% vs LightGBM</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Accuracy</h4>
+                        <div class="value">77.33%</div>
+                        <div class="label">↑ +1.0% vs LightGBM</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Execution Time</h4>
+                        <div class="value">34.4s</div>
+                        <div class="label">Inference time</div>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>❌ Tại Sao Ensemble Thất Bại?</h4>
+                    <ul>
+                        <li><strong>Performance Gap quá lớn:</strong> LogReg (0.5441) vs LightGBM (0.6548) = chênh lệch 20%</li>
+                        <li><strong>Kéo xuống hiệu suất:</strong> LogReg yếu kéo xuống LightGBM mạnh</li>
+                        <li><strong>Toán học:</strong> 0.3×0.5441 + 0.7×0.6548 = 0.6216 (lý thuyết) vs 0.6371 (thực tế)</li>
+                        <li><strong>Không có synergy:</strong> Hai models không bổ sung cho nhau (cùng features, khác algorithm)</li>
+                        <li><strong>Kết luận:</strong> Weighted voting CHỈ hiệu quả khi các models có performance GẦN BẰNG NHAU và học được KHÁC BIỆT</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Section 5: Model Comparison -->
+            <div class="section">
+                <h2>🏆 5. SO SÁNH 4 MODELS & FINAL SELECTION</h2>
+                
+                <h3>📊 Bảng So Sánh Chi Tiết</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>AUC-PR</th>
+                            <th>AUC-ROC</th>
+                            <th>Accuracy</th>
+                            <th>Training Time</th>
+                            <th>Inference Speed</th>
+                            <th>Interpretability</th>
+                            <th>Kết Luận</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Tuned LogReg</strong> (Day 5)</td>
+                            <td>0.5441</td>
+                            <td>0.7375</td>
+                            <td>74.56%</td>
+                            <td>8.5 phút (CV)</td>
+                            <td>⚡⚡⚡ Nhanh</td>
+                            <td>⭐⭐⭐ Cao</td>
+                            <td><span class="badge failed">Yếu nhất</span></td>
+                        </tr>
+                        <tr class="best">
+                            <td><strong>LightGBM V2</strong> (Day 5) 🏆</td>
+                            <td><strong>0.6548</strong></td>
+                            <td><strong>0.8396</strong></td>
+                            <td>76.54%</td>
+                            <td>1.9 phút</td>
+                            <td>⚡⚡ Trung bình</td>
+                            <td>⭐⭐ Trung bình</td>
+                            <td><span class="badge winner">TỐT NHẤT</span></td>
+                        </tr>
+                        <tr class="failed">
+                            <td><strong>LightGBM V3</strong> (Day 6)</td>
+                            <td>0.6531</td>
+                            <td>0.8392</td>
+                            <td>76.84%</td>
+                            <td>1.7 phút</td>
+                            <td>⚡⚡ Trung bình</td>
+                            <td>⭐⭐ Trung bình</td>
+                            <td><span class="badge failed">Giảm -0.26%</span></td>
+                        </tr>
+                        <tr class="failed">
+                            <td><strong>Ensemble Voting</strong> (Day 6)</td>
+                            <td>0.6371</td>
+                            <td>0.8327</td>
+                            <td>77.33%</td>
+                            <td>-</td>
+                            <td>⚡ Chậm (2 models)</td>
+                            <td>⭐ Thấp</td>
+                            <td><span class="badge failed">Giảm -2.7%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>📈 Biểu Đồ So Sánh AUC-PR</h3>
+                <div class="chart-container">
+                    <canvas id="modelComparisonChart"></canvas>
+                </div>
+                
+                <div class="success-box">
+                    <h4>✅ QUYẾT ĐỊNH CUỐI CÙNG</h4>
+                    <ul>
+                        <li><strong>Final Model:</strong> LightGBM V2 (Day 5)</li>
+                        <li><strong>AUC-PR:</strong> 0.6548 (tốt nhất trong 4 models)</li>
+                        <li><strong>Lý do:</strong> Cả Feature V3 và Ensemble đều không cải thiện được V2</li>
+                        <li><strong>Gap với Target:</strong> 0.70 - 0.6548 = -0.0452 (-6.5%)</li>
+                        <li><strong>Chiến lược Day 7:</strong> Cần Hyperparameter Tuning hoặc Stacking Ensemble</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Section 6: Evolution Chart -->
+            <div class="section">
+                <h2>📈 6. TIẾN TRÌNH PHÁT TRIỂN MODEL (DAY 3-6)</h2>
+                
+                <div class="chart-container">
+                    <canvas id="evolutionChart"></canvas>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>📊 Phân Tích Tiến Trình</h4>
+                    <ul>
+                        <li><strong>Day 3 → Day 4:</strong> Baseline LogReg (0.4353) → Full Features LogReg (0.4490) = +3.1%</li>
+                        <li><strong>Day 4 → Day 5:</strong> LogReg (0.4490) → LightGBM V2 (0.6548) = <strong>+45.8% (BREAKTHROUGH)</strong></li>
+                        <li><strong>Day 5 → Day 6:</strong> LightGBM V2 (0.6548) → V3 (0.6531) & Ensemble (0.6371) = <strong>THẤT BẠI</strong></li>
+                        <li><strong>Kết luận:</strong> LightGBM V2 là điểm đỉnh hiện tại, cần approach mới cho Day 7</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Section 7: Key Insights -->
+            <div class="section">
+                <h2>💡 7. KEY INSIGHTS & LESSONS LEARNED</h2>
+                
+                <h3>🎓 Bài Học Về Feature Engineering</h3>
+                <div class="insight-box">
+                    <h4>📚 Tree Models vs Linear Models</h4>
+                    <ul>
+                        <li><strong>Linear Models (LogReg, SVM):</strong> CẦN manual feature engineering (polynomial, interactions, binning)</li>
+                        <li><strong>Tree Models (LightGBM, XGBoost, Random Forest):</strong> TỰ ĐỘNG học thresholds và interactions</li>
+                        <li><strong>Example:</strong> 
+                            <ul>
+                                <li>LogReg: Cần tạo <code>is_very_long_review</code> thủ công</li>
+                                <li>LightGBM: Tự tìm điểm cắt tối ưu cho <code>review_length</code> (có thể là 180, 200, hoặc 250 tùy data)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Kết luận:</strong> Feature V3 phù hợp nếu dùng LogReg, nhưng REDUNDANT với LightGBM</li>
+                    </ul>
+                </div>
+                
+                <h3>🗳️ Bài Học Về Ensemble</h3>
+                <div class="warning-box">
+                    <h4>⚠️ Khi Nào Ensemble KHÔNG Hiệu Quả?</h4>
+                    <ul>
+                        <li><strong>Performance gap lớn:</strong> Model yếu (0.5441) + Model mạnh (0.6548) → Kéo xuống</li>
+                        <li><strong>Cùng features:</strong> Cả 2 models dùng CÙNG features → Học được CÙNG patterns</li>
+                        <li><strong>Không diversity:</strong> Chỉ khác algorithm (LogReg vs LightGBM) chưa đủ</li>
+                        <li><strong>Giải pháp:</strong>
+                            <ul>
+                                <li>Option 1: Chỉ dùng models có performance GẦN BẰNG nhau (chênh < 5%)</li>
+                                <li>Option 2: Dùng KHÁC features cho mỗi model (diversity)</li>
+                                <li>Option 3: Stacking Ensemble (meta-model học cách kết hợp)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <h3>🚀 Hướng Đi Cho Day 7</h3>
+                <div class="action-plan">
+                    <h3>📋 Day 7 Recovery Plan</h3>
+                    
+                    <div class="action-item">
+                        <h4>🎯 Phương Án 1: Hyperparameter Tuning (Khuyến nghị)</h4>
+                        <p><strong>Chiến lược:</strong> Tinh chỉnh LightGBM V2 với grid search/random search</p>
+                        <ul>
+                            <li><strong>Parameters cần tune:</strong>
+                                <ul>
+                                    <li><code>numLeaves</code>: [20, 31, 50, 100] - Độ phức tạp của tree</li>
+                                    <li><code>learningRate</code>: [0.05, 0.1, 0.2] - Tốc độ học</li>
+                                    <li><code>numIterations</code>: [100, 200, 300] - Số lượng trees</li>
+                                    <li><code>minDataInLeaf</code>: [10, 20, 50] - Regularization</li>
+                                    <li><code>featureFraction</code>: [0.6, 0.8, 1.0] - Random features</li>
+                                </ul>
+                            </li>
+                            <li><strong>Kỳ vọng:</strong> +3-5% improvement → 0.67-0.69 AUC-PR</li>
+                            <li><strong>Thời gian:</strong> 2-3 giờ (20-30 combinations)</li>
+                            <li><strong>Rủi ro:</strong> Thấp (chỉ tune, không thay đổi features)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="action-item">
+                        <h4>🎯 Phương Án 2: Stacking Ensemble</h4>
+                        <p><strong>Chiến lược:</strong> Dùng predictions của LogReg + LightGBM làm features cho meta-model</p>
+                        <ul>
+                            <li><strong>Level 0:</strong> LogReg (0.5441) + LightGBM (0.6548) tạo predictions</li>
+                            <li><strong>Level 1:</strong> Meta-model (LogReg hoặc LightGBM nhỏ) học cách kết hợp</li>
+                            <li><strong>Lợi ích:</strong> Meta-model học KHÔNG TUYẾN TÍNH (vs weighted average tuyến tính)</li>
+                            <li><strong>Kỳ vọng:</strong> +5-8% improvement → 0.69-0.71 AUC-PR</li>
+                            <li><strong>Thời gian:</strong> 2-3 giờ</li>
+                            <li><strong>Rủi ro:</strong> Trung bình (cần cross-validation cẩn thận để tránh overfitting)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="action-item">
+                        <h4>🎯 Phương Án 3: Advanced Feature Engineering</h4>
+                        <p><strong>Chiến lược:</strong> Tạo features MỚI (không phải threshold-based)</p>
+                        <ul>
+                            <li><strong>Text features:</strong>
+                                <ul>
+                                    <li>Review uniqueness (TF-IDF cosine similarity với corpus)</li>
+                                    <li>Vocabulary richness (unique words / total words)</li>
+                                    <li>Sentiment transitions (số lần đổi từ positive → negative)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Temporal features:</strong>
+                                <ul>
+                                    <li>Review velocity (số reviews của user trong 30 ngày)</li>
+                                    <li>Seasonality (tháng đăng review)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Kỳ vọng:</strong> +2-4% improvement → 0.67-0.68 AUC-PR</li>
+                            <li><strong>Thời gian:</strong> 3-4 giờ</li>
+                            <li><strong>Rủi ro:</strong> Cao (có thể lại redundant như V3)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="success-box">
+                    <h4>🎯 Khuyến Nghị Day 7</h4>
+                    <ul>
+                        <li><strong>Priority 1:</strong> Hyperparameter Tuning (rủi ro thấp, hiệu quả chắc chắn)</li>
+                        <li><strong>Priority 2:</strong> Stacking Ensemble (nếu tuning không đạt 0.70)</li>
+                        <li><strong>Priority 3:</strong> Advanced features (last resort)</li>
+                        <li><strong>Target cuối cùng:</strong> Đạt 0.70 hoặc cao nhất có thể, sau đó tạo submission.csv</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Section 8: Technical Summary -->
+            <div class="section">
+                <h2>🔧 8. CHI TIẾT KỸ THUẬT</h2>
+                
+                <h3>💻 Code & Files Created</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Mô Tả</th>
+                            <th>Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>code/features/features_v3.py</code></td>
+                            <td>Script tạo 6 features mới, áp dụng lên train/test</td>
+                            <td><span class="badge success">✅ Hoàn thành</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>code/models/ensemble_voting.py</code></td>
+                            <td>Weighted voting ensemble (LogReg + LightGBM)</td>
+                            <td><span class="badge success">✅ Hoàn thành</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>output/lightgbm_v3_model/</code></td>
+                            <td>LightGBM V3 trained model + metrics.json</td>
+                            <td><span class="badge success">✅ Hoàn thành</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>output/ensemble_voting/</code></td>
+                            <td>Ensemble metrics.json + comparison</td>
+                            <td><span class="badge success">✅ Hoàn thành</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>docs/day6_report.html</code></td>
+                            <td>Báo cáo Day 6 hoàn chỉnh (file này)</td>
+                            <td><span class="badge success">✅ Hoàn thành</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>⚙️ Execution Environment</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h4>Spark Version</h4>
+                        <div class="value" style="font-size: 1.5em;">3.5.3</div>
+                        <div class="label">With SynapseML 0.11.4</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Python Version</h4>
+                        <div class="value" style="font-size: 1.5em;">3.11</div>
+                        <div class="label">Windows 11</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Memory Config</h4>
+                        <div class="value" style="font-size: 1.5em;">8GB</div>
+                        <div class="label">Driver + 6GB Executor</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Storage</h4>
+                        <div class="value" style="font-size: 1.5em;">HDFS</div>
+                        <div class="label">localhost:9000</div>
+                    </div>
+                </div>
+                
+                <h3>📊 Dataset Statistics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h4>Total Records</h4>
+                        <div class="value">100,363</div>
+                        <div class="label">Amazon Movies & TV</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Training Set</h4>
+                        <div class="value">80,500</div>
+                        <div class="label">80% split</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Test Set</h4>
+                        <div class="value">19,863</div>
+                        <div class="label">20% split</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Class Balance</h4>
+                        <div class="value">24.8%</div>
+                        <div class="label">Helpful reviews</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 9: Conclusion -->
+            <div class="section">
+                <h2>🎯 9. KẾT LUẬN DAY 6</h2>
+                
+                <div class="warning-box">
+                    <h4>📉 Tình Hình Hiện Tại</h4>
+                    <ul>
+                        <li><strong>Mục tiêu Day 6:</strong> AUC-PR ≥ 0.70 → <strong>CHƯA ĐẠT</strong></li>
+                        <li><strong>Kết quả tốt nhất:</strong> LightGBM V2 = 0.6548</li>
+                        <li><strong>Gap:</strong> -0.0452 (-6.5%)</li>
+                        <li><strong>Các phương án đã thử:</strong> Feature V3 (failed), Ensemble Voting (failed)</li>
+                    </ul>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>📚 Bài Học Quan Trọng</h4>
+                    <ul>
+                        <li><strong>Feature Engineering:</strong> Phải hiểu rõ model type (tree vs linear) trước khi tạo features</li>
+                        <li><strong>Ensemble:</strong> Weighted voting chỉ hiệu quả khi models có performance gần bằng nhau</li>
+                        <li><strong>Model Selection:</strong> Đôi khi giữ model đơn giản mạnh tốt hơn ensemble phức tạp yếu</li>
+                        <li><strong>Iterative Process:</strong> Thất bại là bước đệm quan trọng để tìm hướng đi đúng</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <h4>🚀 Chiến Lược Day 7</h4>
+                    <ul>
+                        <li><strong>Approach:</strong> Hyperparameter Tuning (khuyến nghị)</li>
+                        <li><strong>Target:</strong> AUC-PR ≥ 0.70 hoặc cao nhất có thể</li>
+                        <li><strong>Backup plan:</strong> Stacking Ensemble nếu tuning không đạt target</li>
+                        <li><strong>Deliverables:</strong> Final model + submission.csv + complete documentation</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Báo Cáo Day 6</strong> - Amazon Review Helpfulness Prediction</p>
+            <p>Nhóm: Lê Đăng Hoàng Tuấn (Infrastructure) & Võ Thị Diễm Thanh (Data Science)</p>
+            <p>Trường: Đại học Công Nghệ Thông Tin - ĐHQG TP.HCM</p>
+            <p>Khóa: HK7 - Năm 2025</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">
+                Generated: 27/10/2025 | Status: 75% Complete | Next: Day 7 Recovery Plan
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Chart.js Configuration
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.font.size = 13;
+        
+        // 1. Feature Importance Comparison Chart
+        const featureCtx = document.getElementById('featureImportanceChart').getContext('2d');
+        new Chart(featureCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'product_total_ratings',
+                    'review_length_log',
+                    'star_rating',
+                    'price',
+                    'product_avg_rating_meta',
+                    'sentiment_compound',
+                    'sentiment_neu',
+                    'sentiment_pos',
+                    'sentiment_neg',
+                    'rating_deviation',
+                    'is_long_review'
+                ],
+                datasets: [{
+                    label: 'LightGBM V2 (Day 5)',
+                    data: [306, 201, 133, 116, 127, 79, 62, 76, 43, 15, 9],
+                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2
+                }, {
+                    label: 'LightGBM V3 (Day 6)',
+                    data: [299, 201, 133, 123, 106, 82, 80, 77, 56, 10, 8],
+                    backgroundColor: 'rgba(225, 112, 85, 0.7)',
+                    borderColor: 'rgba(225, 112, 85, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Importance Score',
+                            font: { size: 14, weight: 'bold' }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Features',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'So Sánh Feature Importance: V2 vs V3',
+                        font: { size: 18, weight: 'bold' },
+                        padding: 20
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 2. Model Comparison Chart
+        const comparisonCtx = document.getElementById('modelComparisonChart').getContext('2d');
+        new Chart(comparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Tuned LogReg', 'LightGBM V2 🏆', 'LightGBM V3', 'Ensemble Voting'],
+                datasets: [{
+                    label: 'AUC-PR',
+                    data: [0.5441, 0.6548, 0.6531, 0.6371],
+                    backgroundColor: [
+                        'rgba(225, 112, 85, 0.7)',
+                        'rgba(0, 184, 148, 0.7)',
+                        'rgba(253, 203, 110, 0.7)',
+                        'rgba(225, 112, 85, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(225, 112, 85, 1)',
+                        'rgba(0, 184, 148, 1)',
+                        'rgba(253, 203, 110, 1)',
+                        'rgba(225, 112, 85, 1)'
+                    ],
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 0.75,
+                        title: {
+                            display: true,
+                            text: 'AUC-PR Score',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'So Sánh 4 Models - AUC-PR',
+                        font: { size: 18, weight: 'bold' },
+                        padding: 20
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'AUC-PR: ' + context.parsed.y.toFixed(4);
+                            }
+                        }
+                    },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: 0.70,
+                                yMax: 0.70,
+                                borderColor: 'rgb(255, 99, 132)',
+                                borderWidth: 3,
+                                borderDash: [10, 5],
+                                label: {
+                                    display: true,
+                                    content: 'Target: 0.70',
+                                    position: 'end'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 3. Evolution Chart (Day 3-6)
+        const evolutionCtx = document.getElementById('evolutionChart').getContext('2d');
+        new Chart(evolutionCtx, {
+            type: 'line',
+            data: {
+                labels: ['Day 3\nBaseline', 'Day 4\nFull Features', 'Day 5\nLightGBM V2', 'Day 6\nV3/Ensemble'],
+                datasets: [{
+                    label: 'AUC-PR Progress',
+                    data: [0.4353, 0.4490, 0.6548, 0.6548],
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 4,
+                    pointRadius: 8,
+                    pointHoverRadius: 12,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    tension: 0.3,
+                    fill: true
+                }, {
+                    label: 'Target',
+                    data: [0.70, 0.70, 0.70, 0.70],
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 3,
+                    borderDash: [10, 5],
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 0.75,
+                        title: {
+                            display: true,
+                            text: 'AUC-PR Score',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(2);
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Timeline',
+                            font: { size: 14, weight: 'bold' }
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Tiến Trình Phát Triển Model (Day 3-6)',
+                        font: { size: 18, weight: 'bold' },
+                        padding: 20
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return 'AUC-PR: ' + context.parsed.y.toFixed(4);
+                                } else {
+                                    return 'Target: 0.70';
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
