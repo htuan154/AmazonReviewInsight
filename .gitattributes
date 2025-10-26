@@ -1,0 +1,29 @@
+﻿# Chuáº©n hoÃ¡ máº·c Ä‘á»‹nh: dÃ¹ng LF
+* text=auto eol=lf
+
+# Windows scripts giá»¯ CRLF
+*.bat eol=crlf
+*.cmd eol=crlf
+*.ps1 eol=crlf
+
+# Unix scripts báº¯t buá»™c LF
+*.sh eol=lf
+
+# Code & docs dÃ¹ng LF
+*.py eol=lf
+*.js eol=lf
+*.ts eol=lf
+*.md eol=lf
+*.json eol=lf
+*.yml eol=lf
+*.yaml eol=lf
+
+# File nhá»‹ phÃ¢n (khÃ´ng chuyá»ƒn dÃ²ng)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.parquet binary
+*.zip binary
+*.tar.gz binary
