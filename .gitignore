@@ -1,21 +1,21 @@
-# ===== data & outputs (không đẩy lên git) =====
+﻿# ===== data & outputs (khÃ´ng Ä‘áº©y lÃªn git) =====
 data/raw/**
 !data/raw/.gitkeep
 output/**
 !output/.gitkeep
 
-# (thường gặp)
+# (thÆ°á»ng gáº·p)
 data/cache/**
 data/tmp/**
 logs/**
 notebooks/.ipynb_checkpoints/
 
-# Môi trường & bí mật
+# MÃ´i trÆ°á»ng & bÃ­ máº­t
 .env
 *.env
 .env.*
 
-# File lớn/nhị phân phổ biến
+# File lá»›n/nhá»‹ phÃ¢n phá»• biáº¿n
 *.parquet
 *.feather
 *.h5
@@ -30,8 +30,23 @@ notebooks/.ipynb_checkpoints/
 *.csv.gz
 *.log
 
-# Hệ điều hành / IDE
+# Há»‡ Ä‘iá»u hÃ nh / IDE
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+*.csv        # náº¿u khÃ´ng muá»‘n commit CSV lá»›n
+*.tsv
+**/output/**
+!**/output/.gitkeep
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+.envrc
+
+# Node
+node_modules/
+
