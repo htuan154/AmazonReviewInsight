@@ -157,15 +157,7 @@ project/
 
 ---
 
-## 👥 Thành viên Nhóm
 
-| Họ và Tên | Vai trò | Công việc chính |
-|------------|----------|-----------------|
-| Lê Đăng Hoàng Tuấn | Xử lý dữ liệu, xây dựng pipeline, huấn luyện mô hình | Tiền xử lý, logic, API |
-| Huỳnh Anh Tuấn | Viết tài liệu, UI trực quan hóa kết quả | Báo cáo, biểu đồ |
-| Trần Thị Kiều Liêu | Chuẩn bị trình chiếu, tổng hợp kết quả | Slide, trình bày |
-
----
 
 ## 🧩 Kết luận
 
