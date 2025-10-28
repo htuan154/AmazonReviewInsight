@@ -1,0 +1,185 @@
+# code_v2/features/sentiment_vader_v2.py
+# Author: Võ Thị Diễm Thanh (Features & Models)
+# Day 2-3: Sentiment analysis với VADER - NULL safe
+#
+# Cải tiến so với V1:
+# - Handle NULL text
+# - Batch processing để tăng tốc
+# - Thêm sentiment categories
+
+from pyspark.sql import functions as F
+from pyspark.sql.types import DoubleType, StringType
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+# Initialize VADER analyzer (singleton)
+_analyzer = None
+
+def get_analyzer():
+    """Get or create VADER analyzer singleton"""
+    global _analyzer
+    if _analyzer is None:
+        _analyzer = SentimentIntensityAnalyzer()
+    return _analyzer
+
+def sentiment_compound_udf():
+    """UDF for compound sentiment score"""
+    def get_compound(text):
+        if text is None or text.strip() == "":
+            return 0.0
+        analyzer = get_analyzer()
+        scores = analyzer.polarity_scores(text)
+        return scores['compound']
+    
+    return F.udf(get_compound, DoubleType())
+
+def sentiment_pos_udf():
+    """UDF for positive sentiment score"""
+    def get_pos(text):
+        if text is None or text.strip() == "":
+            return 0.0
+        analyzer = get_analyzer()
+        scores = analyzer.polarity_scores(text)
+        return scores['pos']
+    
+    return F.udf(get_pos, DoubleType())
+
+def sentiment_neg_udf():
+    """UDF for negative sentiment score"""
+    def get_neg(text):
+        if text is None or text.strip() == "":
+            return 0.0
+        analyzer = get_analyzer()
+        scores = analyzer.polarity_scores(text)
+        return scores['neg']
+    
+    return F.udf(get_neg, DoubleType())
+
+def sentiment_neu_udf():
+    """UDF for neutral sentiment score"""
+    def get_neu(text):
+        if text is None or text.strip() == "":
+            return 1.0  # Neutral if no text
+        analyzer = get_analyzer()
+        scores = analyzer.polarity_scores(text)
+        return scores['neu']
+    
+    return F.udf(get_neu, DoubleType())
+
+def sentiment_category_udf():
+    """UDF for sentiment category"""
+    def get_category(compound):
+        if compound is None:
+            return "neutral"
+        if compound >= 0.05:
+            return "positive"
+        elif compound <= -0.05:
+            return "negative"
+        else:
+            return "neutral"
+    
+    return F.udf(get_category, StringType())
+
+def add_sentiment_features_v2(df, text_column="review_text"):
+    """
+    Thêm sentiment features với NULL handling
+    
+    Features:
+    - sentiment_compound: điểm tổng hợp (-1 to 1)
+    - sentiment_pos: điểm positive (0 to 1)
+    - sentiment_neg: điểm negative (0 to 1)
+    - sentiment_neu: điểm neutral (0 to 1)
+    - sentiment_category: categorical (positive/negative/neutral)
+    - sentiment_strength: |compound| (độ mạnh)
+    - is_polarized: indicator cho sentiment rõ ràng
+    """
+    print("\n[INFO] Adding sentiment features (VADER)...")
+    
+    # Get sentiment scores
+    df = df.withColumn("sentiment_compound", sentiment_compound_udf()(F.col(text_column)))
+    df = df.withColumn("sentiment_pos", sentiment_pos_udf()(F.col(text_column)))
+    df = df.withColumn("sentiment_neg", sentiment_neg_udf()(F.col(text_column)))
+    df = df.withColumn("sentiment_neu", sentiment_neu_udf()(F.col(text_column)))
+    
+    # Sentiment category
+    df = df.withColumn("sentiment_category", sentiment_category_udf()(F.col("sentiment_compound")))
+    
+    # Sentiment strength
+    df = df.withColumn("sentiment_strength", F.abs(F.col("sentiment_compound")))
+    
+    # Is polarized (strong opinion)
+    df = df.withColumn(
+        "is_polarized",
+        F.when(F.col("sentiment_strength") >= 0.5, 1).otherwise(0)
+    )
+    
+    # Sentiment-rating alignment (consistent với star_rating?)
+    if "star_rating" in df.columns:
+        df = df.withColumn(
+            "sentiment_rating_alignment",
+            F.when(
+                # Positive sentiment + high rating
+                (F.col("sentiment_compound") > 0.05) & (F.col("star_rating") >= 4),
+                1
+            ).when(
+                # Negative sentiment + low rating
+                (F.col("sentiment_compound") < -0.05) & (F.col("star_rating") <= 2),
+                1
+            ).otherwise(0)
+        )
+        
+        # Sentiment-rating gap
+        df = df.withColumn(
+            "sentiment_rating_gap",
+            F.abs(
+                # Normalize compound (-1,1) to (1,5) scale
+                ((F.col("sentiment_compound") + 1) / 2 * 4 + 1) - F.col("star_rating")
+            )
+        )
+    
+    print("  ✓ Sentiment features added")
+    
+    return df
+
+if __name__ == "__main__":
+    from pyspark.sql import SparkSession
+    
+    spark = SparkSession.builder.appName("SentimentVADER-V2-Test").getOrCreate()
+    
+    # Test data
+    test_data = [
+        ("r1", "This product is absolutely amazing! Best purchase ever!", 5.0),
+        ("r2", "Terrible quality. Complete waste of money.", 1.0),
+        ("r3", "It's okay, nothing special.", 3.0),
+        ("r4", None, 3.0),  # NULL text
+        ("r5", "", 3.0),  # Empty text
+        ("r6", "I love it but it's too expensive", 4.0),  # Mixed
+        ("r7", "HORRIBLE!!! DO NOT BUY!!!", 1.0),  # Strong negative
+    ]
+    
+    df = spark.createDataFrame(test_data, ["review_id", "review_text", "star_rating"])
+    
+    print("\n=== Testing Sentiment Analysis V2 ===")
+    print("\nOriginal Data:")
+    df.show(truncate=False)
+    
+    # Add sentiment features
+    df_sentiment = add_sentiment_features_v2(df)
+    
+    print("\n--- Sentiment Scores ---")
+    df_sentiment.select(
+        "review_id", "sentiment_compound", "sentiment_pos", 
+        "sentiment_neg", "sentiment_category"
+    ).show()
+    
+    print("\n--- Sentiment Strength & Polarization ---")
+    df_sentiment.select(
+        "review_id", "sentiment_strength", "is_polarized"
+    ).show()
+    
+    print("\n--- Sentiment-Rating Alignment ---")
+    df_sentiment.select(
+        "review_id", "star_rating", "sentiment_compound",
+        "sentiment_rating_alignment", "sentiment_rating_gap"
+    ).show()
+    
+    spark.stop()

@@ -52,6 +52,22 @@ def collect_keys(path: Path, top_level_only: bool = True, max_lines: int | None 
     for k in all_keys:
         t = ",".join(sorted(types[k]))
         print(f"{k}  |  seen={keys[k]:,}  |  types={t}")
+    
+    # Print first 3 records
+    print(f"\n--- First 3 records from {path.name} ---")
+    with open_maybe_gzip(path) as f:
+        for i, line in enumerate(f, 1):
+            if i > 3:
+                break
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+                print(f"\nRecord {i}:")
+                print(json.dumps(obj, indent=2, ensure_ascii=False))
+            except json.JSONDecodeError:
+                print(f"\nRecord {i}: [JSON decode error]")
 
 def resolve_inputs(root: Path) -> list[Path]:
     """

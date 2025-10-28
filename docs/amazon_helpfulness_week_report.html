@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HK7 — Báo Cáo Tổng Hợp 7 Ngày | Amazon Review Helpfulness Prediction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg1:#0fb9b1;--bg2:#2ecc71;--ink:#2d3436;--muted:#636e72;
+    --pri:#00b894;--pri2:#00cec9;--warn:#fdcb6e;--err:#e17055;--ok:#55efc4;
+    --card:#ffffff;--shadow:0 18px 55px rgba(0,0,0,.16);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,var(--bg1),var(--bg2)) fixed;}
+  .wrap{max-width:1200px;margin:32px auto;padding:28px;border-radius:22px;background:var(--card);box-shadow:var(--shadow)}
+  .hero{padding:36px;border-radius:18px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;text-align:center}
+  .hero h1{margin:0 0 8px;font-size:34px;letter-spacing:.2px}
+  .hero p{margin:6px 0 0;opacity:.95}
+  .badges{margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .badge{display:inline-block;padding:6px 12px;border-radius:18px;font-weight:700;font-size:12px}
+  .badge.ok{background:#00b894;color:#fff}
+  .badge.goal{background:#6c5ce7;color:#fff}
+  .section{margin:28px 0 10px}
+  .section h2{font-size:22px;margin:0 0 8px;color:#0984e3}
+  .card{background:#f8fafc;border:1px solid #eaeef5;border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin:14px 0}
+  .grid{display:grid;gap:14px}
+  .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .metric{background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:16px;text-align:center}
+  .metric .label{font-size:12px;color:var(--muted)}
+  .metric .val{font-size:28px;font-weight:800;margin-top:4px;color:#00b894}
+  .metric.champion{background:linear-gradient(135deg,#55efc4,#00cec9);color:#fff;border:0}
+  .metric.champion .val{color:#fff}
+  table{width:100%;border-collapse:collapse;border:1px solid #edf2f7;background:#fff;border-radius:12px;overflow:hidden}
+  th,td{padding:12px 14px;border-bottom:1px solid #edf2f7;text-align:left;font-size:14px}
+  thead th{background:#00b894;color:#fff}
+  tr:hover{background:#f8f9fb}
+  .callout{padding:14px 16px;border-radius:12px;border-left:5px solid #00b894;background:linear-gradient(135deg,#effff8,#f6fffe)}
+  .warn{border-left-color:#f39c12;background:linear-gradient(135deg,#fff8e6,#fff3cd)}
+  .err{border-left-color:#e17055;background:linear-gradient(135deg,#fff2ef,#ffe9e5)}
+  .success{border-left-color:#10b981;background:linear-gradient(135deg,#ecfff7,#e6fffb)}
+  .flex{display:flex;gap:12px;flex-wrap:wrap}
+  .kpi{flex:1 1 200px;background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:16px}
+  .kpi h4{margin:0 0 4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .kpi .big{font-size:26px;font-weight:800;color:#00b894}
+  .links a{display:inline-block;margin:6px 8px 0 0;padding:8px 12px;border-radius:12px;background:#eef7ff;border:1px solid #dbeafe;text-decoration:none;color:#1d4ed8;font-weight:600}
+  .footer{margin-top:24px;padding:20px 0;color:#94a3b8;text-align:center;font-size:13px}
+  .subtle{color:var(--muted);font-size:13px}
+  .timeline{display:grid;gap:14px}
+  .t-item{display:flex;gap:12px;align-items:flex-start}
+  .t-dot{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:800;flex:0 0 40px;background:#00cec9}
+  .t-dot.fail{background:#e17055}
+  .t-card{flex:1;background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:12px}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:700;font-size:12px}
+  .pill.ok{background:#d1fae5;color:#065f46}
+  .pill.fail{background:#ffe4e6;color:#9f1239}
+  .note{font-size:12px;color:#6b7280}
+  .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#f8fafc;border:1px dashed #e5e7eb;border-radius:8px;padding:8px;display:inline-block}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>📊 Báo Cáo Tổng Hợp 7 Ngày — HK7</h1>
+      <p>Amazon Review Helpfulness Prediction (Lê Đăng Hoàng Tuấn & Võ Thị Diễm Thanh)</p>
+      <div class="badges">
+        <span class="badge ok">AUC‑PR Cuối: <strong>0.7180</strong></span>
+        <span class="badge goal">Mục tiêu ≥ 0.70 — Hoàn thành</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>1) Executive Summary</h2>
+      <div class="card">
+        <p><strong>Dự án:</strong> Dự đoán tính hữu ích (helpfulness) của review Amazon. <strong>Mục tiêu:</strong> AUC‑PR ≥ 0.70. <strong>Mô hình cuối:</strong> LightGBM (tuning). <strong>Kết quả:</strong> AUC‑PR = <b>0.7180</b> (+65.0% so với baseline 0.4353).</p>
+        <div class="flex">
+          <div class="kpi"><h4>AUC‑PR</h4><div class="big">0.7180</div><div class="subtle">Final (Day 7)</div></div>
+          <div class="kpi"><h4>AUC‑ROC</h4><div class="big">0.8423</div><div class="subtle">Final test</div></div>
+          <div class="kpi"><h4>Accuracy</h4><div class="big">77.59%</div><div class="subtle">Final test</div></div>
+          <div class="kpi"><h4>Tổng cải thiện</h4><div class="big">+65.0%</div><div class="subtle">vs Day 3 baseline</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>2) Hành Trình Phát Triển (Day 1 → 7)</h2>
+      <div class="card">
+        <canvas id="evolution" height="110"></canvas>
+        <div class="subtle" style="margin-top:8px;">AUC‑PR theo thời gian (các mốc chính Day 3–7)</div>
+      </div>
+
+      <div class="timeline">
+        <div class="t-item">
+          <div class="t-dot">1</div>
+          <div class="t-card">
+            <b>Thiết lập hạ tầng & EDA.</b> 17.3 triệu reviews (9.4 GB). Định nghĩa helpful=1 nếu <span class="code">helpful_vote &gt; 0</span>. Mất cân bằng 1:3; review hữu ích dài gấp ~4.08 lần; rating 1–3 sao hữu ích hơn.
+          </div>
+        </div>
+        <div class="t-item">
+          <div class="t-dot">2</div>
+          <div class="t-card">
+            <b>Feature Engineering V1.</b> 25 features: <i>clean_text</i>, VADER (4 cột), metadata (review_length_log, rating_deviation...), TF‑IDF (độ thưa ~99.86%).
+          </div>
+        </div>
+        <div class="t-item">
+          <div class="t-dot">3</div>
+          <div class="t-card">
+            <b>Baseline Model.</b> Dummy: AUC‑PR 0.2511. LogReg V1 đạt 0.4353 <span class="pill ok">+73.3% vs dummy</span>.
+          </div>
+        </div>
+        <div class="t-item">
+          <div class="t-dot">4</div>
+          <div class="t-card">
+            <b>LogReg V2 (full features).</b> AUC‑PR 0.4490 <span class="note">(+3.1%)</span>; <i>is_long_review</i> nổi bật.
+          </div>
+        </div>
+        <div class="t-item">
+          <div class="t-dot">5</div>
+          <div class="t-card">
+            <b>Breakthrough.</b> Tuning LogReg (0.5441). Chuyển sang <b>LightGBM V2</b> đạt 0.6548 <span class="pill ok">+20.3% vs LogReg</span>.
+          </div>
+        </div>
+        <div class="t-item">
+          <div class="t-dot fail">6</div>
+          <div class="t-card">
+            <b>Thử nghiệm thất bại.</b> Feature V3 (0.6531) & Ensemble Voting (0.6371) → không vượt V2 (redundant & thiếu diversity).
+          </div>
+        </div>
+        <div class="t-item">
+          <div class="t-dot">7</div>
+          <div class="t-card">
+            <b>Recovery Plan thành công.</b> Tuning LightGBM (Quick Grid 9 combos × 3‑fold CV) → <b>AUC‑PR 0.7180</b>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>3) So Sánh Baseline ↔ Champion</h2>
+      <div class="card">
+        <table>
+          <thead><tr><th>Chỉ số</th><th>Baseline (Day 3 LogReg)</th><th>Champion (Day 7 Tuned LGBM)</th><th>Cải thiện</th></tr></thead>
+          <tbody>
+            <tr><td><b>AUC‑PR</b></td><td>0.4353</td><td><b>0.7180</b></td><td><b>+65.0%</b></td></tr>
+            <tr><td><b>AUC‑ROC</b></td><td>0.5967</td><td><b>0.8423</b></td><td>+41.1%</td></tr>
+            <tr><td><b>Accuracy</b></td><td>70.12%</td><td><b>77.59%</b></td><td>+7.47%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>4) Hyperparameter Tuning (Day 7)</h2>
+      <div class="card">
+        <div class="grid cols-2">
+          <div>
+            <div class="callout success">
+              <b>Quick Grid (9 combinations, 3‑fold CV)</b><br/>
+              Best: <span class="code">numLeaves=50</span>, <span class="code">learningRate=0.05</span> → Mean CV AUC‑PR 0.7049; Test: 0.7180.
+            </div>
+            <ul class="subtle">
+              <li>Tổng training: 27 (9 combos × 3 folds)</li>
+              <li>Ổn định: std dev &lt; 0.009 ở top 3 cấu hình</li>
+              <li>LearningRate 0.15 làm giảm performance</li>
+            </ul>
+          </div>
+          <div>
+            <canvas id="tuning" height="130"></canvas>
+            <div class="subtle" style="margin-top:8px;">Top combos theo Mean CV AUC‑PR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>5) Bài Học & Insight</h2>
+      <div class="card">
+        <div class="callout">
+          <ul>
+            <li><b>Model selection quyết định:</b> Tree‑based (LightGBM) &gt; Linear (LogReg) cho pattern phi tuyến & tương tác.</li>
+            <li><b>Hiểu mô hình:</b> Với tree models, các threshold/interaction được học tự động → features nhị phân thủ công thường <i>redundant</i>.</li>
+            <li><b>Ensemble ≠ miễn phí:</b> Cần models <i>tương đương</i> & <i>đa dạng</i>; ghép một model yếu sẽ kéo hiệu suất xuống.</li>
+            <li><b>Tuning là đòn bẩy an toàn:</b> Khi stuck, hyperparameter tuning mang lại +9.65% để chạm mục tiêu.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>6) Thách Thức Dữ Liệu & Khuyến Nghị Production</h2>
+      <div class="card">
+        <div class="callout warn">
+          <b>NULL Handling:</b> 62.3% test bị drop (12,375/19,863) do <span class="code">handleInvalid="skip"</span> trên metadata (price, ratings...). Submission: 7,488 rows (37.7%).<br/>
+          <b>Khuyến nghị:</b> Impute giá trị thiếu (median price per category; mean rating; rating_number=0 cho sản phẩm mới).
+        </div>
+        <div class="grid cols-3">
+          <div class="metric"><div class="label">Test Evaluated</div><div class="val">19,863</div></div>
+          <div class="metric"><div class="label">Submission Rows</div><div class="val">7,488</div></div>
+          <div class="metric"><div class="label">Dropped (NULL)</div><div class="val">12,375</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>7) Liên Kết Báo Cáo Theo Ngày</h2>
+      <div class="card links">
+        <a href="sandbox:/mnt/data/day1_report.html">Day 1 — Hạ tầng & EDA</a>
+        <a href="sandbox:/mnt/data/day2_report.html">Day 2 — Feature V1</a>
+        <a href="sandbox:/mnt/data/day3_report.html">Day 3 — Baseline</a>
+        <a href="sandbox:/mnt/data/day4_report.html">Day 4 — LogReg V2</a>
+        <a href="sandbox:/mnt/data/day5_report.html">Day 5 — LightGBM</a>
+        <a href="sandbox:/mnt/data/day6_experiments_report.html">Day 6 — Experiments</a>
+        <a href="sandbox:/mnt/data/final_report.html">Day 7 — Final</a>
+      </div>
+      <div class="subtle">*Các liên kết mở các báo cáo gốc theo ngày để tra cứu chi tiết.</div>
+    </div>
+
+    <div class="footer">
+      <div>HK7 — Amazon Review Helpfulness Prediction</div>
+      <div class="subtle">Trình bày đẹp, tối ưu in A4 & trình chiếu.</div>
+    </div>
+  </div>
+
+<script>
+// Evolution Chart (AUC-PR by day milestones)
+const evoCtx = document.getElementById('evolution');
+new Chart(evoCtx,{
+  type:'line',
+  data:{
+    labels:['Day 3','Day 4','Day 5 (LogReg)','Day 5 (LGBM)','Day 6 (V3)','Day 6 (Ensemble)','Day 7'],
+    datasets:[{
+      label:'AUC‑PR',
+      data:[0.4353,0.4490,0.5441,0.6548,0.6531,0.6371,0.7180],
+      borderWidth:3,
+      tension:.25,
+      fill:false
+    }]
+  },
+  options:{
+    plugins:{legend:{display:false}},
+    scales:{y:{min:0.2,max:0.8,ticks:{stepSize:0.1}}}
+  }
+});
+
+// Tuning top combos (illustrative — sorted by mean CV)
+const tuneCtx = document.getElementById('tuning');
+new Chart(tuneCtx,{
+  type:'bar',
+  data:{
+    labels:['50/0.05','31/0.05','100/0.05','31/0.1','50/0.1'],
+    datasets:[{
+      label:'Mean CV AUC‑PR',
+      data:[0.7049,0.7047,0.7025,0.7000,0.6971]
+    }]
+  },
+  options:{plugins:{legend:{display:false}},scales:{y:{min:0.68,max:0.71}}}
+});
+</script>
+</body>
+</html>

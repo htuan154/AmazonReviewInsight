@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HK7 — Hướng Phát Triển (Roadmap) | Amazon Review Helpfulness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#111827;--muted:#6b7280;--bg:#0ea5e9;--bg2:#22c55e;--card:#fff;
+    --pri:#0ea5e9;--pri2:#22c55e;--warn:#f59e0b;--err:#ef4444;--ok:#10b981;--border:#e5e7eb;
+    --shadow:0 18px 55px rgba(0,0,0,.14);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#e0f2fe,#ecfdf5) fixed;}
+  .wrap{max-width:1200px;margin:32px auto;padding:28px;border-radius:22px;background:var(--card);box-shadow:var(--shadow)}
+  .hero{padding:36px;border-radius:18px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;text-align:center}
+  .hero h1{margin:0 0 8px;font-size:34px;letter-spacing:.2px}
+  .hero p{margin:6px 0 0;opacity:.95}
+  .badges{margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .badge{display:inline-block;padding:6px 12px;border-radius:18px;font-weight:700;font-size:12px}
+  .badge.goal{background:#6d28d9;color:#fff}
+  .badge.kpi{background:#111827;color:#fff}
+  .section{margin:28px 0 10px}
+  .section h2{font-size:22px;margin:0 0 8px;color:#0ea5e9}
+  .section h3{font-size:16px;margin:10px 0 6px;color:#111827}
+  .card{background:#f8fafc;border:1px solid #eaeef5;border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin:14px 0}
+  .grid{display:grid;gap:14px}
+  .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .grid.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .metric{background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:16px;text-align:center}
+  .metric .label{font-size:12px;color:var(--muted)}
+  .metric .val{font-size:26px;font-weight:800;margin-top:4px;color:#111827}
+  .metric.good .val{color:#10b981}
+  .checklist{list-style:none;margin:0;padding:0}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;margin:8px 0}
+  .check{width:22px;height:22px;border-radius:6px;border:2px solid #10b981;display:grid;place-items:center;font-size:14px;color:#10b981}
+  .warn{border-left:5px solid #f59e0b;background:linear-gradient(135deg,#fff7ed,#fffbeb)}
+  .ok{border-left:5px solid #10b981;background:linear-gradient(135deg,#ecfdf5,#f0fdf4)}
+  .err{border-left:5px solid #ef4444;background:linear-gradient(135deg,#fee2e2,#fef2f2)}
+  table{width:100%;border-collapse:collapse;border:1px solid var(--border);background:#fff;border-radius:12px;overflow:hidden}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;font-size:14px}
+  thead th{background:#0ea5e9;color:#fff}
+  tr:hover{background:#f9fafb}
+  .links a{display:inline-block;margin:6px 8px 0 0;padding:8px 12px;border-radius:12px;background:#eef7ff;border:1px solid #dbeafe;text-decoration:none;color:#1d4ed8;font-weight:600}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:700;font-size:12px}
+  .pill.ok{background:#d1fae5;color:#065f46}
+  .pill.todo{background:#e0e7ff;color:#3730a3}
+  .note{font-size:12px;color:#6b7280}
+  .footer{margin-top:24px;padding:20px 0;color:#94a3b8;text-align:center;font-size:13px}
+  .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#f8fafc;border:1px dashed #e5e7eb;border-radius:8px;padding:4px 6px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>🛤️ Hướng Phát Triển — HK7</h1>
+      <p>Amazon Review Helpfulness Prediction • Roadmap lên Production</p>
+      <div class="badges">
+        <span class="badge goal">Mục tiêu mới: AUC-PR &gt; 0.80</span>
+        <span class="badge kpi">Chính sách: Xử lý NULL <u>không xoá</u> bản ghi</span>
+      </div>
+    </div>
+
+    <!-- Links -->
+    <div class="section">
+      <h2>Liên Kết Nhanh</h2>
+      <div class="card">
+        <div class="links">
+          <a href="sandbox:/mnt/data/amazon_helpfulness_week_report.html">📄 Báo cáo tổng hợp 7 ngày</a>
+          <a href="sandbox:/mnt/data/day1_report.html">Day 1</a>
+          <a href="sandbox:/mnt/data/day2_report.html">Day 2</a>
+          <a href="sandbox:/mnt/data/day3_report.html">Day 3</a>
+          <a href="sandbox:/mnt/data/day4_report.html">Day 4</a>
+          <a href="sandbox:/mnt/data/day5_report.html">Day 5</a>
+          <a href="sandbox:/mnt/data/day6_experiments_report.html">Day 6</a>
+          <a href="sandbox:/mnt/data/final_report.html">Day 7</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Objectives -->
+    <div class="section">
+      <h2>1) Mục Tiêu & KPI</h2>
+      <div class="card grid cols-4">
+        <div class="metric"><div class="label">AUC-PR hiện tại</div><div class="val">0.7180</div></div>
+        <div class="metric good"><div class="label">AUC-PR mục tiêu</div><div class="val">≥ 0.8000</div></div>
+        <div class="metric"><div class="label">Tỷ lệ test dùng</div><div class="val">100%</div><div class="note">Không giảm vì NULL</div></div>
+        <div class="metric"><div class="label">Time-to-infer</div><div class="val">&lt; 150ms</div><div class="note">p95 / sample</div></div>
+      </div>
+    </div>
+
+    <!-- Data & NULL Policy -->
+    <div class="section">
+      <h2>2) Chính Sách Dữ Liệu & NULL</h2>
+      <div class="card ok">
+        <b>Nguyên tắc:</b> thêm bước <span class="code">Imputation</span> trước <span class="code">VectorAssembler</span>, không dùng <span class="code">handleInvalid="skip"</span> để tránh drop.
+      </div>
+      <div class="card">
+        <h3>2.1 Bảng Imputation</h3>
+        <table>
+          <thead><tr><th>Cột</th><th>Kiểu</th><th>Chiến lược</th><th>Ghi chú</th></tr></thead>
+          <tbody>
+            <tr><td>price</td><td>float / str / None</td><td>Chuẩn hoá tiền tệ → <b>median by main_category</b></td><td>Thêm cờ <span class="code">is_price_missing</span></td></tr>
+            <tr><td>average_rating</td><td>float / None</td><td><b>mean per category</b> (fallback: global 4.0)</td><td>Thêm <span class="code">is_avg_rating_missing</span></td></tr>
+            <tr><td>rating_number</td><td>int / None</td><td><b>0</b></td><td>“Sản phẩm mới”</td></tr>
+            <tr><td>store</td><td>str / None</td><td><b>"Unknown"</b></td><td>LabelEncode + cờ missing</td></tr>
+            <tr><td>categories</td><td>list / None</td><td>Điền <b>["Uncategorized"]</b></td><td>One-vs-rest hashing</td></tr>
+          </tbody>
+        </table>
+        <div class="note">* Lưu lại các cột <i>missing flags</i> vì chính việc thiếu dữ liệu cũng là tín hiệu.</div>
+      </div>
+      <div class="card">
+        <h3>2.2 Lược Đồ Join</h3>
+        <ul class="checklist">
+          <li><span class="check">✓</span> Review: <span class="code">Movies_and_TV.jsonl</span> chứa <span class="code">asin</span>, nhiều dòng có <span class="code">parent_asin</span>.</li>
+          <li><span class="check">✓</span> Meta: <span class="code">meta_Movies_and_TV.jsonl</span> khóa <span class="code">parent_asin</span>.</li>
+          <li><span class="check">✓</span> <b>Chiến lược:</b> Join chính theo <span class="code">parent_asin</span> (fallback <span class="code">asin</span> khi thiếu).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="section">
+      <h2>3) Kỹ Thuật Đặc Trưng (Feature Engineering)</h2>
+      <div class="card grid cols-3">
+        <div>
+          <h3>User-level</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> <b>user_review_count</b></li>
+            <li><span class="check">✓</span> <b>user_helpfulness_ratio</b></li>
+            <li><span class="check">✓</span> user_avg_rating</li>
+            <li><span class="check">✓</span> user_avg_review_length</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Product-level</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> <b>product_review_count</b></li>
+            <li><span class="check">✓</span> <b>product_helpfulness_ratio</b></li>
+            <li><span class="check">✓</span> product_sentiment_std</li>
+            <li><span class="check">✓</span> product_rating_std</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Text nâng cao</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> TF-IDF (baseline)</li>
+            <li><span class="check">✓</span> Word2Vec / FastText</li>
+            <li><span class="check">✓</span> Sentence/BERT embeddings</li>
+            <li><span class="check">✓</span> Bigram/Trigram salient terms</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modeling & Tuning -->
+    <div class="section">
+      <h2>4) Mô Hình & Tối Ưu</h2>
+      <div class="card grid cols-2">
+        <div>
+          <h3>4.1 LightGBM (mở rộng không gian)</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> Random / Bayesian search (Optuna/Hyperopt)</li>
+            <li><span class="check">✓</span> Space: <span class="code">num_leaves, max_depth, min_data_in_leaf, learning_rate, n_estimators, feature_fraction, bagging_fraction, lambda_l1/l2</span></li>
+            <li><span class="check">✓</span> Class weighting & early stopping</li>
+          </ul>
+        </div>
+        <div>
+          <h3>4.2 Ensemble (Stacking)</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> Base: LGBM (tuned), XGBoost, LogReg (metadata + U/P)</li>
+            <li><span class="check">✓</span> Meta: LogReg hoặc LGBM nhỏ</li>
+            <li><span class="check">✓</span> OOF predictions, tránh leakage</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <h3>4.3 Deep Learning (tuỳ chọn)</h3>
+        <ul class="checklist">
+          <li><span class="check">✓</span> BERT embeddings như feature</li>
+          <li><span class="check">✓</span> Fine-tune BERT cho is_helpful (cần GPU)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Evaluation -->
+    <div class="section">
+      <h2>5) Đánh Giá & Mục Tiêu Theo Dõi</h2>
+      <div class="card grid cols-2">
+        <div>
+          <canvas id="prChart" height="140"></canvas>
+          <div class="note">Minh hoạ PR Curve (placeholder). Khi có điểm, thay mảng dữ liệu phía dưới.</div>
+        </div>
+        <div>
+          <table>
+            <thead><tr><th>Metric</th><th>Mục tiêu</th><th>Ghi chú</th></tr></thead>
+            <tbody>
+              <tr><td>AUC-PR</td><td>&ge; 0.80</td><td>Chính</td></tr>
+              <tr><td>Precision@Top-5%</td><td>&ge; 0.82</td><td>Phù hợp use-case “ưu tiên review hữu ích”</td></tr>
+              <tr><td>Recall@Top-5%</td><td>&ge; 0.55</td><td>Cân bằng</td></tr>
+              <tr><td>Latency (p95)</td><td>&lt; 150ms</td><td>Online inference</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>5.1 Phân tích lỗi theo lát cắt</h3>
+        <ul class="checklist">
+          <li><span class="check">✓</span> rating 1–3 vs 4–5</li>
+          <li><span class="check">✓</span> verified vs non-verified</li>
+          <li><span class="check">✓</span> user mới/cũ (theo user_review_count)</li>
+          <li><span class="check">✓</span> product ít/nhiều review</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Production readiness -->
+    <div class="section">
+      <h2>6) Sẵn Sàng Production</h2>
+      <div class="card grid cols-3">
+        <div>
+          <h3>Monitoring</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> Input/schema drift + missing rate</li>
+            <li><span class="check">✓</span> Embedding drift (text)</li>
+            <li><span class="check">✓</span> Online precision@k</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Explainability</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> SHAP global & per-sample</li>
+            <li><span class="check">✓</span> Top features: user/product/text</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Ops</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> Tracking (mlflow)</li>
+            <li><span class="check">✓</span> Version: data/model/code</li>
+            <li><span class="check">✓</span> Inference graph (imputer → featurizer → model)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="section">
+      <h2>7) Lộ Trình Thực Thi (4 tuần gợi ý)</h2>
+      <div class="card">
+        <canvas id="timeline" height="110"></canvas>
+        <div class="note">Gantt rút gọn: tỷ lệ thời gian theo tuần. Điều chỉnh theo thực tế tài nguyên.</div>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Tuần</th><th>Hạng mục</th><th>Deliverables</th><th>Done?</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Imputation + Join chuẩn</td><td>Transformer impute + cờ missing; test không drop</td><td><span class="pill todo">TODO</span></td></tr>
+            <tr><td>2</td><td>User/Product features</td><td>UDF agg theo user_id, parent_asin; cache parquet</td><td><span class="pill todo">TODO</span></td></tr>
+            <tr><td>3</td><td>Tuning LGBM (Optuna)</td><td>Study với 50–100 trials; early stopping</td><td><span class="pill todo">TODO</span></td></tr>
+            <tr><td>4</td><td>Stacking + Đánh giá</td><td>OOF, meta-model; PR@k; báo cáo SHAP</td><td><span class="pill todo">TODO</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Risks -->
+    <div class="section">
+      <h2>8) Rủi Ro & Biện Pháp</h2>
+      <div class="card warn">
+        <ul class="checklist">
+          <li><span class="check">!</span> <b>Skew nặng & phân lớp lệch</b> → dùng class_weight/scale_pos_weight, balanced subsampling.</li>
+          <li><span class="check">!</span> <b>Leakage khi tạo feature U/P</b> → chỉ tính trên train fold; OOF strict.</li>
+          <li><span class="check">!</span> <b>Chi phí BERT</b> → bắt đầu từ embeddings; chỉ fine-tune nếu cần thêm & có GPU.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>HK7 — Roadmap nâng AUC-PR lên &gt; 0.8 và sẵn sàng production</div>
+      <div class="note">Tài liệu này là “sống”: cập nhật sau mỗi mốc quan trọng.</div>
+    </div>
+  </div>
+
+<script>
+// PR Curve (placeholder data)
+const prCtx = document.getElementById('prChart');
+new Chart(prCtx,{
+  type:'line',
+  data:{
+    labels:[0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0],
+    datasets:[{
+      label:'Precision',
+      data:[0.95,0.92,0.88,0.83,0.78,0.72,0.65,0.58,0.49,0.38,0.28],
+      borderWidth:3,tension:.25,fill:false
+    }]
+  },
+  options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:1}}}
+});
+
+// Timeline (Gantt-ish)
+const tl = document.getElementById('timeline');
+new Chart(tl,{
+  type:'bar',
+  data:{
+    labels:['Tuần 1','Tuần 2','Tuần 3','Tuần 4'],
+    datasets:[
+      {label:'Imputation/Join', data:[1,0,0,0]},
+      {label:'U/P Features', data:[0,1,0,0]},
+      {label:'Tuning LGBM', data:[0,0,1,0]},
+      {label:'Stacking & Eval', data:[0,0,0,1]}
+    ]
+  },
+  options:{
+    indexAxis:'y',
+    plugins:{legend:{display:true}},
+    scales:{x:{stacked:true,min:0,max:1},y:{stacked:true}},
+  }
+});
+</script>
+</body>
+</html>

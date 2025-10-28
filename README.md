@@ -190,3 +190,8 @@ submission.csv
 | 5 | Tuning & Chuẩn bị | 🔗 (Trung bình) Tối ưu pipeline suy luận, đảm bảo không rò rỉ (fit/transform). Thử nghiệm pipeline với model baseline. | 🎯 (Nặng) Huấn luyện LightGBM (v1) với đặc trưng v2. Xử lý mất cân bằng (scale_pos_weight).<br>So sánh AUC-PR với baseline. |
 | 6 | Huấn luyện Full Pipeline | 🔗 (Nhẹ) Chuẩn bị hệ thống (HDFS) cho file submission cuối cùng. Báo cáo phần của mình. | 🎯 (Nặng) Tuning LightGBM (RandomizedSearch/Optuna).<br>Huấn luyện mô hình cuối cùng. Lưu model_lgbm.joblib. |
 | 7 | Dự đoán & Nộp bài | 🚀 (Nặng) Tích hợp artifact (model, vectorizer) của Thanh vào Pipeline Dự đoán.<br>Chạy pipeline trên HDFS (theo chunk) để sinh ra submission.csv. | 🔬 (Trung bình) Kiểm tra, đối chiếu submission.csv. Hoàn thành báo cáo phần mô hình. Tổng hợp slide. |
+
+---------------------
+quan trọng
+- ko đc xóa bất kì dòng nào
+- ko đc thay đổi id bất kì dòng nào
