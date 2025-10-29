@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ngày 3 V2 - Model Training Report (Updated)</title>
+  <style>
+    body{font-family:Segoe UI, Tahoma, Arial, sans-serif;background:#f5f7fb;color:#222;margin:0;padding:24px}
+    .grid{display:grid;grid-template-columns:1fr;gap:18px}
+    @media(min-width:980px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:#fff;border-radius:12px;padding:22px;box-shadow:0 8px 30px rgba(32,40,80,0.06)}
+    h1{color:#1f4ed8;margin:0 0 8px}
+    h2{color:#333;margin:0 0 12px}
+    pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:6px;overflow:auto}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}
+    th{background:#eef3ff;color:#1f4ed8}
+    .muted{color:#666;font-size:0.95em}
+    .kv{display:grid;grid-template-columns:240px 1fr;gap:8px;row-gap:6px}
+    .kv div:first-child{color:#666}
+    code{background:#eef3ff;padding:2px 6px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📈 Ngày 3 V2 — Model Training (Updated)</h1>
+    <div class="muted">Cập nhật từ artifacts: <code>.\output_v2\lightgbm_v2_full_hdfs</code></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>1) Tóm tắt kết quả (Validation)</h2>
+      <div class="kv">
+        <div>AUC‑PR (Average Precision):</div><div><strong>0.914174</strong></div>
+        <div>AUC‑ROC:</div><div><strong>0.966855</strong></div>
+        <div>Accuracy:</div><div><strong>0.885313</strong></div>
+        <div>Best iteration:</div><div><strong>3000</strong></div>
+        <div>Số đặc trưng sử dụng:</div><div><strong>23</strong></div>
+      </div>
+      <p class="muted" style="margin-top:8px">Confusion matrix [ [TN, FP], [FN, TP] ]: <code>[[1022194, 147889], [30943, 358278]]</code></p>
+    </div>
+
+    <div class="card">
+      <h2>2) Lệnh đã chạy</h2>
+      <pre>python code_v2/models/train_lightgbm_v2_hdfs.py ^
+  --train "webhdfs://localhost:9870/output_v2/features_train_v3" ^
+  --out   ".\output_v2\lightgbm_v2_full_hdfs" ^
+  --threads 8 --scale_pos_weight auto --boost_rounds 3000 --early_stopping_rounds 200</pre>
+      <p class="muted">Dữ liệu đọc trực tiếp từ HDFS qua WebHDFS. Model và metrics lưu local tại thư mục <code>.\output_v2\lightgbm_v2_full_hdfs</code>.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>3) Top Feature Importance</h2>
+      <table><thead><tr><th>#</th><th>Feature</th><th>Gain</th><th>Split</th></tr></thead><tbody><tr><td>1</td><td>user_helpful_ratio</td><td>174731370</td><td>29384</td></tr>
+<tr><td>2</td><td>product_helpful_ratio</td><td>28737417</td><td>37120</td></tr>
+<tr><td>3</td><td>review_length</td><td>6673554</td><td>38784</td></tr>
+<tr><td>4</td><td>star_rating</td><td>3978927</td><td>9751</td></tr>
+<tr><td>5</td><td>product_total_ratings</td><td>1607906</td><td>36453</td></tr>
+<tr><td>6</td><td>review_length_log</td><td>1506040</td><td>8072</td></tr>
+<tr><td>7</td><td>product_review_count</td><td>1372849</td><td>34538</td></tr>
+<tr><td>8</td><td>product_avg_rating</td><td>1355570</td><td>31082</td></tr>
+<tr><td>9</td><td>user_review_count</td><td>961472</td><td>27342</td></tr>
+<tr><td>10</td><td>user_consistency</td><td>940945</td><td>26777</td></tr>
+<tr><td>11</td><td>user_avg_rating</td><td>817130</td><td>25973</td></tr>
+<tr><td>12</td><td>meta_review_rating_gap</td><td>700258</td><td>30385</td></tr>
+<tr><td>13</td><td>category_review_count</td><td>638006</td><td>3458</td></tr>
+<tr><td>14</td><td>product_avg_rating_meta</td><td>473384</td><td>13303</td></tr>
+<tr><td>15</td><td>price</td><td>408297</td><td>19843</td></tr></tbody></table>
+        <img src="../output_v2/lightgbm_v2_full_hdfs/feature_importance.png" alt="Top Feature Importance (gain)" style="max-width:100%;border:1px solid #eee;border-radius:8px;margin:8px 0"/>
+    </div>
+
+    <div class="card">
+      <h2>4) Đường cong PR & ROC (Validation)</h2>
+        <img src="../output_v2/lightgbm_v2_full_hdfs/val_pr_curve.png" alt="PR Curve (val)" style="max-width:100%;border:1px solid #eee;border-radius:8px;margin:8px 0"/>
+        <img src="../output_v2/lightgbm_v2_full_hdfs/val_roc_curve.png" alt="ROC Curve (val)" style="max-width:100%;border:1px solid #eee;border-radius:8px;margin:8px 0"/>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5) Danh sách features đầu vào</h2>
+    <pre>star_rating
+review_length
+review_length_log
+rating_deviation
+is_long_review
+user_review_count
+product_review_count
+user_avg_rating
+user_helpful_ratio
+product_avg_rating
+product_helpful_ratio
+price
+price_log
+product_avg_rating_meta
+product_total_ratings
+has_metadata
+has_price
+has_product_rating
+is_expensive
+user_consistency
+meta_review_rating_gap
+category_review_count
+is_popular_category</pre>
+  </div>
+
+  <div class="card">
+    <h2>6) Artifacts</h2>
+    <ul>
+      <li>Model: <code>.\output_v2\lightgbm_v2_full_hdfs/model.txt</code></li>
+      <li>Metrics: <code>.\output_v2\lightgbm_v2_full_hdfs/metrics_val.json</code></li>
+      <li>Feature importance: <code>.\output_v2\lightgbm_v2_full_hdfs/feature_importance.csv</code></li>
+    </ul>
+  </div>
+
+  <footer style="text-align:center;color:#666;margin-top:18px">
+    Báo cáo Day 3 V2 đã cập nhật với kết quả mới nhất.
+  </footer>
+</body>
+</html>

@@ -139,47 +139,40 @@ def add_sentiment_features_v2(df, text_column="review_text"):
     print("  ✓ Sentiment features added")
     
     return df
+# (giữ nguyên các hàm hiện có)
+
+def run():
+    import argparse
+    from pyspark.sql import SparkSession
+    from pyspark.sql import functions as F
+
+    p = argparse.ArgumentParser()
+    p.add_argument("--input",     required=True)
+    p.add_argument("--output",    required=True)
+    p.add_argument("--text_col",  default="review_text")  # dùng 'cleaned_text' sau bước preprocess
+    p.add_argument("--mode",      default="overwrite")
+    p.add_argument("--save",      action="store_true")
+    args = p.parse_args()
+
+    spark = SparkSession.builder.appName("SentimentVADER-V2").getOrCreate()
+    df_in = spark.read.parquet(args.input)
+
+    # đảm bảo cột tồn tại
+    if args.text_col not in df_in.columns:
+        raise ValueError(f"Text column '{args.text_col}' not found in input. "
+                         f"Available: {df_in.columns}")
+
+    df_out = add_sentiment_features_v2(df_in, text_column=args.text_col)
+
+    if args.save:
+        (df_out.repartition(16)
+              .write.mode(args.mode)
+              .parquet(args.output))
+        print(f"✅ Saved to {args.output}")
+    else:
+        df_out.select("sentiment_compound","sentiment_category").show(10)
+
+    spark.stop()
 
 if __name__ == "__main__":
-    from pyspark.sql import SparkSession
-    
-    spark = SparkSession.builder.appName("SentimentVADER-V2-Test").getOrCreate()
-    
-    # Test data
-    test_data = [
-        ("r1", "This product is absolutely amazing! Best purchase ever!", 5.0),
-        ("r2", "Terrible quality. Complete waste of money.", 1.0),
-        ("r3", "It's okay, nothing special.", 3.0),
-        ("r4", None, 3.0),  # NULL text
-        ("r5", "", 3.0),  # Empty text
-        ("r6", "I love it but it's too expensive", 4.0),  # Mixed
-        ("r7", "HORRIBLE!!! DO NOT BUY!!!", 1.0),  # Strong negative
-    ]
-    
-    df = spark.createDataFrame(test_data, ["review_id", "review_text", "star_rating"])
-    
-    print("\n=== Testing Sentiment Analysis V2 ===")
-    print("\nOriginal Data:")
-    df.show(truncate=False)
-    
-    # Add sentiment features
-    df_sentiment = add_sentiment_features_v2(df)
-    
-    print("\n--- Sentiment Scores ---")
-    df_sentiment.select(
-        "review_id", "sentiment_compound", "sentiment_pos", 
-        "sentiment_neg", "sentiment_category"
-    ).show()
-    
-    print("\n--- Sentiment Strength & Polarization ---")
-    df_sentiment.select(
-        "review_id", "sentiment_strength", "is_polarized"
-    ).show()
-    
-    print("\n--- Sentiment-Rating Alignment ---")
-    df_sentiment.select(
-        "review_id", "star_rating", "sentiment_compound",
-        "sentiment_rating_alignment", "sentiment_rating_gap"
-    ).show()
-    
-    spark.stop()
+    run()

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống kê Amazon Review Insight</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #ccc; padding: 32px; }
+        h1 { color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #e9ecef; }
+        tr:nth-child(even) { background: #f2f2f2; }
+        .section { margin-bottom: 32px; }
+        .file-list { margin: 0; padding: 0 0 0 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Thống kê Amazon Review Insight</h1>
+        <div class="section">
+            <h2>1. Tổng quan dữ liệu</h2>
+            <table>
+                <tr><th>File</th><th>Loại</th><th>Số record</th></tr>
+                <tr><td>submission.csv</td><td>Kết quả dự đoán</td><td>1,735,280</td></tr>
+                <tr><td>features_test_v3</td><td>Feature test (phân theo năm/tháng)</td><td>Không thống kê chi tiết</td></tr>
+            </table>
+        </div>
+        <div class="section">
+            <h2>2. Thư mục output_v2</h2>
+            <ul class="file-list">
+                <li>submission.csv: file kết quả dự đoán cuối cùng</li>
+                <li>submission_tmp.csv: file trung gian</li>
+                <li>features_test_v3/: thư mục chứa dữ liệu test, phân theo năm/tháng</li>
+                <li>lightgbm_v2_full/: thư mục model LightGBM (local)</li>
+                <li>lightgbm_v2_full_hdfs/: thư mục model LightGBM (HDFS)</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>3. Thống kê model (LightGBM)</h2>
+            <h3>3.1. Chỉ số trên tập validation</h3>
+            <table>
+                <tr><th>Chỉ số</th><th>Giá trị</th></tr>
+                <tr><td>average_precision</td><td>0.9142</td></tr>
+                <tr><td>roc_auc</td><td>0.9669</td></tr>
+                <tr><td>accuracy</td><td>0.8853</td></tr>
+                <tr><td>Confusion matrix</td><td>[[1,022,194, 147,889], [30,943, 358,278]]</td></tr>
+                <tr><td>Precision/Recall/F1 (0)</td><td>0.9706 / 0.8736 / 0.9196</td></tr>
+                <tr><td>Precision/Recall/F1 (1)</td><td>0.7078 / 0.9205 / 0.8003</td></tr>
+            </table>
+            <h3>3.2. Chỉ số trên tập test</h3>
+            <table>
+                <tr><th>Chỉ số</th><th>Giá trị</th></tr>
+                <tr><td>average_precision</td><td>0.9863</td></tr>
+                <tr><td>roc_auc</td><td>0.9952</td></tr>
+                <tr><td>accuracy</td><td>0.9577</td></tr>
+                <tr><td>Confusion matrix</td><td>[[1,240,988, 61,063], [12,341, 420,888]]</td></tr>
+                <tr><td>Precision/Recall/F1 (0)</td><td>0.9902 / 0.9531 / 0.9713</td></tr>
+                <tr><td>Precision/Recall/F1 (1)</td><td>0.8733 / 0.9715 / 0.9198</td></tr>
+            </table>
+            <h3>3.3. Feature importance (Top 10)</h3>
+            <table>
+                <tr><th>Feature</th><th>Gain</th><th>Split</th></tr>
+                <tr><td>user_helpful_ratio</td><td>174,731,370</td><td>29,384</td></tr>
+                <tr><td>product_helpful_ratio</td><td>28,737,417</td><td>37,120</td></tr>
+                <tr><td>review_length</td><td>6,673,554</td><td>38,784</td></tr>
+                <tr><td>star_rating</td><td>3,978,927</td><td>9,751</td></tr>
+                <tr><td>product_total_ratings</td><td>1,607,906</td><td>36,453</td></tr>
+                <tr><td>review_length_log</td><td>1,506,040</td><td>8,072</td></tr>
+                <tr><td>product_review_count</td><td>1,372,849</td><td>34,538</td></tr>
+                <tr><td>product_avg_rating</td><td>1,355,570</td><td>31,082</td></tr>
+                <tr><td>user_review_count</td><td>961,472</td><td>27,342</td></tr>
+                <tr><td>user_consistency</td><td>940,945</td><td>26,777</td></tr>
+            </table>
+            <p><i>Các feature còn lại có gain nhỏ hoặc gần như 0.</i></p>
+        </div>
+        <div class="section">
+            <h2>4. Cấu trúc thư mục features_test_v3</h2>
+            <p>Phân chia theo <b>year</b> và <b>month</b> (ví dụ: year=1997/month=10/ ...)</p>
+        </div>
+        <div class="section">
+            <h2>5. Ngày thống kê</h2>
+            <p>29/10/2025</p>
+        </div>
+    </div>
+</body>
+</html>

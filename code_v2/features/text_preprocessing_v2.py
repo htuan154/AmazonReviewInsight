@@ -134,42 +134,31 @@ def add_text_features_v2(df):
     
     return df
 
-if __name__ == "__main__":
+def run():
+    import argparse
     from pyspark.sql import SparkSession
-    
-    spark = SparkSession.builder.appName("TextPreprocessingV2-Test").getOrCreate()
-    
-    # Test data with various edge cases
-    test_data = [
-        ("r1", "This is a GREAT product! Highly recommended."),
-        ("r2", None),  # NULL text
-        ("r3", ""),  # Empty text
-        ("r4", "   "),  # Whitespace only
-        ("r5", "<html>Bad product</html> with HTML tags"),
-        ("r6", "Check out http://example.com for more info!"),
-        ("r7", "WHY IS THIS SO EXPENSIVE???"),
-    ]
-    
-    df = spark.createDataFrame(test_data, ["review_id", "review_text"])
-    
-    print("\n=== Testing Text Preprocessing V2 ===")
-    print("\nOriginal Data:")
-    df.show(truncate=False)
-    
-    # Add text features
-    df_processed = add_text_features_v2(df)
-    
-    print("\n--- Cleaned Text ---")
-    df_processed.select("review_id", "cleaned_text", "has_text").show(truncate=False)
-    
-    print("\n--- Text Statistics ---")
-    df_processed.select(
-        "review_id", "text_length", "word_count", "sentence_count", "avg_word_length"
-    ).show()
-    
-    print("\n--- Special Characters ---")
-    df_processed.select(
-        "review_id", "exclamation_count", "question_count", "uppercase_ratio"
-    ).show()
-    
+
+    p = argparse.ArgumentParser()
+    p.add_argument("--input",  required=True)
+    p.add_argument("--output", required=True)
+    p.add_argument("--mode",   default="overwrite")
+    p.add_argument("--save",   action="store_true")
+    args = p.parse_args()
+
+    spark = SparkSession.builder.appName("TextPreprocessingV2").getOrCreate()
+    df_in = spark.read.parquet(args.input)
+
+    df_out = add_text_features_v2(df_in)
+
+    if args.save:
+        (df_out.repartition(16)
+              .write.mode(args.mode)
+              .parquet(args.output))
+        print(f"Saved to {args.output}")
+    else:
+        df_out.show(10, truncate=False)
+
     spark.stop()
+
+if __name__ == "__main__":
+    run()

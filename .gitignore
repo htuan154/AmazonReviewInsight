@@ -3,7 +3,7 @@ data/raw/**
 !data/raw/.gitkeep
 output/**
 !output/.gitkeep
-
+metastore_db
 data/cache/**
 data/tmp/**
 logs/**

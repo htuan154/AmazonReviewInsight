@@ -38,8 +38,8 @@ def impute_metadata_nulls(meta_df):
     Chiến lược:
     1. Phát hiện TẤT CẢ các cột có NULL (không hardcode)
     2. Áp dụng imputation theo kiểu dữ liệu:
-       - String: NULL → "Unknown" hoặc mode
-       - Numeric: NULL → median (per category) hoặc mean
+       - String: NULL -> "Unknown" hoặc mode
+       - Numeric: NULL -> median (per category) hoặc mean
        - Special cases:
          * price: median per category
          * rating: mean per category
@@ -108,7 +108,7 @@ def impute_metadata_nulls(meta_df):
         
         # Skip product_id (không impute - là key)
         if col_name in ["product_id", "parent_asin", "asin"]:
-            print(f"    → Skip (key column)")
+            print(f"    -> Skip (key column)")
             continue
         
         # === NUMERIC COLUMNS ===
@@ -116,7 +116,7 @@ def impute_metadata_nulls(meta_df):
             
             # Special case: price_cleaned
             if col_name == "price_cleaned":
-                print(f"    → Strategy: median per category")
+                print(f"    -> Strategy: median per category")
                 
                 # Global median
                 global_median = meta_df.select(
@@ -148,7 +148,7 @@ def impute_metadata_nulls(meta_df):
             
             # Special case: average_rating
             elif col_name == "average_rating":
-                print(f"    → Strategy: mean per category")
+                print(f"    -> Strategy: mean per category")
                 
                 # Global mean
                 global_mean = meta_df.agg(F.mean(col_name).alias("mean")).first()["mean"]
@@ -178,7 +178,7 @@ def impute_metadata_nulls(meta_df):
             
             # Special case: rating_number
             elif col_name == "rating_number":
-                print(f"    → Strategy: 0 (new product)")
+                print(f"    -> Strategy: 0 (new product)")
                 meta_df = meta_df.withColumn(
                     f"{col_name}_imputed",
                     F.coalesce(F.col(col_name), F.lit(0))
@@ -187,7 +187,7 @@ def impute_metadata_nulls(meta_df):
             
             # Generic numeric: use median per category
             else:
-                print(f"    → Strategy: median per category (generic)")
+                print(f"    -> Strategy: median per category (generic)")
                 
                 # Global median
                 global_median = meta_df.select(
@@ -217,7 +217,7 @@ def impute_metadata_nulls(meta_df):
         
         # === STRING COLUMNS ===
         elif col_type == "string":
-            print(f"    → Strategy: 'Unknown' (generic)")
+            print(f"    -> Strategy: 'Unknown' (generic)")
             
             meta_df = meta_df.withColumn(
                 f"{col_name}_imputed",
@@ -228,7 +228,7 @@ def impute_metadata_nulls(meta_df):
         
         # === UNSUPPORTED TYPES ===
         else:
-            print(f"    → Strategy: NULL (unsupported type)")
+            print(f"    -> Strategy: NULL (unsupported type)")
             imputed_columns[col_name] = col_name  # Keep as-is
     
     # 3. Log NULL counts after imputation
@@ -239,7 +239,7 @@ def impute_metadata_nulls(meta_df):
             null_after = meta_df.filter(F.col(imputed_col).isNull()).count()
             print(f"  {imputed_col:40s}: {null_after:10,}")
     
-    # 4. Select final columns (rename imputed → original)
+    # 4. Select final columns (rename imputed -> original)
     print("\n[INFO] Building final schema...")
     
     final_select = []
@@ -452,10 +452,10 @@ def main():
     print("\n" + "="*80)
     print("=== DONE ===")
     print("="*80)
-    print(f"Parquet (V2 - NULL handled) → {out_reviews}")
-    print(f"EDA helpful_votes CSV → {hv_path}")
-    print(f"EDA class ratio CSV → {cls_dist_path}")
-    print(f"EDA category dist CSV → {cat_path}")
+    print(f"Parquet (V2 - NULL handled) -> {out_reviews}")
+    print(f"EDA helpful_votes CSV -> {hv_path}")
+    print(f"EDA class ratio CSV -> {cls_dist_path}")
+    print(f"EDA category dist CSV -> {cat_path}")
     print("\nKey improvements:")
     print("  ✓ NULL values imputed (price, rating, rating_number)")
     print("  ✓ No records dropped due to handleInvalid='skip'")

@@ -1,0 +1,31 @@
+{
+  "train": "webhdfs://localhost:9870/output_v2/features_train_v3",
+  "test": "webhdfs://localhost:9870/output_v2/features_test_v3",
+  "out": ".\\output_v2\\lightgbm_v2_full_hdfs",
+  "features": [
+    "star_rating",
+    "review_length",
+    "review_length_log",
+    "rating_deviation",
+    "is_long_review",
+    "user_review_count",
+    "product_review_count",
+    "user_avg_rating",
+    "user_helpful_ratio",
+    "product_avg_rating",
+    "product_helpful_ratio",
+    "price",
+    "price_log",
+    "product_avg_rating_meta",
+    "product_total_ratings",
+    "has_metadata",
+    "has_price",
+    "has_product_rating",
+    "is_expensive",
+    "user_consistency",
+    "meta_review_rating_gap",
+    "category_review_count",
+    "is_popular_category"
+  ],
+  "best_iteration": 3000
+}
