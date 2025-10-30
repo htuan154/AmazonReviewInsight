@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Day 3 V2 - Model Training Report (Complete)</title>
+  <style>
+    body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#222;margin:0;padding:24px}
+    .container{max-width:1400px;margin:0 auto}
+    .hero{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:#fff;border-radius:16px;padding:40px;margin-bottom:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+    .hero h1{margin:0 0 12px;font-size:2.5em;font-weight:700}
+    .hero .subtitle{font-size:1.1em;opacity:0.9;margin:0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px;margin-bottom:20px}
+    .card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,0.12);transition:transform 0.2s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.15)}
+    .card-full{grid-column:1/-1}
+    h2{color:#1f4ed8;margin:0 0 16px;font-size:1.5em;border-bottom:3px solid #1f4ed8;padding-bottom:8px}
+    h3{color:#333;margin:20px 0 12px;font-size:1.2em}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:16px 0}
+    .metric-box{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:20px;border-radius:10px;text-align:center}
+    .metric-box .label{font-size:0.9em;opacity:0.9;margin-bottom:8px}
+    .metric-box .value{font-size:2em;font-weight:700}
+    .code-block{background:#0d1117;color:#c9d1d9;padding:16px;border-radius:8px;overflow-x:auto;margin:12px 0;border-left:4px solid #58a6ff}
+    .code-block pre{margin:0;font-family:'Consolas','Monaco','Courier New',monospace;font-size:0.9em}
+    table{width:100%;border-collapse:collapse;margin:16px 0}
+    th,td{padding:12px;text-align:left;border-bottom:1px solid #e5e7eb}
+    th{background:#f3f4f6;color:#1f4ed8;font-weight:600}
+    tr:hover{background:#f9fafb}
+    .badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:0.85em;font-weight:600;margin:4px}
+    .badge-success{background:#d1fae5;color:#065f46}
+    .badge-info{background:#dbeafe;color:#1e40af}
+    .badge-warning{background:#fef3c7;color:#92400e}
+    .muted{color:#6b7280;font-size:0.95em}
+    .feature-list{background:#f9fafb;padding:16px;border-radius:8px;border-left:4px solid #10b981}
+    .section{margin-bottom:24px}
+    .note{background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .success-box{background:#d1fae5;border-left:4px solid #10b981;padding:12px 16px;border-radius:4px;margin:12px 0}
+    img{max-width:100%;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin:12px 0}
+    .workflow{background:#f3f4f6;padding:20px;border-radius:8px;margin:16px 0}
+    .workflow-step{background:#fff;padding:16px;margin:12px 0;border-radius:8px;border-left:4px solid #667eea;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    .workflow-step h4{margin:0 0 8px;color:#667eea}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>📈 Day 3 V2 — LightGBM Model Training</h1>
+      <p class="subtitle">Full Training Report with Code Explanation & Results Analysis</p>
+      <div style="margin-top:16px">
+        <span class="badge badge-info">Author: Võ Thị Diễm Thanh</span>
+        <span class="badge badge-info">Date: October 29, 2025</span>
+        <span class="badge badge-success">Status: Training Completed ✓</span>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="card card-full">
+      <h2>📊 Executive Summary</h2>
+      <div class="success-box">
+        <strong>🎯 Training Results:</strong> Model đã được huấn luyện thành công với <strong>AUC-PR = 0.9142</strong> (validation), vượt xa target 0.72 và V1's 0.7180. Sử dụng 23 features NULL-safe trên full dataset.
+      </div>
+      
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="label">AUC-PR (Validation)</div>
+          <div class="value">0.914</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">AUC-ROC (Validation)</div>
+          <div class="value">0.967</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Accuracy</div>
+          <div class="value">88.5%</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Best Iteration</div>
+          <div class="value">3000</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>⚠️ So với V1:</strong> V1 chỉ đạt AUC-PR 0.7180 và bỏ qua 62.3% test data do NULL. V2 xử lý 100% data với performance cao hơn 27%.
+      </div>
+    </div>
+
+    <!-- Training Command & Explanation -->
+    <div class="card card-full">
+      <h2>🚀 Training Command Used</h2>
+      <p>Lệnh thực tế đã chạy để train model:</p>
+      
+      <div class="code-block">
+        <pre>python code_v2/models/train_lightgbm_v2_hdfs.py \
+  --train "webhdfs://localhost:9870/output_v2/features_train_v3" \
+  --test "webhdfs://localhost:9870/output_v2/features_test_v3" \
+  --out ".\output_v2\lightgbm_v2_full_hdfs" \
+  --val_ratio 0.1 \
+  --threads 8 \
+  --boost_rounds 3000 \
+  --early_stopping_rounds 200 \
+  --learning_rate 0.035 \
+  --num_leaves 128 \
+  --feature_fraction 0.8 \
+  --bagging_fraction 0.8 \
+  --bagging_freq 2 \
+  --min_child_samples 60 \
+  --reg_alpha 0.1 \
+  --reg_lambda 0.2 \
+  --scale_pos_weight auto</pre>
+      </div>
+
+      <h3>📝 Giải thích các tham số:</h3>
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Value</th><th>Explanation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>--train</code></td>
+            <td>webhdfs://...</td>
+            <td>Đọc training data từ HDFS qua WebHDFS (không cần libhdfs)</td>
+          </tr>
+          <tr>
+            <td><code>--test</code></td>
+            <td>webhdfs://...</td>
+            <td>Test data cho metrics cuối cùng</td>
+          </tr>
+          <tr>
+            <td><code>--val_ratio</code></td>
+            <td>0.1</td>
+            <td>10% train data dùng làm validation set cho early stopping</td>
+          </tr>
+          <tr>
+            <td><code>--threads</code></td>
+            <td>8</td>
+            <td>Số CPU threads dùng cho training (parallel)</td>
+          </tr>
+          <tr>
+            <td><code>--boost_rounds</code></td>
+            <td>3000</td>
+            <td>Số lượng cây tối đa (sẽ stop sớm nếu không cải thiện)</td>
+          </tr>
+          <tr>
+            <td><code>--early_stopping</code></td>
+            <td>200</td>
+            <td>Dừng nếu validation metric không cải thiện sau 200 rounds</td>
+          </tr>
+          <tr>
+            <td><code>--learning_rate</code></td>
+            <td>0.035</td>
+            <td>Learning rate thấp để tránh overfitting</td>
+          </tr>
+          <tr>
+            <td><code>--num_leaves</code></td>
+            <td>128</td>
+            <td>Số lá tối đa mỗi cây (complexity control)</td>
+          </tr>
+          <tr>
+            <td><code>--feature_fraction</code></td>
+            <td>0.8</td>
+            <td>Random chọn 80% features mỗi iteration (giảm overfitting)</td>
+          </tr>
+          <tr>
+            <td><code>--bagging_fraction</code></td>
+            <td>0.8</td>
+            <td>Random sample 80% data mỗi iteration (bagging)</td>
+          </tr>
+          <tr>
+            <td><code>--bagging_freq</code></td>
+            <td>2</td>
+            <td>Tần suất bagging (mỗi 2 iterations)</td>
+          </tr>
+          <tr>
+            <td><code>--min_child_samples</code></td>
+            <td>60</td>
+            <td>Số samples tối thiểu mỗi leaf (tránh overfitting)</td>
+          </tr>
+          <tr>
+            <td><code>--reg_alpha</code></td>
+            <td>0.1</td>
+            <td>L1 regularization (feature selection)</td>
+          </tr>
+          <tr>
+            <td><code>--reg_lambda</code></td>
+            <td>0.2</td>
+            <td>L2 regularization (weight decay)</td>
+          </tr>
+          <tr>
+            <td><code>--scale_pos_weight</code></td>
+            <td>auto</td>
+            <td>Tự động tính weight cho class imbalance: neg/pos ratio</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Code Workflow -->
+    <div class="card card-full">
+      <h2>🔧 Code Workflow Explanation</h2>
+      <p>File <code>train_lightgbm_v2_hdfs.py</code> thực hiện các bước sau:</p>
+
+      <div class="workflow">
+        <div class="workflow-step">
+          <h4>Step 1: Load Data from HDFS/WebHDFS</h4>
+          <div class="code-block">
+            <pre>def load_parquet_any(path: str) -> pd.DataFrame:
+    if _is_webhdfs(path):
+        # Đọc từ WebHDFS (không cần libhdfs)
+        base, path = _parse_webhdfs(url)
+        client = InsecureClient(base)
+        parts = _webhdfs_list_parquet_files(client, path)
+        tables = []
+        for fp in parts:
+            with client.read(fp) as rdr:
+                tables.append(pq.read_table(pa.py_buffer(rdr.read())))
+        return pa.concat_tables(tables).to_pandas()
+    else:
+        # Đọc từ local hoặc HDFS JNI
+        fs, norm_path = _get_fs_and_path(path)
+        dataset = ds.dataset(norm_path, filesystem=fs)
+        return dataset.to_table().to_pandas()</pre>
+          </div>
+          <p class="muted">✓ Hỗ trợ 3 loại path: local, hdfs://, webhdfs://</p>
+          <p class="muted">✓ WebHDFS không cần cài libhdfs (hdfs.dll) → dễ setup trên Windows</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 2: Feature Detection & NULL Handling</h4>
+          <div class="code-block">
+            <pre>def detect_feature_columns(df, target, specified):
+    if specified:
+        return [c for c in specified if c in df.columns]
+    # Auto-detect numeric/bool columns
+    num = df.select_dtypes(include=[np.number, "bool"]).columns
+    return [c for c in num if c != target]
+
+# Fill NULL với 0 (đã imputed trong ETL, đây là safety net)
+train_df[feat] = train_df[feat].fillna(0)</pre>
+          </div>
+          <p class="muted">✓ Tự động detect features (numeric + boolean columns)</p>
+          <p class="muted">✓ NULL handling: fillna(0) - đã được impute trước đó trong ETL</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 3: Train/Validation Split</h4>
+          <div class="code-block">
+            <pre>X_tr, X_val, y_tr, y_val = train_test_split(
+    X, y, 
+    test_size=0.1,  # 10% validation
+    random_state=42,
+    stratify=y      # Giữ tỷ lệ class giống nhau
+)</pre>
+          </div>
+          <p class="muted">✓ Stratified split: giữ tỷ lệ positive/negative class</p>
+          <p class="muted">✓ 90% train, 10% validation cho early stopping</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 4: Calculate Class Weight (Auto)</h4>
+          <div class="code-block">
+            <pre># Tính scale_pos_weight tự động
+neg = len(y_tr) - (y_tr == 1).sum()
+pos = (y_tr == 1).sum()
+spw = neg / pos  # Ví dụ: 1,170,227 / 389,077 = 3.01
+
+params["scale_pos_weight"] = spw</pre>
+          </div>
+          <p class="muted">✓ Xử lý class imbalance: tăng weight cho class thiểu số (helpful=1)</p>
+          <p class="muted">✓ Tính động dựa trên tỷ lệ thực tế trong training data</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 5: LightGBM Training with Early Stopping</h4>
+          <div class="code-block">
+            <pre>model = lgb.train(
+    params,
+    train_data=lgb.Dataset(X_tr, label=y_tr),
+    num_boost_round=3000,
+    valid_sets=[train_data, val_data],
+    valid_names=['train', 'val'],
+    callbacks=[
+        lgb.early_stopping(stopping_rounds=200),
+        lgb.log_evaluation(period=200)  # Log mỗi 200 iterations
+    ]
+)</pre>
+          </div>
+          <p class="muted">✓ Early stopping: dừng khi validation AUC-PR không cải thiện sau 200 rounds</p>
+          <p class="muted">✓ Metric: average_precision (AUC-PR) - phù hợp với imbalanced data</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 6: Evaluation & Save Artifacts</h4>
+          <div class="code-block">
+            <pre># Predict & calculate metrics
+val_prob = model.predict(X_val, num_iteration=model.best_iteration)
+metrics = compute_metrics(y_val, val_prob)
+
+# Save model
+model.save_model("output/model.txt", num_iteration=model.best_iteration)
+
+# Save metrics
+with open("output/metrics_val.json", "w") as f:
+    json.dump(metrics, f)
+
+# Save feature importance
+importance_df.to_csv("output/feature_importance.csv")</pre>
+          </div>
+          <p class="muted">✓ Lưu model ở best_iteration (không phải iteration cuối)</p>
+          <p class="muted">✓ Metrics: AUC-PR, AUC-ROC, confusion matrix, classification report</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Results -->
+    <div class="grid">
+      <div class="card">
+        <h2>📈 Validation Metrics</h2>
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>AUC-PR (Average Precision)</td><td><strong>0.914174</strong></td></tr>
+            <tr><td>AUC-ROC</td><td><strong>0.966855</strong></td></tr>
+            <tr><td>Accuracy</td><td><strong>88.53%</strong></td></tr>
+            <tr><td>Best Iteration</td><td><strong>3000</strong></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Confusion Matrix</h3>
+        <table>
+          <thead>
+            <tr><th></th><th>Predicted Neg</th><th>Predicted Pos</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Actual Neg</strong></td><td>1,022,194 (TN)</td><td>147,889 (FP)</td></tr>
+            <tr><td><strong>Actual Pos</strong></td><td>30,943 (FN)</td><td>358,278 (TP)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="muted" style="margin-top:12px">
+          <strong>Precision:</strong> 70.8% | <strong>Recall:</strong> 92.1% | <strong>F1-Score:</strong> 80.1%
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🧪 Test Metrics</h2>
+        <p class="muted">Đánh giá trên test set riêng biệt:</p>
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>AUC-PR</td><td><strong>0.908432</strong></td></tr>
+            <tr><td>AUC-ROC</td><td><strong>0.965234</strong></td></tr>
+            <tr><td>Accuracy</td><td><strong>88.21%</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="success-box" style="margin-top:16px">
+          <strong>✓ Generalization tốt:</strong> Gap giữa validation và test metrics rất nhỏ (0.914 vs 0.908), chứng tỏ model không overfit.
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Importance -->
+    <div class="card card-full">
+      <h2>🎯 Top 15 Feature Importance</h2>
+      <p class="muted">Ranked by gain (information gain contribution):</p>
+      
+      <table>
+        <thead>
+          <tr><th>Rank</th><th>Feature</th><th>Gain</th><th>Split Count</th><th>Explanation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><code>user_helpful_ratio</code></td>
+            <td>174,731,370</td>
+            <td>29,384</td>
+            <td>Tỷ lệ helpful của user - <strong>feature quan trọng nhất</strong></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><code>product_helpful_ratio</code></td>
+            <td>28,737,417</td>
+            <td>37,120</td>
+            <td>Tỷ lệ helpful của sản phẩm - chất lượng product</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><code>review_length</code></td>
+            <td>6,673,554</td>
+            <td>38,784</td>
+            <td>Độ dài review - reviews dài thường informative hơn</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><code>star_rating</code></td>
+            <td>3,978,927</td>
+            <td>9,751</td>
+            <td>Rating từ 1-5 - extreme ratings thu hút attention</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><code>product_total_ratings</code></td>
+            <td>1,607,906</td>
+            <td>36,453</td>
+            <td>Số lượng ratings của product - popularity signal</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><code>review_length_log</code></td>
+            <td>1,506,040</td>
+            <td>8,072</td>
+            <td>Log transform của length - normalize distribution</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td><code>product_review_count</code></td>
+            <td>1,372,849</td>
+            <td>34,538</td>
+            <td>Số reviews của product - engagement level</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td><code>product_avg_rating</code></td>
+            <td>1,355,570</td>
+            <td>31,082</td>
+            <td>Average rating của product - quality indicator</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td><code>user_review_count</code></td>
+            <td>961,472</td>
+            <td>27,342</td>
+            <td>Số reviews của user - experience level</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td><code>user_consistency</code></td>
+            <td>940,945</td>
+            <td>26,777</td>
+            <td>1/(1+std_rating) - độ nhất quán của user</td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td><code>user_avg_rating</code></td>
+            <td>817,130</td>
+            <td>25,973</td>
+            <td>Average rating của user - harsh/lenient reviewer</td>
+          </tr>
+          <tr>
+            <td>12</td>
+            <td><code>meta_review_rating_gap</code></td>
+            <td>700,258</td>
+            <td>30,385</td>
+            <td>|meta_rating - actual_rating| - disagreement signal</td>
+          </tr>
+          <tr>
+            <td>13</td>
+            <td><code>category_review_count</code></td>
+            <td>638,006</td>
+            <td>3,458</td>
+            <td>Số reviews trong category - niche vs mainstream</td>
+          </tr>
+          <tr>
+            <td>14</td>
+            <td><code>product_avg_rating_meta</code></td>
+            <td>473,384</td>
+            <td>13,303</td>
+            <td>Rating từ metadata (official) - different perspective</td>
+          </tr>
+          <tr>
+            <td>15</td>
+            <td><code>price</code></td>
+            <td>408,297</td>
+            <td>19,843</td>
+            <td>Giá sản phẩm - expensive items get more scrutiny</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note" style="margin-top:16px">
+        <strong>💡 Key Insight:</strong> User behavior features (user_helpful_ratio, user_consistency) đóng vai trò quan trọng nhất. Product-level aggregates (product_helpful_ratio, product_avg_rating) cũng rất có giá trị. Text features (review_length) quan trọng nhưng không bằng metadata.
+      </div>
+
+      <img src="../output_v2/lightgbm_v2_full_hdfs/feature_importance.png" alt="Feature Importance Chart" />
+    </div>
+
+    <!-- Precision-Recall & ROC Curves -->
+    <div class="grid">
+      <div class="card">
+        <h2>📉 Precision-Recall Curve</h2>
+        <img src="../output_v2/lightgbm_v2_full_hdfs/val_pr_curve.png" alt="PR Curve" />
+        <p class="muted">AUC-PR = 0.914 cho thấy model phân biệt tốt class positive trong imbalanced dataset. Precision cao ở recall thấp, trade-off xuất hiện khi recall > 0.8.</p>
+      </div>
+
+      <div class="card">
+        <h2>📈 ROC Curve</h2>
+        <img src="../output_v2/lightgbm_v2_full_hdfs/val_roc_curve.png" alt="ROC Curve" />
+        <p class="muted">AUC-ROC = 0.967 - rất cao, cho thấy model có khả năng ranking tốt. Tuy nhiên, với imbalanced data, AUC-PR là metric đáng tin cậy hơn.</p>
+      </div>
+    </div>
+
+    <!-- All Features Used -->
+    <div class="card card-full">
+      <h2>🔢 Complete Feature List (23 Features)</h2>
+      <div class="feature-list">
+        <h3>Baseline Features (3)</h3>
+        <code>star_rating</code>, 
+        <code>review_length</code>, 
+        <code>review_length_log</code>
+
+        <h3>User Behavior Features (5)</h3>
+        <code>user_review_count</code>, 
+        <code>user_avg_rating</code>, 
+        <code>user_helpful_ratio</code>, 
+        <code>user_consistency</code>, 
+        <code>rating_deviation</code>
+
+        <h3>Product Aggregates (8)</h3>
+        <code>product_review_count</code>, 
+        <code>product_avg_rating</code>, 
+        <code>product_helpful_ratio</code>, 
+        <code>product_total_ratings</code>, 
+        <code>product_avg_rating_meta</code>, 
+        <code>price</code>, 
+        <code>price_log</code>, 
+        <code>meta_review_rating_gap</code>
+
+        <h3>Category & Quality Indicators (7)</h3>
+        <code>category_review_count</code>, 
+        <code>is_popular_category</code>, 
+        <code>has_metadata</code>, 
+        <code>has_price</code>, 
+        <code>has_product_rating</code>, 
+        <code>is_expensive</code>, 
+        <code>is_long_review</code>
+      </div>
+
+      <div class="note">
+        <strong>📝 Note:</strong> Tất cả features đều NULL-safe (đã được imputed trong ETL phase). Features với NULL được imputed bằng median/mean per category hoặc fallback values hợp lý.
+      </div>
+    </div>
+
+    <!-- Comparison with V1 -->
+    <div class="card card-full">
+      <h2>📊 Comparison: V1 vs V2</h2>
+      <table>
+        <thead>
+          <tr><th>Aspect</th><th>V1 (Old)</th><th>V2 (Current)</th><th>Improvement</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>AUC-PR</strong></td>
+            <td>0.7180</td>
+            <td><strong>0.9142</strong></td>
+            <td><span class="badge badge-success">+27.3%</span></td>
+          </tr>
+          <tr>
+            <td><strong>Test Coverage</strong></td>
+            <td>37.7% (7,488/19,863)</td>
+            <td><strong>100%</strong></td>
+            <td><span class="badge badge-success">+62.3%</span></td>
+          </tr>
+          <tr>
+            <td><strong>Dropped Records</strong></td>
+            <td>62.3% (12,375)</td>
+            <td><strong>0%</strong></td>
+            <td><span class="badge badge-success">-62.3%</span></td>
+          </tr>
+          <tr>
+            <td><strong>NULL Handling</strong></td>
+            <td>Skip (handleInvalid="skip")</td>
+            <td><strong>Imputation</strong></td>
+            <td><span class="badge badge-success">✓ Fixed</span></td>
+          </tr>
+          <tr>
+            <td><strong>Feature Count</strong></td>
+            <td>~12 features</td>
+            <td><strong>23 features</strong></td>
+            <td><span class="badge badge-info">+92%</span></td>
+          </tr>
+          <tr>
+            <td><strong>Training Data</strong></td>
+            <td>Sample (~1M)</td>
+            <td><strong>Full dataset</strong></td>
+            <td><span class="badge badge-info">10x more</span></td>
+          </tr>
+          <tr>
+            <td><strong>Model</strong></td>
+            <td>Logistic Regression</td>
+            <td><strong>LightGBM</strong></td>
+            <td><span class="badge badge-info">Gradient Boosting</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="success-box" style="margin-top:16px">
+        <strong>🎯 V2 Achievements:</strong>
+        <ul style="margin:8px 0">
+          <li>✓ AUC-PR tăng từ 0.718 → 0.914 (+27%)</li>
+          <li>✓ 100% test coverage (không bỏ record nào)</li>
+          <li>✓ NULL handling comprehensive (median/mean imputation)</li>
+          <li>✓ Features engineering nâng cao (23 features NULL-safe)</li>
+          <li>✓ LightGBM với tuning tối ưu</li>
+          <li>✓ Vượt target 0.72 (đạt 0.914)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Output Files -->
+    <div class="card card-full">
+      <h2>📁 Output Artifacts</h2>
+      <p>Tất cả artifacts được lưu trong <code>output_v2/lightgbm_v2_full_hdfs/</code>:</p>
+
+      <table>
+        <thead>
+          <tr><th>File</th><th>Description</th><th>Usage</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>model.txt</code></td>
+            <td>LightGBM model file (text format)</td>
+            <td>Load bằng <code>lgb.Booster(model_file="model.txt")</code></td>
+          </tr>
+          <tr>
+            <td><code>metrics_val.json</code></td>
+            <td>Validation metrics (AUC-PR, confusion matrix, etc.)</td>
+            <td>Đánh giá performance trên validation set</td>
+          </tr>
+          <tr>
+            <td><code>metrics_test.json</code></td>
+            <td>Test metrics (independent test set)</td>
+            <td>Final evaluation trên test set riêng</td>
+          </tr>
+          <tr>
+            <td><code>feature_importance.csv</code></td>
+            <td>Feature importance scores (gain & split)</td>
+            <td>Phân tích features nào quan trọng nhất</td>
+          </tr>
+          <tr>
+            <td><code>feature_importance.png</code></td>
+            <td>Feature importance visualization</td>
+            <td>Biểu đồ top 40 features</td>
+          </tr>
+          <tr>
+            <td><code>val_pr_curve.png</code></td>
+            <td>Precision-Recall curve (validation)</td>
+            <td>Visualize precision/recall trade-off</td>
+          </tr>
+          <tr>
+            <td><code>val_roc_curve.png</code></td>
+            <td>ROC curve (validation)</td>
+            <td>Visualize TPR/FPR trade-off</td>
+          </tr>
+          <tr>
+            <td><code>run_manifest.json</code></td>
+            <td>Training configuration & metadata</td>
+            <td>Reproducibility: paths, features, best_iteration</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="card card-full">
+      <h2>🚀 Next Steps - Day 7 ONLY</h2>
+      
+      <div class="success-box">
+        <strong>✅ Model đã HOÀN THÀNH với AUC-PR = 0.914!</strong><br>
+        Ngày 4-6 KHÔNG CẦN THIẾT vì model đã vượt xa target (0.72). Chỉ cần Day 7: chạy inference → tạo submission.csv → NỘP BÀI!
+      </div>
+
+      <h3>📋 Day 7: Inference & Submission (CHỈ 1 LỆNH)</h3>
+      
+      <div class="code-block">
+        <pre># BƯỚC 1: Chạy inference trên test set
+python code_v2/models/predict_pipeline_v2.py \
+  --test amazon_v2/test \
+  --model output_v2/lightgbm_v2_full_hdfs/model.txt \
+  --features output_v2/lightgbm_v2_full_hdfs/run_manifest.json \
+  --out output_v2/submission_v2_final.csv \
+  --mode proba \
+  --batch_size 200000
+
+# Output: submission_v2_final.csv với 2 cột:
+# - review_id
+# - probability_helpful (0.0 → 1.0)</pre>
+      </div>
+
+      <h3>✅ Validation Checklist</h3>
+      <ul>
+        <li>✓ 100% test coverage (all review_ids có prediction)</li>
+        <li>✓ No duplicate review_ids</li>
+        <li>✓ probability_helpful trong khoảng [0, 1]</li>
+        <li>✓ Format: <code>review_id,probability_helpful</code></li>
+      </ul>
+
+      <div class="note">
+        <strong>📝 Tại sao không cần Day 4-6?</strong><br>
+        - Day 4 (Feature Enhancement): Model đã dùng 23 features NULL-safe → đủ tốt<br>
+        - Day 5-6 (Hyperparameter Tuning): AUC-PR 0.914 đã vượt xa target 0.72 (27% improvement)<br>
+        - Tuning thêm có thể tăng 1-2% nhưng tốn thời gian, không cần thiết cho deadline
+      </div>
+
+      <h3>🎯 Expected Results</h3>
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Expected Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Test Coverage</td><td>100% (all records predicted)</td></tr>
+          <tr><td>Submission Size</td><td>~3.5M rows (full test set)</td></tr>
+          <tr><td>File Size</td><td>~100-150 MB</td></tr>
+          <tr><td>Processing Time</td><td>5-10 minutes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:24px;color:#fff;font-size:0.9em">
+      <p><strong>Day 3 V2 Training Report</strong> — Generated on October 29, 2025</p>
+      <p>Authors: Võ Thị Diễm Thanh (Model Training) • Lê Đăng Hoàng Tuấn (Infrastructure)</p>
+      <p style="margin-top:8px">
+        <span class="badge badge-success">AUC-PR: 0.914</span>
+        <span class="badge badge-info">100% Coverage</span>
+        <span class="badge badge-info">23 Features</span>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

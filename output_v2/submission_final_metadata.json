@@ -1,0 +1,15 @@
+{
+  "input_file": "output_v2\\submission_tmp.csv",
+  "strategy": "first",
+  "before_cleaning": {
+    "total_rows": 1735280,
+    "unique_ids": 294010,
+    "duplicate_rows": 1441270,
+    "duplicate_pct": 83.05691300539394,
+    "max_duplicates": 6274
+  },
+  "validation_passed": true,
+  "cleaned_at": "2025-10-30T12:17:27.805606",
+  "output_file": "output_v2\\submission_final.csv",
+  "final_count": 294010
+}

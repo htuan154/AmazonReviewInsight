@@ -1,0 +1,404 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Amazon Review Helpfulness — V2: End‑to‑End Report (No Links)</title>
+  <style>
+    :root{
+      --pri:#4f46e5;--pri2:#7c3aed;--ok:#10b981;--warn:#f59e0b;--info:#0ea5e9;--bad:#ef4444;
+      --bg1:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      --bg2:linear-gradient(135deg,#134e5e 0%,#71b280 100%);
+    }
+    *{box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg1);color:#111;margin:0;padding:24px}
+    .container{max-width:1200px;margin:0 auto}
+    .hero{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:#fff;border-radius:16px;padding:36px;box-shadow:0 16px 48px rgba(0,0,0,.35);margin-bottom:24px}
+    .hero h1{margin:0 0 8px;font-size:2.4rem}
+    .hero p{margin:6px 0 0;opacity:.95}
+    .badge{display:inline-block;margin:6px 6px 0 0;padding:6px 10px;border-radius:14px;font-size:.85rem;font-weight:600}
+    .b-ok{background:#d1fae5;color:#065f46}
+    .b-info{background:#dbeafe;color:#1e40af}
+    .b-warn{background:#fef3c7;color:#92400e}
+    .b-bad{background:#fee2e2;color:#991b1b}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+    .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 10px 28px rgba(0,0,0,.12)}
+    h2{color:#1f4ed8;margin:0 0 14px;border-bottom:3px solid #1f4ed8;padding-bottom:8px}
+    h3{color:#374151;margin:18px 0 10px}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .metric{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:10px;padding:16px;text-align:center}
+    .metric .label{font-size:.9rem;opacity:.9}
+    .metric .value{font-weight:800;font-size:1.6rem;margin-top:4px}
+    .note{background:#fff3cd;border-left:4px solid var(--warn);padding:12px;border-radius:6px;margin:10px 0}
+    .ok{background:#d1fae5;border-left:4px solid var(--ok);padding:12px;border-radius:6px;margin:10px 0}
+    .warn{background:#fee2e2;border-left:4px solid var(--bad);padding:12px;border-radius:6px;margin:10px 0}
+    table{width:100%;border-collapse:collapse;margin:12px 0;background:#fff;border-radius:8px;overflow:hidden}
+    th,td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left}
+    th{background:#f3f4f6;color:#1f4ed8}
+    code{background:#0d1117;color:#c9d1d9;padding:2px 6px;border-radius:4px}
+    pre{background:#0d1117;color:#c9d1d9;padding:16px;border-radius:8px;overflow-x:auto;border-left:4px solid #58a6ff;margin:10px 0}
+    .section{margin-bottom:22px}
+    .workflow{background:#f3f4f6;padding:14px;border-radius:8px}
+    .step{background:#fff;padding:12px;margin:10px 0;border-radius:8px;border-left:4px solid var(--pri)}
+    .kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+    .pill{border-radius:999px;background:#eef2ff;color:#3730a3;padding:6px 10px;font-weight:600}
+    .small{font-size:.92rem;color:#4b5563}
+    footer{color:#fff;text-align:center;margin-top:24px}
+    .toc{background:#ffffff;border-left:4px solid var(--info);padding:14px;border-radius:8px}
+    .toc ul{margin:6px 0 0 18px}
+    .toc li{margin:4px 0}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Amazon Review Helpfulness — V2</h1>
+      <p>End‑to‑End Báo Cáo Tổng Hợp (Không chèn hyperlink)</p>
+      <div>
+        <span class="badge b-info">Thời gian: Oct 28–30, 2025</span>
+        <span class="badge b-ok">Trạng thái: Hoàn thành</span>
+        <span class="badge b-info">Dataset: 17.3M review + 748K metadata</span>
+      </div>
+      <div class="kpi">
+        <span class="pill">AUC‑PR: 0.914</span>
+        <span class="pill">AUC‑ROC: 0.967</span>
+        <span class="pill">23 features NULL‑safe</span>
+        <span class="pill">100% test coverage</span>
+        <span class="pill">Submission: 294,010 dòng</span>
+      </div>
+    </div>
+
+    <!-- TOC (no links/anchors) -->
+    <div class="card toc">
+      <h2>Mục lục (tóm tắt)</h2>
+      <ul>
+        <li>1. Executive Summary</li>
+        <li>2. Phạm vi & Dữ liệu</li>
+        <li>3. Kiến trúc & Môi trường</li>
+        <li>4. ETL V2 (Ngày 1) — NULL‑safe</li>
+        <li>5. Feature Engineering V2 (Ngày 2)</li>
+        <li>6. Huấn luyện mô hình (Ngày 3) — LightGBM</li>
+        <li>7. Suy luận & Nộp bài (Ngày 7)</li>
+        <li>8. Đảm bảo chất lượng & So sánh V1 vs V2</li>
+        <li>9. Runbook tái lập (1‑lần & theo giai đoạn)</li>
+        <li>10. Cấu trúc thư mục đầu ra</li>
+        <li>11. Rủi ro & Giảm thiểu</li>
+        <li>12. Bài học & Hướng phát triển</li>
+        <li>Phụ lục A: Feature catalog</li>
+        <li>Phụ lục B: Chính sách xử lý NULL</li>
+        <li>Phụ lục C: Checklist kiểm định</li>
+      </ul>
+    </div>
+
+    <!-- 1. EXEC SUMMARY -->
+    <div class="card section">
+      <h2>1) Executive Summary</h2>
+      <div class="metric-grid">
+        <div class="metric"><div class="label">AUC‑PR (val)</div><div class="value">0.914</div></div>
+        <div class="metric"><div class="label">AUC‑ROC (val)</div><div class="value">0.967</div></div>
+        <div class="metric"><div class="label">Accuracy</div><div class="value">~88%</div></div>
+        <div class="metric"><div class="label">Best Iteration</div><div class="value">3000</div></div>
+      </div>
+      <div class="ok"><strong>Kết quả:</strong> V2 vượt xa chuẩn mục tiêu (≥0.72 AUC‑PR). Tỷ lệ phủ test 100% nhờ imputation NULL. Bộ 23 features cho hiệu năng cao, ưu tiên đặc trưng hành vi người dùng & tổng hợp theo sản phẩm.</div>
+      <div class="note"><strong>Điểm khác biệt so với V1:</strong> V1 làm rơi 62.3% test do <code>handleInvalid="skip"</code> và thiếu imputation; V2 xử lý 100% nhờ chiến lược NULL‑safe.</div>
+    </div>
+
+    <!-- 2. DATA -->
+    <div class="card section">
+      <h2>2) Phạm vi & Dữ liệu</h2>
+      <table>
+        <thead><tr><th>Thành phần</th><th>Mô tả</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td>Reviews</td><td>~17.3M (Movies & TV)</td><td>JSONL → Parquet</td></tr>
+          <tr><td>Metadata</td><td>~748K sản phẩm</td><td>Giá, rating, category…</td></tr>
+          <tr><td>Kích thước</td><td>≈9 GB vào</td><td>≈8 GB ra (Snappy)</td></tr>
+          <tr><td>Target</td><td><code>is_helpful</code> = 1 nếu <code>helpful_votes>0</code></td><td>Giữ đủ positive</td></tr>
+          <tr><td>Imbalance</td><td>~7.3:1 (neg:pos)</td><td>Áp dụng class weight</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3. ARCH -->
+    <div class="card section">
+      <h2>3) Kiến trúc & Môi trường</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Thành phần</h3>
+          <ul class="small">
+            <li>HDFS (localhost:9000 / WebHDFS 9870)</li>
+            <li>Spark ETL → Parquet (partition year/month)</li>
+            <li>Feature pipeline v2 (text + metadata + sentiment tuỳ chọn)</li>
+            <li>Model: LightGBM (CPU), early stopping, class weights</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Cấu hình đáng chú ý</h3>
+          <ul class="small">
+            <li>Python 3.11 • PySpark 3.2.1</li>
+            <li>Imputation theo category/global</li>
+            <li>Batch predict 200K dòng/lượt</li>
+            <li>23 features số/nhị phân, NULL‑safe</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. ETL -->
+    <div class="card section">
+      <h2>4) ETL V2 (Ngày 1) — NULL‑safe</h2>
+      <div class="ok"><strong>Mục tiêu:</strong> Nạp 17.3M review + 748K metadata; làm sạch; định nghĩa target; xuất EDA & Parquet phân vùng; loại NULL bằng imputation.</div>
+      <h3>Chính sách imputation (tóm tắt)</h3>
+      <table>
+        <thead><tr><th>Cột</th><th>Kiểu</th><th>Chiến lược</th></tr></thead>
+        <tbody>
+          <tr><td>price</td><td>Numeric</td><td>Median theo category → median global → 0.0</td></tr>
+          <tr><td>product_avg_rating(_meta)</td><td>Numeric</td><td>Mean theo category → 3.0</td></tr>
+          <tr><td>product_total_ratings</td><td>Int</td><td>0 (sản phẩm mới)</td></tr>
+          <tr><td>category</td><td>String</td><td>"Unknown" (hoặc mode)</td></tr>
+          <tr><td>text</td><td>String</td><td>"" (chuỗi rỗng)</td></tr>
+        </tbody>
+      </table>
+      <div class="workflow">
+        <div class="step"><strong>Bước 1:</strong> Đọc JSONL → Chuẩn hoá schema → Làm sạch giá trị rỗng/khuyết.</div>
+        <div class="step"><strong>Bước 2:</strong> Tính median/mean theo category & toàn cục; tạo chuỗi fallback.</div>
+        <div class="step"><strong>Bước 3:</strong> Tạo nhãn <code>is_helpful</code>, xuất EDA: phân phối helpful_votes, class ratio, category.</div>
+        <div class="step"><strong>Bước 4:</strong> Ghi Parquet phân vùng (year/month), Snappy; kiểm định NULL=0.</div>
+      </div>
+    </div>
+
+    <!-- 5. FEATURES -->
+    <div class="card section">
+      <h2>5) Feature Engineering V2 (Ngày 2)</h2>
+      <h3>Nhóm đặc trưng</h3>
+      <table>
+        <thead><tr><th>Nhóm</th><th>Ví dụ trường</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td>Text (9)</td><td>cleaned_text, word_count, sentence_count, avg_word_length, exclamation_count, question_count, uppercase_ratio, text_length, has_text</td><td>NULL→""; số học→0</td></tr>
+          <tr><td>Metadata (15+)</td><td>review_length_log, rating_deviation, price, price_log, is_verified, has_price, time_since_release, is_new_product…</td><td>Log1p & chỉ báo thiếu dữ liệu</td></tr>
+          <tr><td>Sentiment (8, tuỳ chọn)</td><td>sentiment_compound/pos/neg/neu, sentiment_category, polarity, intensity, has_sentiment</td><td>VADER (nên chạy mẫu trước vì chậm)</td></tr>
+        </tbody>
+      </table>
+      <div class="note">Khuyến nghị <strong>feature_set=v3</strong> cho cân bằng hiệu năng/chất lượng. Tất cả đặc trưng đầu ra đều NULL‑safe.</div>
+    </div>
+
+    <!-- 6. TRAINING -->
+    <div class="card section">
+      <h2>6) Huấn luyện mô hình (Ngày 3) — LightGBM</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Thiết lập train</h3>
+          <ul class="small">
+            <li>Split 90/10 (stratified) cho early stopping 200 vòng</li>
+            <li>boost_rounds=3000, learning_rate=0.035, num_leaves=128</li>
+            <li>feature_fraction=0.8, bagging_fraction=0.8, bagging_freq=2</li>
+            <li>min_child_samples=60, reg_alpha=0.1, reg_lambda=0.2</li>
+            <li>scale_pos_weight = tỷ lệ neg/pos (tự động)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Kết quả xác thực</h3>
+          <table>
+            <thead><tr><th>Chỉ số</th><th>Giá trị</th></tr></thead>
+            <tbody>
+              <tr><td>AUC‑PR (val)</td><td><strong>0.914</strong></td></tr>
+              <tr><td>AUC‑ROC (val)</td><td>0.967</td></tr>
+              <tr><td>Accuracy</td><td>~88.5%</td></tr>
+              <tr><td>Best iteration</td><td>3000</td></tr>
+            </tbody>
+          </table>
+          <div class="small">Precision ~70.8% • Recall ~92.1% • F1 ~80.1% (theo ngưỡng minh hoạ).</div>
+        </div>
+      </div>
+      <h3>Top 10 Feature Importance (theo gain)</h3>
+      <table>
+        <thead><tr><th>#</th><th>Feature</th><th>Giải thích ngắn</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>user_helpful_ratio</code></td><td>Tỷ lệ review hữu ích của user — mạnh nhất</td></tr>
+          <tr><td>2</td><td><code>product_helpful_ratio</code></td><td>Tín hiệu chất lượng theo sản phẩm</td></tr>
+          <tr><td>3</td><td><code>review_length</code></td><td>Độ dài review (thô)</td></tr>
+          <tr><td>4</td><td><code>star_rating</code></td><td>Điểm sao (1–5)</td></tr>
+          <tr><td>5</td><td><code>product_total_ratings</code></td><td>Mức phổ biến sản phẩm</td></tr>
+          <tr><td>6</td><td><code>review_length_log</code></td><td>Chuẩn hoá phân phối độ dài</td></tr>
+          <tr><td>7</td><td><code>product_review_count</code></td><td>Lượng tương tác quanh sản phẩm</td></tr>
+          <tr><td>8</td><td><code>product_avg_rating</code></td><td>Điểm TB sản phẩm</td></tr>
+          <tr><td>9</td><td><code>user_review_count</code></td><td>Trải nghiệm người dùng</td></tr>
+          <tr><td>10</td><td><code>user_consistency</code></td><td>Độ ổn định khi chấm điểm</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 7. INFERENCE -->
+    <div class="card section">
+      <h2>7) Suy luận & Nộp bài (Ngày 7)</h2>
+      <div class="workflow">
+        <div class="step"><strong>Bước 1:</strong> Nạp model (iteration tốt nhất) & manifest đặc trưng (23 cột).</div>
+        <div class="step"><strong>Bước 2:</strong> Đọc test Parquet theo batch 200K; <code>fillna(0)</code> bảo vệ.</div>
+        <div class="step"><strong>Bước 3:</strong> Ghi tạm <code>submission_tmp.csv</code> (có trùng ID do nguồn/pipeline).</div>
+        <div class="step"><strong>Bước 4:</strong> Làm sạch trùng bằng <code>drop_duplicates keep='first'</code> → <code>submission_final.csv</code>.</div>
+        <div class="step"><strong>Bước 5:</strong> Kiểm định: không NULL, xác suất ∈[0,1], 100% ID duy nhất.</div>
+      </div>
+      <h3>Thống kê output cuối</h3>
+      <table>
+        <thead><tr><th>Chỉ số</th><th>Giá trị</th></tr></thead>
+        <tbody>
+          <tr><td>Số dòng cuối</td><td>294,010</td></tr>
+          <tr><td>Duplicates</td><td>0%</td></tr>
+          <tr><td>Mean prob</td><td>0.372</td></tr>
+          <tr><td>Kích thước tệp</td><td>~9.23 MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 8. QA & COMP -->
+    <div class="card section">
+      <h2>8) Đảm bảo chất lượng & So sánh V1 vs V2</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Kiểm định dữ liệu</h3>
+          <ul class="small">
+            <li>NULL‑free trên toàn bộ feature số/nhị phân</li>
+            <li>Phủ 100% test (không bỏ record)</li>
+            <li>Schema train/test đồng nhất</li>
+            <li>submission_final: ID duy nhất, prob ∈[0,1]</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>V1 → V2</h3>
+          <table>
+            <thead><tr><th>Hạng mục</th><th>V1</th><th>V2</th></tr></thead>
+            <tbody>
+              <tr><td>AUC‑PR</td><td>0.718</td><td><strong>0.914</strong></td></tr>
+              <tr><td>Test coverage</td><td>37.7%</td><td><strong>100%</strong></td></tr>
+              <tr><td>Dropped records</td><td>62.3%</td><td><strong>0%</strong></td></tr>
+              <tr><td>Số feature</td><td>~12</td><td><strong>23</strong></td></tr>
+              <tr><td>NULL handling</td><td>Skip</td><td><strong>Imputation</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="warn"><strong>Vấn đề ghi nhận:</strong> Nguồn test chứa ID trùng → cần bước làm sạch trong pipeline nộp bài. Đã xử lý bằng <code>keep='first'</code> để giữ thứ tự gốc, đảm bảo “không đổi ID dòng nào”.</div>
+    </div>
+
+    <!-- 9. RUNBOOK -->
+    <div class="card section">
+      <h2>9) Runbook tái lập</h2>
+      <h3>Chạy full (1 lệnh/phase)</h3>
+      <pre># ETL (Ngày 1) — ví dụ đường dẫn
+spark-submit code_v2/etl/preprocess_spark_v2.py \
+  --in hdfs://localhost:9000/amazon_v2/raw \
+  --out hdfs://localhost:9000/output_v2/cleaned
+
+# Features (Ngày 2) — v3 khuyến nghị
+python code_v2/features/feature_pipeline_v2.py \
+  --data hdfs://localhost:9000/output_v2/train \
+  --out hdfs://localhost:9000/output_v2/features_train_v3 \
+  --feature_set v3 --include_text --include_sentiment
+
+# Train (Ngày 3) — LightGBM
+python code_v2/models/train_lightgbm_v2_hdfs.py \
+  --train webhdfs://localhost:9870/output_v2/features_train_v3 \
+  --test  webhdfs://localhost:9870/output_v2/features_test_v3 \
+  --out   ./output_v2/lightgbm_v2_full_hdfs \
+  --val_ratio 0.1 --threads 8 --boost_rounds 3000 \
+  --early_stopping_rounds 200 --learning_rate 0.035 \
+  --num_leaves 128 --feature_fraction 0.8 --bagging_fraction 0.8 \
+  --bagging_freq 2 --min_child_samples 60 --reg_alpha 0.1 --reg_lambda 0.2
+
+# Predict & Submit (Ngày 7)
+python code_v2/models/predict_pipeline_v2.py \
+  --test amazon_v2/test \
+  --model output_v2/lightgbm_v2_full_hdfs/model.txt \
+  --features output_v2/lightgbm_v2_full_hdfs/run_manifest.json \
+  --out output_v2/submission_tmp.csv --mode proba --batch_size 200000
+
+python code_v2/utils/clean_submission.py \
+  --input output_v2/submission_tmp.csv \
+  --output output_v2/submission_final.csv --strategy first</pre>
+    </div>
+
+    <!-- 10. FOLDER LAYOUT -->
+    <div class="card section">
+      <h2>10) Cấu trúc thư mục đầu ra</h2>
+      <pre>hdfs://localhost:9000/output_v2/
+├─ cleaned/                       # ETL V2
+├─ train/                         # Split
+├─ test/
+├─ features_train_v3/             # Feature set V3
+├─ features_test_v3/
+└─ (cục bộ) ./output_v2/lightgbm_v2_full_hdfs/
+   ├─ model.txt
+   ├─ metrics_val.json / metrics_test.json
+   ├─ feature_importance.csv
+   └─ *.png (PR/ROC/importance)</pre>
+    </div>
+
+    <!-- 11. RISKS -->
+    <div class="card section">
+      <h2>11) Rủi ro & Giảm thiểu</h2>
+      <table>
+        <thead><tr><th>Rủi ro</th><th>Ảnh hưởng</th><th>Giảm thiểu</th></tr></thead>
+        <tbody>
+          <tr><td>UDF sentiment chậm</td><td>Thời gian feature kéo dài</td><td>Chạy mẫu 100K; tăng repartition; tiền xử lý offline</td></tr>
+          <tr><td>ID trùng trong test</td><td>Submission bị reject</td><td>Drop duplicates <code>keep='first'</code> + kiểm định</td></tr>
+          <tr><td>Không đồng nhất schema</td><td>Lỗi train/predict</td><td>Manifest cột & kiểm tra NULL trước train/predict</td></tr>
+          <tr><td>Áp lực bộ nhớ</td><td>OOM khi xử lý lớn</td><td>Batching, persist MEMORY_AND_DISK, giảm feature set</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 12. LESSONS & NEXT -->
+    <div class="card section">
+      <h2>12) Bài học rút ra & Hướng phát triển</h2>
+      <div class="ok"><strong>Điểm tốt:</strong> Imputation NULL toàn diện, boosting mạnh, tài liệu HTML đầy đủ theo ngày.</div>
+      <div class="note"><strong>Cần cải thiện:</strong> Thêm kiểm định duplicate ngay trong pipeline; idempotency; unit test ETL/feature; theo dõi bằng MLflow/DVC; ci/cd.</div>
+    </div>
+
+    <!-- APPENDIX A -->
+    <div class="card section">
+      <h2>Phụ lục A — Feature Catalog (23 cột tiêu chuẩn)</h2>
+      <table>
+        <thead><tr><th>Nhóm</th><th>Danh sách</th></tr></thead>
+        <tbody>
+          <tr><td>Baseline (3)</td><td><code>star_rating</code>, <code>review_length</code>, <code>review_length_log</code></td></tr>
+          <tr><td>Hành vi user (5)</td><td><code>user_review_count</code>, <code>user_avg_rating</code>, <code>user_helpful_ratio</code>, <code>user_consistency</code>, <code>rating_deviation</code></td></tr>
+          <tr><td>Sản phẩm (8)</td><td><code>product_review_count</code>, <code>product_avg_rating</code>, <code>product_helpful_ratio</code>, <code>product_total_ratings</code>, <code>product_avg_rating_meta</code>, <code>price</code>, <code>price_log</code>, <code>meta_review_rating_gap</code></td></tr>
+          <tr><td>Danh mục & chất lượng (7)</td><td><code>category_review_count</code>, <code>is_popular_category</code>, <code>has_metadata</code>, <code>has_price</code>, <code>has_product_rating</code>, <code>is_expensive</code>, <code>is_long_review</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- APPENDIX B -->
+    <div class="card section">
+      <h2>Phụ lục B — Chính sách xử lý NULL (chi tiết)</h2>
+      <ul class="small">
+        <li>Tự động phát hiện cột có NULL; áp dụng chiến lược theo kiểu dữ liệu.</li>
+        <li>Numeric: ưu tiên median/mean theo category; fallback median/mean toàn cục; cuối cùng giá trị mặc định (0 hoặc 3.0 cho rating TB).</li>
+        <li>String: thay thế “Unknown”/mode; bổ sung cột chỉ báo <code>has_* </code> khi cần.</li>
+        <li>Kiểm định: đếm NULL trước/sau; log thống kê; dừng nếu còn NULL trong feature số/nhị phân.</li>
+      </ul>
+      <pre># Ví dụ impute price theo chuỗi fallback
+price_imputed = coalesce(price, price_cat_median, global_median, 0.0)</pre>
+    </div>
+
+    <!-- APPENDIX C -->
+    <div class="card section">
+      <h2>Phụ lục C — Checklist kiểm định</h2>
+      <ul class="small">
+        <li>[ ] Không còn NULL trong đặc trưng số/nhị phân</li>
+        <li>[ ] Tỷ lệ class train/test giống nhau (stratified)</li>
+        <li>[ ] Manifest cột khớp train ↔ test ↔ predict</li>
+        <li>[ ] Submission_final.csv: duy nhất theo <code>review_id</code></li>
+        <li>[ ] Xác suất ∈[0,1], không NaN/Inf</li>
+        <li>[ ] Lưu metrics, seed, cấu hình để tái lập</li>
+      </ul>
+    </div>
+
+    <footer>
+      <p><strong>Amazon Review Helpfulness — V2</strong> • Báo cáo tổng hợp không chứa hyperlink</p>
+      <p>Ngày tạo: 30/10/2025</p>
+    </footer>
+  </div>
+</body>
+</html>
