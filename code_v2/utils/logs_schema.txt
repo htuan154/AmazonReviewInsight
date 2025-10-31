@@ -1,0 +1,658 @@
+train
+
+
+=== SCHEMA ===
+root
+ |-- user_id: string (nullable = true)
+ |-- product_id: string (nullable = true)
+ |-- star_rating: double (nullable = true)
+ |-- review_length: integer (nullable = true)
+ |-- review_length_log: double (nullable = true)
+ |-- rating_deviation: double (nullable = true)
+ |-- is_long_review: integer (nullable = true)
+ |-- user_review_count: long (nullable = true)
+ |-- product_review_count: long (nullable = true)
+ |-- user_avg_rating: double (nullable = true)
+ |-- user_helpful_ratio: double (nullable = true)
+ |-- product_avg_rating: double (nullable = true)
+ |-- product_helpful_ratio: double (nullable = true)
+ |-- price: double (nullable = true)
+ |-- price_log: double (nullable = true)
+ |-- product_avg_rating_meta: double (nullable = true)
+ |-- product_total_ratings: integer (nullable = true)
+ |-- __synthetic_empty__: string (nullable = true)
+ |-- cleaned_text: string (nullable = true)
+ |-- has_text: integer (nullable = true)
+ |-- text_length: integer (nullable = true)
+ |-- word_count: integer (nullable = true)
+ |-- sentence_count: integer (nullable = true)
+ |-- avg_word_length: double (nullable = true)
+ |-- exclamation_count: integer (nullable = true)
+ |-- question_count: integer (nullable = true)
+ |-- uppercase_ratio: double (nullable = true)
+ |-- sentiment_compound: double (nullable = true)
+ |-- sentiment_pos: double (nullable = true)
+ |-- sentiment_neg: double (nullable = true)
+ |-- sentiment_neu: double (nullable = true)
+ |-- sentiment_category: string (nullable = true)
+ |-- sentiment_strength: double (nullable = true)
+ |-- is_polarized: integer (nullable = true)
+ |-- sentiment_rating_alignment: integer (nullable = true)
+ |-- sentiment_rating_gap: double (nullable = true)
+
+=== N ROWS (approx df.count()) ===
+25/10/31 15:07:56 INFO FileSourceStrategy: Pushed Filters: 
+25/10/31 15:07:56 INFO FileSourceStrategy: Post-Scan Filters: 
+25/10/31 15:07:57 INFO CodeGenerator: Code generated in 193.1324 ms
+25/10/31 15:07:57 INFO BlockManagerInfo: Removed broadcast_0_piece0 on DESKTOP-CNISG4U:52767 in memory (size: 43.3 KiB, free: 434.4 MiB)
+25/10/31 15:07:57 INFO MemoryStore: Block broadcast_1 stored as values in memory (estimated size 226.5 KiB, free 434.2 MiB)    
+25/10/31 15:07:57 INFO MemoryStore: Block broadcast_1_piece0 stored as bytes in memory (estimated size 41.2 KiB, free 434.1 MiB)
+25/10/31 15:07:57 INFO BlockManagerInfo: Added broadcast_1_piece0 in memory on DESKTOP-CNISG4U:52767 (size: 41.2 KiB, free: 434.4 MiB)
+25/10/31 15:07:57 INFO SparkContext: Created broadcast 1 from count at NativeMethodAccessorImpl.java:0
+25/10/31 15:07:57 INFO FileSourceScanExec: Planning scan with bin packing, max size: 57613123 bytes, open cost is considered as scanning 4194304 bytes.
+25/10/31 15:07:57 INFO DAGScheduler: Registering RDD 5 (count at NativeMethodAccessorImpl.java:0) as input to shuffle 0
+25/10/31 15:07:57 INFO DAGScheduler: Got map stage job 1 (count at NativeMethodAccessorImpl.java:0) with 16 output partitions
+25/10/31 15:07:57 INFO DAGScheduler: Final stage: ShuffleMapStage 1 (count at NativeMethodAccessorImpl.java:0)
+25/10/31 15:07:57 INFO DAGScheduler: Parents of final stage: List()
+25/10/31 15:07:57 INFO DAGScheduler: Missing parents: List()
+25/10/31 15:07:57 INFO DAGScheduler: Submitting ShuffleMapStage 1 (MapPartitionsRDD[5] at count at NativeMethodAccessorImpl.java:0), which has no missing parents
+25/10/31 15:07:57 INFO MemoryStore: Block broadcast_2 stored as values in memory (estimated size 17.0 KiB, free 434.1 MiB)
+25/10/31 15:07:57 INFO MemoryStore: Block broadcast_2_piece0 stored as bytes in memory (estimated size 7.8 KiB, free 434.1 MiB)
+25/10/31 15:07:57 INFO BlockManagerInfo: Added broadcast_2_piece0 in memory on DESKTOP-CNISG4U:52767 (size: 7.8 KiB, free: 434.4 MiB)
+25/10/31 15:07:57 INFO SparkContext: Created broadcast 2 from broadcast at DAGScheduler.scala:1611
+25/10/31 15:07:57 INFO DAGScheduler: Submitting 16 missing tasks from ShuffleMapStage 1 (MapPartitionsRDD[5] at count at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14))        
+25/10/31 15:07:57 INFO TaskSchedulerImpl: Adding task set 1.0 with 16 tasks resource profile 0
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 0.0 in stage 1.0 (TID 1) (DESKTOP-CNISG4U, executor driver, partition 0, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 1.0 in stage 1.0 (TID 2) (DESKTOP-CNISG4U, executor driver, partition 1, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 2.0 in stage 1.0 (TID 3) (DESKTOP-CNISG4U, executor driver, partition 2, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 3.0 in stage 1.0 (TID 4) (DESKTOP-CNISG4U, executor driver, partition 3, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 4.0 in stage 1.0 (TID 5) (DESKTOP-CNISG4U, executor driver, partition 4, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 5.0 in stage 1.0 (TID 6) (DESKTOP-CNISG4U, executor driver, partition 5, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 6.0 in stage 1.0 (TID 7) (DESKTOP-CNISG4U, executor driver, partition 6, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 7.0 in stage 1.0 (TID 8) (DESKTOP-CNISG4U, executor driver, partition 7, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 8.0 in stage 1.0 (TID 9) (DESKTOP-CNISG4U, executor driver, partition 8, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 9.0 in stage 1.0 (TID 10) (DESKTOP-CNISG4U, executor driver, partition 9, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 10.0 in stage 1.0 (TID 11) (DESKTOP-CNISG4U, executor driver, partition 10, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 11.0 in stage 1.0 (TID 12) (DESKTOP-CNISG4U, executor driver, partition 11, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 12.0 in stage 1.0 (TID 13) (DESKTOP-CNISG4U, executor driver, partition 12, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 13.0 in stage 1.0 (TID 14) (DESKTOP-CNISG4U, executor driver, partition 13, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 14.0 in stage 1.0 (TID 15) (DESKTOP-CNISG4U, executor driver, partition 14, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO TaskSetManager: Starting task 15.0 in stage 1.0 (TID 16) (DESKTOP-CNISG4U, executor driver, partition 15, NODE_LOCAL, 19796 bytes)
+25/10/31 15:07:57 INFO Executor: Running task 0.0 in stage 1.0 (TID 1)
+25/10/31 15:07:57 INFO Executor: Running task 2.0 in stage 1.0 (TID 3)
+25/10/31 15:07:57 INFO Executor: Running task 1.0 in stage 1.0 (TID 2)
+25/10/31 15:07:57 INFO Executor: Running task 3.0 in stage 1.0 (TID 4)
+25/10/31 15:07:57 INFO Executor: Running task 4.0 in stage 1.0 (TID 5)
+25/10/31 15:07:57 INFO Executor: Running task 5.0 in stage 1.0 (TID 6)
+25/10/31 15:07:57 INFO Executor: Running task 6.0 in stage 1.0 (TID 7)
+25/10/31 15:07:57 INFO Executor: Running task 7.0 in stage 1.0 (TID 8)
+25/10/31 15:07:57 INFO Executor: Running task 8.0 in stage 1.0 (TID 9)
+25/10/31 15:07:57 INFO Executor: Running task 10.0 in stage 1.0 (TID 11)
+25/10/31 15:07:57 INFO Executor: Running task 9.0 in stage 1.0 (TID 10)
+25/10/31 15:07:57 INFO Executor: Running task 14.0 in stage 1.0 (TID 15)
+25/10/31 15:07:57 INFO Executor: Running task 13.0 in stage 1.0 (TID 14)
+25/10/31 15:07:57 INFO Executor: Running task 15.0 in stage 1.0 (TID 16)
+25/10/31 15:07:57 INFO Executor: Running task 12.0 in stage 1.0 (TID 13)
+25/10/31 15:07:57 INFO Executor: Running task 11.0 in stage 1.0 (TID 12)
+25/10/31 15:07:58 INFO CodeGenerator: Code generated in 34.4583 ms
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00000-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53358973, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00008-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53414165, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00007-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53422751, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00003-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53361929, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00006-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53505173, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00009-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53412925, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00011-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53459426, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00015-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53429355, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00013-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53483839, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00012-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53362880, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00002-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53519025, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00004-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53381538, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00014-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53373158, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00010-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53515981, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00001-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53373093, partition values: [empty row]
+25/10/31 15:07:58 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00005-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53326906, partition values: [empty row]
+25/10/31 15:07:58 INFO Executor: Finished task 0.0 in stage 1.0 (TID 1). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 12.0 in stage 1.0 (TID 13). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 3.0 in stage 1.0 (TID 4). 2182 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 6.0 in stage 1.0 (TID 7). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 13.0 in stage 1.0 (TID 14). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 11.0 in stage 1.0 (TID 12). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 10.0 in stage 1.0 (TID 11). 2096 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 5.0 in stage 1.0 (TID 6). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 9.0 in stage 1.0 (TID 10). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 15.0 in stage 1.0 (TID 16). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 2.0 in stage 1.0 (TID 3). 2096 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 14.0 in stage 1.0 (TID 15). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 8.0 in stage 1.0 (TID 9). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO Executor: Finished task 4.0 in stage 1.0 (TID 5). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 6.0 in stage 1.0 (TID 7) in 1103 ms on DESKTOP-CNISG4U (executor driver) (1/16)
+25/10/31 15:07:58 INFO Executor: Finished task 7.0 in stage 1.0 (TID 8). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 0.0 in stage 1.0 (TID 1) in 1110 ms on DESKTOP-CNISG4U (executor driver) (2/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 12.0 in stage 1.0 (TID 13) in 1100 ms on DESKTOP-CNISG4U (executor driver) (3/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 3.0 in stage 1.0 (TID 4) in 1105 ms on DESKTOP-CNISG4U (executor driver) (4/16)
+25/10/31 15:07:58 INFO Executor: Finished task 1.0 in stage 1.0 (TID 2). 2139 bytes result sent to driver
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 11.0 in stage 1.0 (TID 12) in 1101 ms on DESKTOP-CNISG4U (executor driver) (5/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 13.0 in stage 1.0 (TID 14) in 1100 ms on DESKTOP-CNISG4U (executor driver) (6/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 5.0 in stage 1.0 (TID 6) in 1106 ms on DESKTOP-CNISG4U (executor driver) (7/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 10.0 in stage 1.0 (TID 11) in 1102 ms on DESKTOP-CNISG4U (executor driver) (8/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 9.0 in stage 1.0 (TID 10) in 1103 ms on DESKTOP-CNISG4U (executor driver) (9/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 15.0 in stage 1.0 (TID 16) in 1100 ms on DESKTOP-CNISG4U (executor driver) (10/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 14.0 in stage 1.0 (TID 15) in 1101 ms on DESKTOP-CNISG4U (executor driver) (11/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 2.0 in stage 1.0 (TID 3) in 1109 ms on DESKTOP-CNISG4U (executor driver) (12/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 8.0 in stage 1.0 (TID 9) in 1105 ms on DESKTOP-CNISG4U (executor driver) (13/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 4.0 in stage 1.0 (TID 5) in 1108 ms on DESKTOP-CNISG4U (executor driver) (14/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 1.0 in stage 1.0 (TID 2) in 1111 ms on DESKTOP-CNISG4U (executor driver) (15/16)
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 7.0 in stage 1.0 (TID 8) in 1107 ms on DESKTOP-CNISG4U (executor driver) (16/16)
+25/10/31 15:07:58 INFO TaskSchedulerImpl: Removed TaskSet 1.0, whose tasks have all completed, from pool
+25/10/31 15:07:58 INFO DAGScheduler: ShuffleMapStage 1 (count at NativeMethodAccessorImpl.java:0) finished in 1.161 s
+25/10/31 15:07:58 INFO DAGScheduler: looking for newly runnable stages
+25/10/31 15:07:58 INFO DAGScheduler: running: Set()
+25/10/31 15:07:58 INFO DAGScheduler: waiting: Set()
+25/10/31 15:07:58 INFO DAGScheduler: failed: Set()
+25/10/31 15:07:58 INFO CodeGenerator: Code generated in 8.5113 ms
+25/10/31 15:07:58 INFO SparkContext: Starting job: count at NativeMethodAccessorImpl.java:0
+25/10/31 15:07:58 INFO DAGScheduler: Got job 2 (count at NativeMethodAccessorImpl.java:0) with 1 output partitions
+25/10/31 15:07:58 INFO DAGScheduler: Final stage: ResultStage 3 (count at NativeMethodAccessorImpl.java:0)
+25/10/31 15:07:58 INFO DAGScheduler: Parents of final stage: List(ShuffleMapStage 2)
+25/10/31 15:07:58 INFO DAGScheduler: Missing parents: List()
+25/10/31 15:07:58 INFO DAGScheduler: Submitting ResultStage 3 (MapPartitionsRDD[8] at count at NativeMethodAccessorImpl.java:0), which has no missing parents
+25/10/31 15:07:58 INFO MemoryStore: Block broadcast_3 stored as values in memory (estimated size 12.5 KiB, free 434.1 MiB)
+25/10/31 15:07:58 INFO MemoryStore: Block broadcast_3_piece0 stored as bytes in memory (estimated size 5.9 KiB, free 434.1 MiB)
+25/10/31 15:07:58 INFO BlockManagerInfo: Added broadcast_3_piece0 in memory on DESKTOP-CNISG4U:52767 (size: 5.9 KiB, free: 434.3 MiB)
+25/10/31 15:07:58 INFO SparkContext: Created broadcast 3 from broadcast at DAGScheduler.scala:1611
+25/10/31 15:07:58 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 3 (MapPartitionsRDD[8] at count at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+25/10/31 15:07:58 INFO TaskSchedulerImpl: Adding task set 3.0 with 1 tasks resource profile 0
+25/10/31 15:07:58 INFO TaskSetManager: Starting task 0.0 in stage 3.0 (TID 17) (DESKTOP-CNISG4U, executor driver, partition 0, NODE_LOCAL, 19127 bytes)
+25/10/31 15:07:58 INFO Executor: Running task 0.0 in stage 3.0 (TID 17)
+25/10/31 15:07:58 INFO ShuffleBlockFetcherIterator: Getting 16 (960.0 B) non-empty blocks including 16 (960.0 B) local and 0 (0.0 B) host-local and 0 (0.0 B) push-merged-local and 0 (0.0 B) remote blocks
+25/10/31 15:07:58 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 26 ms
+25/10/31 15:07:58 INFO CodeGenerator: Code generated in 9.3768 ms
+25/10/31 15:07:58 INFO Executor: Finished task 0.0 in stage 3.0 (TID 17). 4038 bytes result sent to driver
+25/10/31 15:07:58 INFO TaskSetManager: Finished task 0.0 in stage 3.0 (TID 17) in 149 ms on DESKTOP-CNISG4U (executor driver) (1/1)
+25/10/31 15:07:58 INFO TaskSchedulerImpl: Removed TaskSet 3.0, whose tasks have all completed, from pool
+25/10/31 15:07:58 INFO DAGScheduler: ResultStage 3 (count at NativeMethodAccessorImpl.java:0) finished in 0.159 s
+25/10/31 15:07:58 INFO DAGScheduler: Job 2 is finished. Cancelling potential speculative or zombie tasks for this job
+25/10/31 15:07:58 INFO TaskSchedulerImpl: Killing all running tasks in stage 3: Stage finished
+25/10/31 15:07:58 INFO DAGScheduler: Job 2 finished: count at NativeMethodAccessorImpl.java:0, took 0.179006 s
+15593034
+=== HEAD ===
+25/10/31 15:07:59 INFO FileSourceStrategy: Pushed Filters: 
+25/10/31 15:07:59 INFO FileSourceStrategy: Post-Scan Filters: 
+25/10/31 15:07:59 INFO CodeGenerator: Code generated in 74.18 ms
+25/10/31 15:07:59 INFO MemoryStore: Block broadcast_4 stored as values in memory (estimated size 230.0 KiB, free 433.9 MiB)
+25/10/31 15:07:59 INFO MemoryStore: Block broadcast_4_piece0 stored as bytes in memory (estimated size 42.2 KiB, free 433.8 MiB)
+25/10/31 15:07:59 INFO BlockManagerInfo: Added broadcast_4_piece0 in memory on DESKTOP-CNISG4U:52767 (size: 42.2 KiB, free: 434.3 MiB)
+25/10/31 15:07:59 INFO SparkContext: Created broadcast 4 from showString at NativeMethodAccessorImpl.java:0
+25/10/31 15:07:59 INFO FileSourceScanExec: Planning scan with bin packing, max size: 57613123 bytes, open cost is considered as scanning 4194304 bytes.
+25/10/31 15:07:59 INFO SparkContext: Starting job: showString at NativeMethodAccessorImpl.java:0
+25/10/31 15:07:59 INFO DAGScheduler: Got job 3 (showString at NativeMethodAccessorImpl.java:0) with 1 output partitions        
+25/10/31 15:07:59 INFO DAGScheduler: Final stage: ResultStage 4 (showString at NativeMethodAccessorImpl.java:0)
+25/10/31 15:07:59 INFO DAGScheduler: Parents of final stage: List()
+25/10/31 15:07:59 INFO DAGScheduler: Missing parents: List()
+25/10/31 15:07:59 INFO DAGScheduler: Submitting ResultStage 4 (MapPartitionsRDD[12] at showString at NativeMethodAccessorImpl.java:0), which has no missing parents
+25/10/31 15:07:59 INFO MemoryStore: Block broadcast_5 stored as values in memory (estimated size 31.0 KiB, free 433.8 MiB)
+25/10/31 15:07:59 INFO MemoryStore: Block broadcast_5_piece0 stored as bytes in memory (estimated size 8.9 KiB, free 433.8 MiB)
+25/10/31 15:07:59 INFO BlockManagerInfo: Added broadcast_5_piece0 in memory on DESKTOP-CNISG4U:52767 (size: 8.9 KiB, free: 434.3 MiB)
+25/10/31 15:07:59 INFO SparkContext: Created broadcast 5 from broadcast at DAGScheduler.scala:1611
+25/10/31 15:07:59 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 4 (MapPartitionsRDD[12] at showString at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+25/10/31 15:07:59 INFO TaskSchedulerImpl: Adding task set 4.0 with 1 tasks resource profile 0
+25/10/31 15:07:59 INFO TaskSetManager: Starting task 0.0 in stage 4.0 (TID 18) (DESKTOP-CNISG4U, executor driver, partition 0, NODE_LOCAL, 19807 bytes)
+25/10/31 15:07:59 INFO Executor: Running task 0.0 in stage 4.0 (TID 18)
+25/10/31 15:07:59 INFO CodeGenerator: Code generated in 34.8742 ms
+25/10/31 15:07:59 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_train_v2/part-00002-1f609f36-1620-481d-91c8-87e9b296d5a3-c000.snappy.parquet, range: 0-53519025, partition values: [empty row]
+25/10/31 15:07:59 INFO CodecPool: Got brand-new decompressor [.snappy]
+25/10/31 15:07:59 INFO Executor: Finished task 0.0 in stage 4.0 (TID 18). 3266 bytes result sent to driver
+25/10/31 15:07:59 INFO TaskSetManager: Finished task 0.0 in stage 4.0 (TID 18) in 571 ms on DESKTOP-CNISG4U (executor driver) (1/1)
+25/10/31 15:07:59 INFO TaskSchedulerImpl: Removed TaskSet 4.0, whose tasks have all completed, from pool
+25/10/31 15:07:59 INFO DAGScheduler: ResultStage 4 (showString at NativeMethodAccessorImpl.java:0) finished in 0.611 s
+25/10/31 15:07:59 INFO DAGScheduler: Job 3 is finished. Cancelling potential speculative or zombie tasks for this job
+25/10/31 15:07:59 INFO TaskSchedulerImpl: Killing all running tasks in stage 4: Stage finished
+25/10/31 15:07:59 INFO DAGScheduler: Job 3 finished: showString at NativeMethodAccessorImpl.java:0, took 0.623103 s
+25/10/31 15:08:00 INFO BlockManagerInfo: Removed broadcast_5_piece0 on DESKTOP-CNISG4U:52767 in memory (size: 8.9 KiB, free: 434.3 MiB)
+25/10/31 15:08:00 INFO BlockManagerInfo: Removed broadcast_1_piece0 on DESKTOP-CNISG4U:52767 in memory (size: 41.2 KiB, free: 434.3 MiB)
+25/10/31 15:08:00 INFO BlockManagerInfo: Removed broadcast_3_piece0 on DESKTOP-CNISG4U:52767 in memory (size: 5.9 KiB, free: 434.4 MiB)
+25/10/31 15:08:00 INFO BlockManagerInfo: Removed broadcast_2_piece0 on DESKTOP-CNISG4U:52767 in memory (size: 7.8 KiB, free: 434.4 MiB)
+25/10/31 15:08:00 INFO CodeGenerator: Code generated in 32.8007 ms
++----------------------------+----------+-----------+-------------+------------------+----------------+--------------+-----------------+--------------------+------------------+--------------------+------------------+---------------------+-----+------------------+-----------------------+---------------------+-------------------+------------+--------+-----------+----------+--------------+---------------+-----------------+
+|                     user_id|product_id|star_rating|review_length| review_length_log|rating_deviation|is_long_review|user_review_count|product_review_count|   user_avg_rating|  user_helpful_ratio|product_avg_rating|product_helpful_ratio|price|         price_log|product_avg_rating_meta|product_total_ratings|__synthetic_empty__|cleaned_text|has_text|text_length|word_count|sentence_count|avg_word_length|exclamation_count|
++----------------------------+----------+-----------+-------------+------------------+----------------+--------------+-----------------+--------------------+------------------+--------------------+------------------+---------------------+-----+------------------+-----------------------+---------------------+-------------------+------------+--------+-----------+----------+--------------+---------------+-----------------+
+|AE2QF6PAO3GS3HMUOIEDUDVKDCKA|B00007G1TC|        4.0|            2|1.0986122886681096|             1.0|             0|         
+      49|                  13|3.5306122448979593|0.041666666666666664|3.8461538461538463|                 0.25|14.01|2.7087166456453704|                    4.6|                  205|                   |            |       0|          0|         0|             0|            0.0|                0|
+|AHA4AH5V7FGYS3CZ24ESPUVRUI4A|B000UVKGPI|        5.0|            3|1.3862943611198906|             2.0|             0|         
+      11|                 263| 4.636363636363637|                 0.0| 4.076045627376426|  0.15267175572519084|  7.5|2.1400661634962708|                    4.6|                 1681|                   |            |       0|          0|         0|             0|            0.0|                0|
+|AFUHH4UN4462ULG6VR6HHL6L2CRQ|B00006472U|        4.0|            2|1.0986122886681096|             1.0|             0|         
+     137|                 280| 4.963503649635037| 0.04411764705882353| 4.546428571428572|  0.20430107526881722| 9.98|2.3960754360813845|                    4.7|                 2084|                   |            |       0|          0|         0|             0|            0.0|                0|
+|AHBH5IJ6G2GDKVKSHYCRGRG6ZWOA|B0094K1RZY|        5.0|           21| 3.091042453358316|             2.0|             0|         
+       6|                  98| 4.666666666666667|                 0.0| 4.448979591836735|  0.14432989690721648|10.49|2.4414770918606643|                    4.7|                 6889|                   |            |       0|          0|         0|             0|            0.0|                0|
+|AFFUOEFQK3HDWUTNAMOTMF3BAQDQ|B08DW4CFM9|        1.0|           12|2.5649493574615367|             2.0|             0|         
+      10|                   1|               3.1|                 0.0|               1.0|                  0.0|10.49|2.4414770918606643|                    4.2|                  233|                   |            |       0|          0|         0|             0|            0.0|                0|
++----------------------------+----------+-----------+-------------+------------------+----------------+--------------+-----------------+--------------------+------------------+--------------------+------------------+---------------------+-----+------------------+-----------------------+---------------------+-------------------+------------+--------+-----------+----------+--------------+---------------+-----------------+
+only showing top 5 rows
+
+25/10/31 15:08:00 INFO SparkContext: SparkContext is stopping with exitCode 0.
+25/10/31 15:08:00 INFO SparkUI: Stopped Spark web UI at http://DESKTOP-CNISG4U:4040
+25/10/31 15:08:00 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+25/10/31 15:08:00 INFO MemoryStore: MemoryStore cleared
+25/10/31 15:08:00 INFO BlockManager: BlockManager stopped
+25/10/31 15:08:00 INFO BlockManagerMaster: BlockManagerMaster stopped
+25/10/31 15:08:00 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+25/10/31 15:08:00 WARN SparkEnv: Exception while deleting Spark temp dir: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0\userFiles-b9a27ec4-bb38-4e00-b19a-f47bc3612b4a
+java.io.IOException: Failed to delete: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0\userFiles-b9a27ec4-bb38-4e00-b19a-f47bc3612b4a\pl.edu.icm_JLargeArrays-1.5.jar
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:147)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:130)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:90)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively(SparkFileUtils.scala:121)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively$(SparkFileUtils.scala:120)
+        at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1126)
+        at org.apache.spark.SparkEnv.stop(SparkEnv.scala:108)
+        at org.apache.spark.SparkContext.$anonfun$stop$25(SparkContext.scala:2305)
+        at org.apache.spark.util.Utils$.tryLogNonFatalError(Utils.scala:1375)
+        at org.apache.spark.SparkContext.stop(SparkContext.scala:2305)
+        at org.apache.spark.SparkContext.stop(SparkContext.scala:2211)
+        at org.apache.spark.api.java.JavaSparkContext.stop(JavaSparkContext.scala:550)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+        at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+        at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+        at py4j.Gateway.invoke(Gateway.java:282)
+        at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+        at py4j.commands.CallCommand.execute(CallCommand.java:79)
+        at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)
+        at py4j.ClientServerConnection.run(ClientServerConnection.java:106)
+        at java.base/java.lang.Thread.run(Thread.java:829)
+25/10/31 15:08:00 INFO SparkContext: Successfully stopped SparkContext
+25/10/31 15:08:01 INFO ShutdownHookManager: Shutdown hook called
+25/10/31 15:08:01 INFO ShutdownHookManager: Deleting directory C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0\pyspark-8526d6f1-0134-42d2-8b1e-1629d7dac77c
+25/10/31 15:08:01 INFO ShutdownHookManager: Deleting directory C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0
+25/10/31 15:08:01 ERROR ShutdownHookManager: Exception while deleting Spark temp dir: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0
+java.io.IOException: Failed to delete: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0\userFiles-b9a27ec4-bb38-4e00-b19a-f47bc3612b4a\pl.edu.icm_JLargeArrays-1.5.jar
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:147)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:130)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:130)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:90)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively(SparkFileUtils.scala:121)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively$(SparkFileUtils.scala:120)
+        at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1126)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4(ShutdownHookManager.scala:65)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4$adapted(ShutdownHookManager.scala:62)
+        at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+        at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+        at scala.collection.mutable.ArrayOps$ofRef.foreach(ArrayOps.scala:198)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$2(ShutdownHookManager.scala:62)
+        at org.apache.spark.util.SparkShutdownHook.run(ShutdownHookManager.scala:214)
+        at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$2(ShutdownHookManager.scala:188)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:1928)
+        at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$1(ShutdownHookManager.scala:188)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at scala.util.Try$.apply(Try.scala:213)
+        at org.apache.spark.util.SparkShutdownHookManager.runAll(ShutdownHookManager.scala:188)
+        at org.apache.spark.util.SparkShutdownHookManager$$anon$2.run(ShutdownHookManager.scala:178)
+        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+        at java.base/java.lang.Thread.run(Thread.java:829)
+25/10/31 15:08:01 INFO ShutdownHookManager: Deleting directory C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0\userFiles-b9a27ec4-bb38-4e00-b19a-f47bc3612b4a
+25/10/31 15:08:01 ERROR ShutdownHookManager: Exception while deleting Spark temp dir: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0\userFiles-b9a27ec4-bb38-4e00-b19a-f47bc3612b4a
+java.io.IOException: Failed to delete: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-220fb9f9-ac0c-40d2-bf50-a61a1fbd41c0\userFiles-b9a27ec4-bb38-4e00-b19a-f47bc3612b4a\pl.edu.icm_JLargeArrays-1.5.jar
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:147)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:130)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:90)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively(SparkFileUtils.scala:121)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively$(SparkFileUtils.scala:120)
+        at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1126)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4(ShutdownHookManager.scala:65)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4$adapted(ShutdownHookManager.scala:62)
+        at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+        at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+        at scala.collection.mutable.ArrayOps$ofRef.foreach(ArrayOps.scala:198)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$2(ShutdownHookManager.scala:62)
+        at org.apache.spark.util.SparkShutdownHook.run(ShutdownHookManager.scala:214)
+        at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$2(ShutdownHookManager.scala:188)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:1928)
+        at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$1(ShutdownHookManager.scala:188)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at scala.util.Try$.apply(Try.scala:213)
+        at org.apache.spark.util.SparkShutdownHookManager.runAll(ShutdownHookManager.scala:188)
+        at org.apache.spark.util.SparkShutdownHookManager$$anon$2.run(ShutdownHookManager.scala:178)
+        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+        at java.base/java.lang.Thread.run(Thread.java:829)
+25/10/31 15:08:01 INFO ShutdownHookManager: Deleting directory C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-7e998f2d-8bc6-4f01-8b7d-f79589c686ea
+PS D:\HK7\AmazonReviewInsight> 
+
+
+
+test
+
+=== SCHEMA ===
+root
+ |-- user_id: string (nullable = true)
+ |-- product_id: string (nullable = true)
+ |-- review_text: string (nullable = true)
+ |-- cleaned_text: string (nullable = true)
+ |-- review_length: integer (nullable = true)
+ |-- review_length_log: double (nullable = true)
+ |-- rating_deviation: double (nullable = true)
+ |-- user_review_count: long (nullable = true)
+ |-- product_review_count: long (nullable = true)
+ |-- user_avg_rating: double (nullable = true)
+ |-- product_avg_rating: double (nullable = true)
+ |-- user_helpful_ratio: double (nullable = true)
+ |-- product_helpful_ratio: double (nullable = true)
+ |-- word_count: integer (nullable = true)
+ |-- char_count: integer (nullable = true)
+ |-- avg_word_len: double (nullable = true)
+ |-- is_long_review: integer (nullable = true)
+ |-- sent_pos: integer (nullable = true)
+ |-- sent_neg: integer (nullable = true)
+ |-- sent_score: double (nullable = true)
+ |-- price: double (nullable = true)
+ |-- price_log: double (nullable = true)
+ |-- star_rating: double (nullable = true)
+ |-- text_tfidf: vector (nullable = true)
+ |-- features: vector (nullable = true)
+
+=== N ROWS (approx df.count()) ===
+25/10/31 15:09:05 INFO FileSourceStrategy: Pushed Filters: 
+25/10/31 15:09:05 INFO FileSourceStrategy: Post-Scan Filters: 
+25/10/31 15:09:05 INFO BlockManagerInfo: Removed broadcast_0_piece0 on DESKTOP-CNISG4U:53430 in memory (size: 43.4 KiB, free: 434.4 MiB)
+25/10/31 15:09:05 INFO CodeGenerator: Code generated in 262.3762 ms
+25/10/31 15:09:05 INFO MemoryStore: Block broadcast_1 stored as values in memory (estimated size 226.5 KiB, free 434.2 MiB)
+25/10/31 15:09:05 INFO MemoryStore: Block broadcast_1_piece0 stored as bytes in memory (estimated size 41.2 KiB, free 434.1 MiB)
+25/10/31 15:09:05 INFO BlockManagerInfo: Added broadcast_1_piece0 in memory on DESKTOP-CNISG4U:53430 (size: 41.2 KiB, free: 434.4 MiB)
+25/10/31 15:09:05 INFO SparkContext: Created broadcast 1 from count at NativeMethodAccessorImpl.java:0
+25/10/31 15:09:05 INFO FileSourceScanExec: Planning scan with bin packing, max size: 68018241 bytes, open cost is considered as scanning 4194304 bytes.
+25/10/31 15:09:05 INFO DAGScheduler: Registering RDD 5 (count at NativeMethodAccessorImpl.java:0) as input to shuffle 0
+25/10/31 15:09:05 INFO DAGScheduler: Got map stage job 1 (count at NativeMethodAccessorImpl.java:0) with 16 output partitions
+25/10/31 15:09:05 INFO DAGScheduler: Final stage: ShuffleMapStage 1 (count at NativeMethodAccessorImpl.java:0)
+25/10/31 15:09:05 INFO DAGScheduler: Parents of final stage: List()
+25/10/31 15:09:05 INFO DAGScheduler: Missing parents: List()
+25/10/31 15:09:05 INFO DAGScheduler: Submitting ShuffleMapStage 1 (MapPartitionsRDD[5] at count at NativeMethodAccessorImpl.java:0), which has no missing parents
+25/10/31 15:09:05 INFO MemoryStore: Block broadcast_2 stored as values in memory (estimated size 17.0 KiB, free 434.1 MiB)
+25/10/31 15:09:05 INFO MemoryStore: Block broadcast_2_piece0 stored as bytes in memory (estimated size 7.8 KiB, free 434.1 MiB)
+25/10/31 15:09:05 INFO BlockManagerInfo: Added broadcast_2_piece0 in memory on DESKTOP-CNISG4U:53430 (size: 7.8 KiB, free: 434.4 MiB)
+25/10/31 15:09:05 INFO SparkContext: Created broadcast 2 from broadcast at DAGScheduler.scala:1611
+25/10/31 15:09:05 INFO DAGScheduler: Submitting 16 missing tasks from ShuffleMapStage 1 (MapPartitionsRDD[5] at count at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14))        
+25/10/31 15:09:05 INFO TaskSchedulerImpl: Adding task set 1.0 with 16 tasks resource profile 0
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 0.0 in stage 1.0 (TID 1) (DESKTOP-CNISG4U, executor driver, partition 0, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 1.0 in stage 1.0 (TID 2) (DESKTOP-CNISG4U, executor driver, partition 1, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 2.0 in stage 1.0 (TID 3) (DESKTOP-CNISG4U, executor driver, partition 2, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 3.0 in stage 1.0 (TID 4) (DESKTOP-CNISG4U, executor driver, partition 3, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 4.0 in stage 1.0 (TID 5) (DESKTOP-CNISG4U, executor driver, partition 4, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 5.0 in stage 1.0 (TID 6) (DESKTOP-CNISG4U, executor driver, partition 5, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 6.0 in stage 1.0 (TID 7) (DESKTOP-CNISG4U, executor driver, partition 6, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 7.0 in stage 1.0 (TID 8) (DESKTOP-CNISG4U, executor driver, partition 7, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 8.0 in stage 1.0 (TID 9) (DESKTOP-CNISG4U, executor driver, partition 8, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 9.0 in stage 1.0 (TID 10) (DESKTOP-CNISG4U, executor driver, partition 9, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 10.0 in stage 1.0 (TID 11) (DESKTOP-CNISG4U, executor driver, partition 10, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 11.0 in stage 1.0 (TID 12) (DESKTOP-CNISG4U, executor driver, partition 11, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 12.0 in stage 1.0 (TID 13) (DESKTOP-CNISG4U, executor driver, partition 12, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 13.0 in stage 1.0 (TID 14) (DESKTOP-CNISG4U, executor driver, partition 13, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 14.0 in stage 1.0 (TID 15) (DESKTOP-CNISG4U, executor driver, partition 14, NODE_LOCAL, 19795 bytes)
+25/10/31 15:09:05 INFO TaskSetManager: Starting task 15.0 in stage 1.0 (TID 16) (DESKTOP-CNISG4U, executor driver, partition 15, NODE_LOCAL, 19968 bytes)
+25/10/31 15:09:05 INFO Executor: Running task 0.0 in stage 1.0 (TID 1)
+25/10/31 15:09:05 INFO Executor: Running task 1.0 in stage 1.0 (TID 2)
+25/10/31 15:09:05 INFO Executor: Running task 2.0 in stage 1.0 (TID 3)
+25/10/31 15:09:05 INFO Executor: Running task 4.0 in stage 1.0 (TID 5)
+25/10/31 15:09:05 INFO Executor: Running task 3.0 in stage 1.0 (TID 4)
+25/10/31 15:09:05 INFO Executor: Running task 6.0 in stage 1.0 (TID 7)
+25/10/31 15:09:05 INFO Executor: Running task 5.0 in stage 1.0 (TID 6)
+25/10/31 15:09:05 INFO Executor: Running task 15.0 in stage 1.0 (TID 16)
+25/10/31 15:09:05 INFO Executor: Running task 10.0 in stage 1.0 (TID 11)
+25/10/31 15:09:05 INFO Executor: Running task 11.0 in stage 1.0 (TID 12)
+25/10/31 15:09:05 INFO Executor: Running task 14.0 in stage 1.0 (TID 15)
+25/10/31 15:09:05 INFO Executor: Running task 12.0 in stage 1.0 (TID 13)
+25/10/31 15:09:05 INFO Executor: Running task 7.0 in stage 1.0 (TID 8)
+25/10/31 15:09:05 INFO Executor: Running task 9.0 in stage 1.0 (TID 10)
+25/10/31 15:09:05 INFO Executor: Running task 13.0 in stage 1.0 (TID 14)
+25/10/31 15:09:05 INFO Executor: Running task 8.0 in stage 1.0 (TID 9)
+25/10/31 15:09:06 INFO CodeGenerator: Code generated in 35.2649 ms
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00001-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00007-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00000-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00002-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00006-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 68018241-128588304, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00002-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 68018241-130269558, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00007-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 68018241-130944795, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00003-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00000-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 68018241-134703370, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00003-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 68018241-131905445, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00005-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 68018241-136036482, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00001-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 68018241-130756731, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00004-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 68018241-129974465, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00005-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00006-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00004-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:06 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00005-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 136036482-137594769, partition values: [empty row]
+25/10/31 15:09:06 INFO Executor: Finished task 12.0 in stage 1.0 (TID 13). 2096 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 14.0 in stage 1.0 (TID 15). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 3.0 in stage 1.0 (TID 4). 2096 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 10.0 in stage 1.0 (TID 11). 2096 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 13.0 in stage 1.0 (TID 14). 2096 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 11.0 in stage 1.0 (TID 12). 2096 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 15.0 in stage 1.0 (TID 16). 2053 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 5.0 in stage 1.0 (TID 6). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 4.0 in stage 1.0 (TID 5). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 1.0 in stage 1.0 (TID 2). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO Executor: Finished task 7.0 in stage 1.0 (TID 8). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 13.0 in stage 1.0 (TID 14) in 865 ms on DESKTOP-CNISG4U (executor driver) (1/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 15.0 in stage 1.0 (TID 16) in 865 ms on DESKTOP-CNISG4U (executor driver) (2/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 12.0 in stage 1.0 (TID 13) in 867 ms on DESKTOP-CNISG4U (executor driver) (3/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 11.0 in stage 1.0 (TID 12) in 867 ms on DESKTOP-CNISG4U (executor driver) (4/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 10.0 in stage 1.0 (TID 11) in 868 ms on DESKTOP-CNISG4U (executor driver) (5/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 3.0 in stage 1.0 (TID 4) in 874 ms on DESKTOP-CNISG4U (executor driver) (6/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 5.0 in stage 1.0 (TID 6) in 873 ms on DESKTOP-CNISG4U (executor driver) (7/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 4.0 in stage 1.0 (TID 5) in 874 ms on DESKTOP-CNISG4U (executor driver) (8/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 14.0 in stage 1.0 (TID 15) in 868 ms on DESKTOP-CNISG4U (executor driver) (9/16)
+25/10/31 15:09:06 INFO Executor: Finished task 9.0 in stage 1.0 (TID 10). 2053 bytes result sent to driver
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 1.0 in stage 1.0 (TID 2) in 877 ms on DESKTOP-CNISG4U (executor driver) (10/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 7.0 in stage 1.0 (TID 8) in 872 ms on DESKTOP-CNISG4U (executor driver) (11/16)
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 9.0 in stage 1.0 (TID 10) in 871 ms on DESKTOP-CNISG4U (executor driver) (12/16)
+25/10/31 15:09:06 INFO Executor: Finished task 2.0 in stage 1.0 (TID 3). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 2.0 in stage 1.0 (TID 3) in 880 ms on DESKTOP-CNISG4U (executor driver) (13/16)
+25/10/31 15:09:06 INFO Executor: Finished task 8.0 in stage 1.0 (TID 9). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 8.0 in stage 1.0 (TID 9) in 877 ms on DESKTOP-CNISG4U (executor driver) (14/16)
+25/10/31 15:09:06 INFO Executor: Finished task 0.0 in stage 1.0 (TID 1). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 0.0 in stage 1.0 (TID 1) in 890 ms on DESKTOP-CNISG4U (executor driver) (15/16)
+25/10/31 15:09:06 INFO Executor: Finished task 6.0 in stage 1.0 (TID 7). 2139 bytes result sent to driver
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 6.0 in stage 1.0 (TID 7) in 888 ms on DESKTOP-CNISG4U (executor driver) (16/16)
+25/10/31 15:09:06 INFO TaskSchedulerImpl: Removed TaskSet 1.0, whose tasks have all completed, from pool
+25/10/31 15:09:06 INFO DAGScheduler: ShuffleMapStage 1 (count at NativeMethodAccessorImpl.java:0) finished in 0.928 s
+25/10/31 15:09:06 INFO DAGScheduler: looking for newly runnable stages
+25/10/31 15:09:06 INFO DAGScheduler: running: Set()
+25/10/31 15:09:06 INFO DAGScheduler: waiting: Set()
+25/10/31 15:09:06 INFO DAGScheduler: failed: Set()
+25/10/31 15:09:06 INFO CodeGenerator: Code generated in 11.2443 ms
+25/10/31 15:09:06 INFO SparkContext: Starting job: count at NativeMethodAccessorImpl.java:0
+25/10/31 15:09:06 INFO DAGScheduler: Got job 2 (count at NativeMethodAccessorImpl.java:0) with 1 output partitions
+25/10/31 15:09:06 INFO DAGScheduler: Final stage: ResultStage 3 (count at NativeMethodAccessorImpl.java:0)
+25/10/31 15:09:06 INFO DAGScheduler: Parents of final stage: List(ShuffleMapStage 2)
+25/10/31 15:09:06 INFO DAGScheduler: Missing parents: List()
+25/10/31 15:09:06 INFO DAGScheduler: Submitting ResultStage 3 (MapPartitionsRDD[8] at count at NativeMethodAccessorImpl.java:0), which has no missing parents
+25/10/31 15:09:06 INFO MemoryStore: Block broadcast_3 stored as values in memory (estimated size 12.5 KiB, free 434.1 MiB)
+25/10/31 15:09:06 INFO MemoryStore: Block broadcast_3_piece0 stored as bytes in memory (estimated size 5.9 KiB, free 434.1 MiB)
+25/10/31 15:09:06 INFO BlockManagerInfo: Added broadcast_3_piece0 in memory on DESKTOP-CNISG4U:53430 (size: 5.9 KiB, free: 434.3 MiB)
+25/10/31 15:09:06 INFO SparkContext: Created broadcast 3 from broadcast at DAGScheduler.scala:1611
+25/10/31 15:09:06 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 3 (MapPartitionsRDD[8] at count at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+25/10/31 15:09:06 INFO TaskSchedulerImpl: Adding task set 3.0 with 1 tasks resource profile 0
+25/10/31 15:09:06 INFO TaskSetManager: Starting task 0.0 in stage 3.0 (TID 17) (DESKTOP-CNISG4U, executor driver, partition 0, NODE_LOCAL, 19127 bytes)
+25/10/31 15:09:06 INFO Executor: Running task 0.0 in stage 3.0 (TID 17)
+25/10/31 15:09:06 INFO ShuffleBlockFetcherIterator: Getting 16 (960.0 B) non-empty blocks including 16 (960.0 B) local and 0 (0.0 B) host-local and 0 (0.0 B) push-merged-local and 0 (0.0 B) remote blocks
+25/10/31 15:09:06 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 22 ms
+25/10/31 15:09:06 INFO CodeGenerator: Code generated in 10.7905 ms
+25/10/31 15:09:06 INFO Executor: Finished task 0.0 in stage 3.0 (TID 17). 3995 bytes result sent to driver
+25/10/31 15:09:06 INFO TaskSetManager: Finished task 0.0 in stage 3.0 (TID 17) in 149 ms on DESKTOP-CNISG4U (executor driver) (1/1)
+25/10/31 15:09:06 INFO TaskSchedulerImpl: Removed TaskSet 3.0, whose tasks have all completed, from pool
+25/10/31 15:09:06 INFO DAGScheduler: ResultStage 3 (count at NativeMethodAccessorImpl.java:0) finished in 0.157 s
+25/10/31 15:09:06 INFO DAGScheduler: Job 2 is finished. Cancelling potential speculative or zombie tasks for this job
+25/10/31 15:09:06 INFO TaskSchedulerImpl: Killing all running tasks in stage 3: Stage finished
+25/10/31 15:09:06 INFO DAGScheduler: Job 2 finished: count at NativeMethodAccessorImpl.java:0, took 0.180268 s
+1735280
+=== HEAD ===
+25/10/31 15:09:07 INFO FileSourceStrategy: Pushed Filters: 
+25/10/31 15:09:07 INFO FileSourceStrategy: Post-Scan Filters: 
+25/10/31 15:09:07 INFO CodeGenerator: Code generated in 90.2126 ms
+25/10/31 15:09:07 INFO MemoryStore: Block broadcast_4 stored as values in memory (estimated size 1752.5 KiB, free 432.4 MiB)
+25/10/31 15:09:07 INFO MemoryStore: Block broadcast_4_piece0 stored as bytes in memory (estimated size 415.3 KiB, free 432.0 MiB)
+25/10/31 15:09:07 INFO BlockManagerInfo: Added broadcast_4_piece0 in memory on DESKTOP-CNISG4U:53430 (size: 415.3 KiB, free: 433.9 MiB)
+25/10/31 15:09:07 INFO SparkContext: Created broadcast 4 from showString at NativeMethodAccessorImpl.java:0
+25/10/31 15:09:07 INFO FileSourceScanExec: Planning scan with bin packing, max size: 68018241 bytes, open cost is considered as scanning 4194304 bytes.
+25/10/31 15:09:07 INFO SparkContext: Starting job: showString at NativeMethodAccessorImpl.java:0
+25/10/31 15:09:07 INFO DAGScheduler: Got job 3 (showString at NativeMethodAccessorImpl.java:0) with 1 output partitions        
+25/10/31 15:09:07 INFO DAGScheduler: Final stage: ResultStage 4 (showString at NativeMethodAccessorImpl.java:0)
+25/10/31 15:09:07 INFO DAGScheduler: Parents of final stage: List()
+25/10/31 15:09:07 INFO DAGScheduler: Missing parents: List()
+25/10/31 15:09:07 INFO DAGScheduler: Submitting ResultStage 4 (MapPartitionsRDD[12] at showString at NativeMethodAccessorImpl.java:0), which has no missing parents
+25/10/31 15:09:07 WARN DAGScheduler: Broadcasting large task binary with size 1200.3 KiB
+25/10/31 15:09:07 INFO MemoryStore: Block broadcast_5 stored as values in memory (estimated size 1200.3 KiB, free 430.8 MiB)
+25/10/31 15:09:07 INFO MemoryStore: Block broadcast_5_piece0 stored as bytes in memory (estimated size 180.7 KiB, free 430.6 MiB)
+25/10/31 15:09:07 INFO BlockManagerInfo: Added broadcast_5_piece0 in memory on DESKTOP-CNISG4U:53430 (size: 180.7 KiB, free: 433.8 MiB)
+25/10/31 15:09:07 INFO SparkContext: Created broadcast 5 from broadcast at DAGScheduler.scala:1611
+25/10/31 15:09:07 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 4 (MapPartitionsRDD[12] at showString at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+25/10/31 15:09:07 INFO TaskSchedulerImpl: Adding task set 4.0 with 1 tasks resource profile 0
+25/10/31 15:09:07 INFO TaskSetManager: Starting task 0.0 in stage 4.0 (TID 18) (DESKTOP-CNISG4U, executor driver, partition 0, NODE_LOCAL, 19806 bytes)
+25/10/31 15:09:07 INFO Executor: Running task 0.0 in stage 4.0 (TID 18)
+25/10/31 15:09:08 INFO BlockManagerInfo: Removed broadcast_3_piece0 on DESKTOP-CNISG4U:53430 in memory (size: 5.9 KiB, free: 433.8 MiB)
+25/10/31 15:09:08 INFO BlockManagerInfo: Removed broadcast_1_piece0 on DESKTOP-CNISG4U:53430 in memory (size: 41.2 KiB, free: 433.8 MiB)
+25/10/31 15:09:08 INFO BlockManagerInfo: Removed broadcast_2_piece0 on DESKTOP-CNISG4U:53430 in memory (size: 7.8 KiB, free: 433.8 MiB)
+25/10/31 15:09:08 INFO CodeGenerator: Code generated in 69.9027 ms
+25/10/31 15:09:08 INFO FileScanRDD: Reading File path: hdfs://localhost:9000/output_v2/features_test_v2/part-00000-fd1a0ef2-13b4-411e-adcf-d3e7a6e39fab-c000.snappy.parquet, range: 0-68018241, partition values: [empty row]
+25/10/31 15:09:08 INFO CodecPool: Got brand-new decompressor [.snappy]
+25/10/31 15:09:08 INFO Executor: Finished task 0.0 in stage 4.0 (TID 18). 12378 bytes result sent to driver
+25/10/31 15:09:08 INFO TaskSetManager: Finished task 0.0 in stage 4.0 (TID 18) in 1016 ms on DESKTOP-CNISG4U (executor driver) (1/1)
+25/10/31 15:09:08 INFO TaskSchedulerImpl: Removed TaskSet 4.0, whose tasks have all completed, from pool
+25/10/31 15:09:08 INFO DAGScheduler: ResultStage 4 (showString at NativeMethodAccessorImpl.java:0) finished in 1.061 s
+25/10/31 15:09:08 INFO DAGScheduler: Job 3 is finished. Cancelling potential speculative or zombie tasks for this job
+25/10/31 15:09:08 INFO TaskSchedulerImpl: Killing all running tasks in stage 4: Stage finished
+25/10/31 15:09:08 INFO DAGScheduler: Job 3 finished: showString at NativeMethodAccessorImpl.java:0, took 1.070584 s
+25/10/31 15:09:09 INFO CodeGenerator: Code generated in 23.9984 ms
++----------------------------+----------+--------------------------------------------------------------------------------+--------------------------------------------------------------------------------+-------------+------------------+----------------+-----------------+--------------------+---------------+------------------+------------------+---------------------+----------+----------+------------------+--------------+--------+--------+--------------------+-----+------------------+-----------+--------------------------------------------------------------------------------+--------------------------------------------------------------------------------+
+|                     user_id|product_id|                                                                     review_text|                                                                    cleaned_text|review_length| review_length_log|rating_deviation|user_review_count|product_review_count|user_avg_rating|product_avg_rating|user_helpful_ratio|product_helpful_ratio|word_count|char_count|      avg_word_len|is_long_review|sent_pos|sent_neg|          sent_score|price|         price_log|star_rating|                                                                      text_tfidf|                                                      
+                  features|
++----------------------------+----------+--------------------------------------------------------------------------------+--------------------------------------------------------------------------------+-------------+------------------+----------------+-----------------+--------------------+---------------+------------------+------------------+---------------------+----------+----------+------------------+--------------+--------+--------+--------------------+-----+------------------+-----------+--------------------------------------------------------------------------------+--------------------------------------------------------------------------------+
+|AGBMSGWZ3CQDC65JMH45PVOCJKMA|0006588204|This followed up on her series of albums to provide the video workout.  progr...|this followed up on her series of albums to provide the video workout program...|          180| 5.198497031265826|             2.0|                2|                   2|            5.0|               5.0|              NULL|                 NULL|        24|       158| 6.583333333333333|             0|       1|       0|0.041666666666666664|93.97| 4.553561052254861|        5.0|(20000,[573,992,1336,1508,1673,1821,4206,4254,4316,4495,4674,5373,5581,7751,8...|(20019,[0,1,2,3,4,5,6,7,8,9,10,11,13,15,16,17,18,592,1011,1355,1527,1692,1840...|
+|AFJYOVZDXZSBY3SDVWNE2SZJM7QQ|0006588204|This has always been my favorite workout.  Easy to understand and it works th...|this has always been my favorite workout easy to understand and it works the ...|          212|5.3612921657094255|             2.0|                1|                   2|            5.0|               5.0|              NULL|                 NULL|        41|       197| 4.804878048780488|             0|       2|       0| 0.04878048780487805|93.97| 4.553561052254861|        5.0|(20000,[750,760,841,1705,1756,2535,2663,2891,3445,4646,5373,5891,8430,10066,1...|(20019,[0,1,2,3,4,5,6,7,8,9,10,11,13,15,16,17,18,769,779,860,1724,1775,2554,2...|
+|AF2J4KSCUVMVB3K32X3A3CUVTA3A|0307142353|I enjoyed this show when I was growing up. I later learned of the Scott Bremn...|i enjoyed this show when i was growing up i later learned of the scott bremne...|          331| 5.805134968916488|             2.0|                1|                   1|            5.0|               5.0|              NULL|                 NULL|        70|       326|4.6571428571428575|             0|       4|       1| 0.04285714285714286| 4.85| 1.766441661243765|        5.0|(20000,[291,712,750,865,1756,2891,2911,4402,4482,4495,4683,5076,5139,5373,578...|(20019,[0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,310,731,769,884,1775,2910...|
+|AFE37MIYQEIKKB3I2SDHUCXSTNGA|0307142485|I'm an agnostic, and I enjoyed this for the pure entertainment it is. It does...|i m an agnostic and i enjoyed this for the pure entertainment it is it doesn ...|          767| 6.643789733147672|             1.0|                1|                   2|            4.0|               4.5|              NULL|                 NULL|       142|       737| 5.190140845070423|             1|       3|       2|0.007042253521126761|10.95|2.4807312783775197|        4.0|(20000,[340,619,703,712,1023,1304,1348,1486,1588,1756,2434,2663,2866,2891,311...|(20019,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,359,638,722,731,1042,1...|
+|AHOIWCIQPYNXMWVJZJMGETCWJZBA|0307142485|This is a Christmas Favorite of mine.  I would watch it each year with my fam...|this is a christmas favorite of mine i would watch it each year with my famil...|          164|  5.10594547390058|             2.0|                1|                   2|            5.0|               4.5|              NULL|                 NULL|        32|       158|            4.9375|             0|       2|       0|              0.0625|10.95|2.4807312783775197|        5.0|(20000,[1756,2891,2911,3928,4495,4683,5209,5373,6372,6467,6749,7650,7751,8899...|(20019,[0,1,2,3,4,5,6,7,8,9,10,11,13,15,16,17,18,1775,2910,2930,3947,4514,470...|
++----------------------------+----------+--------------------------------------------------------------------------------+--------------------------------------------------------------------------------+-------------+------------------+----------------+-----------------+--------------------+---------------+------------------+------------------+---------------------+----------+----------+------------------+--------------+--------+--------+--------------------+-----+------------------+-----------+--------------------------------------------------------------------------------+--------------------------------------------------------------------------------+
+only showing top 5 rows
+
+25/10/31 15:09:09 INFO SparkContext: SparkContext is stopping with exitCode 0.
+25/10/31 15:09:09 INFO SparkUI: Stopped Spark web UI at http://DESKTOP-CNISG4U:4040
+25/10/31 15:09:09 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+25/10/31 15:09:09 INFO MemoryStore: MemoryStore cleared
+25/10/31 15:09:09 INFO BlockManager: BlockManager stopped
+25/10/31 15:09:09 INFO BlockManagerMaster: BlockManagerMaster stopped
+25/10/31 15:09:09 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+25/10/31 15:09:09 WARN SparkEnv: Exception while deleting Spark temp dir: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5\userFiles-33e0b95d-80c6-4a25-b32f-1a509feb2ba3
+java.io.IOException: Failed to delete: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5\userFiles-33e0b95d-80c6-4a25-b32f-1a509feb2ba3\pl.edu.icm_JLargeArrays-1.5.jar
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:147)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:130)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:90)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively(SparkFileUtils.scala:121)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively$(SparkFileUtils.scala:120)
+        at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1126)
+        at org.apache.spark.SparkEnv.stop(SparkEnv.scala:108)
+        at org.apache.spark.SparkContext.$anonfun$stop$25(SparkContext.scala:2305)
+        at org.apache.spark.util.Utils$.tryLogNonFatalError(Utils.scala:1375)
+        at org.apache.spark.SparkContext.stop(SparkContext.scala:2305)
+        at org.apache.spark.SparkContext.stop(SparkContext.scala:2211)
+        at org.apache.spark.api.java.JavaSparkContext.stop(JavaSparkContext.scala:550)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+        at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+        at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+        at py4j.Gateway.invoke(Gateway.java:282)
+        at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+        at py4j.commands.CallCommand.execute(CallCommand.java:79)
+        at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)
+        at py4j.ClientServerConnection.run(ClientServerConnection.java:106)
+        at java.base/java.lang.Thread.run(Thread.java:829)
+25/10/31 15:09:09 INFO SparkContext: Successfully stopped SparkContext
+25/10/31 15:09:10 INFO ShutdownHookManager: Shutdown hook called
+25/10/31 15:09:10 INFO ShutdownHookManager: Deleting directory C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5\userFiles-33e0b95d-80c6-4a25-b32f-1a509feb2ba3
+25/10/31 15:09:10 ERROR ShutdownHookManager: Exception while deleting Spark temp dir: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5\userFiles-33e0b95d-80c6-4a25-b32f-1a509feb2ba3
+java.io.IOException: Failed to delete: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5\userFiles-33e0b95d-80c6-4a25-b32f-1a509feb2ba3\pl.edu.icm_JLargeArrays-1.5.jar
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:147)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:130)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:90)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively(SparkFileUtils.scala:121)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively$(SparkFileUtils.scala:120)
+        at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1126)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4(ShutdownHookManager.scala:65)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4$adapted(ShutdownHookManager.scala:62)
+        at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+        at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+        at scala.collection.mutable.ArrayOps$ofRef.foreach(ArrayOps.scala:198)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$2(ShutdownHookManager.scala:62)
+        at org.apache.spark.util.SparkShutdownHook.run(ShutdownHookManager.scala:214)
+        at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$2(ShutdownHookManager.scala:188)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:1928)
+        at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$1(ShutdownHookManager.scala:188)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at scala.util.Try$.apply(Try.scala:213)
+        at org.apache.spark.util.SparkShutdownHookManager.runAll(ShutdownHookManager.scala:188)
+        at org.apache.spark.util.SparkShutdownHookManager$$anon$2.run(ShutdownHookManager.scala:178)
+        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+        at java.base/java.lang.Thread.run(Thread.java:829)
+25/10/31 15:09:10 INFO ShutdownHookManager: Deleting directory C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5\pyspark-58b33ac4-fd74-4983-a1dc-7e34806dc448
+25/10/31 15:09:10 INFO ShutdownHookManager: Deleting directory C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-fe26bbde-5dde-4e63-8099-df418d661445
+25/10/31 15:09:10 INFO ShutdownHookManager: Deleting directory C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5
+25/10/31 15:09:10 ERROR ShutdownHookManager: Exception while deleting Spark temp dir: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5
+java.io.IOException: Failed to delete: C:\Users\LeDangHoangTuan\AppData\Local\Temp\spark-1ae045a8-31f3-4d4b-8d1f-17a04c8c54d5\userFiles-33e0b95d-80c6-4a25-b32f-1a509feb2ba3\pl.edu.icm_JLargeArrays-1.5.jar
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:147)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:130)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:130)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:117)
+        at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:90)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively(SparkFileUtils.scala:121)
+        at org.apache.spark.util.SparkFileUtils.deleteRecursively$(SparkFileUtils.scala:120)
+        at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1126)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4(ShutdownHookManager.scala:65)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4$adapted(ShutdownHookManager.scala:62)
+        at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+        at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+        at scala.collection.mutable.ArrayOps$ofRef.foreach(ArrayOps.scala:198)
+        at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$2(ShutdownHookManager.scala:62)
+        at org.apache.spark.util.SparkShutdownHook.run(ShutdownHookManager.scala:214)
+        at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$2(ShutdownHookManager.scala:188)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:1928)
+        at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$1(ShutdownHookManager.scala:188)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at scala.util.Try$.apply(Try.scala:213)
+        at org.apache.spark.util.SparkShutdownHookManager.runAll(ShutdownHookManager.scala:188)
+        at org.apache.spark.util.SparkShutdownHookManager$$anon$2.run(ShutdownHookManager.scala:178)
+        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+        at java.base/java.lang.Thread.run(Thread.java:829)
+PS D:\HK7\AmazonReviewInsight> 
