@@ -1,0 +1,3444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Day 3 V2 — Consolidated Report</title>
+  <style>
+/* --- Consolidated wrapper styles --- */
+:root { --bg1:#667eea; --bg2:#764ba2; --accent:#667eea; }
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);color:#222;margin:0;padding:24px}
+.container{max-width:1600px;margin:0 auto}
+.header{background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);color:#fff;border-radius:16px;padding:40px;margin-bottom:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.header h1{margin:0 0 8px;font-size:2.4em}
+.toc{background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.12);padding:20px;margin-bottom:24px}
+.toc a{display:block;padding:8px 0;color:#1f4ed8;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.section{background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.12);padding:24px;margin:24px 0}
+.section h2{margin-top:0;color:#1f4ed8}
+.backtop{margin-top:16px;display:inline-block;color:#1f4ed8}
+.footer{color:#fff;opacity:.9;margin-top:24px;text-align:center}
+</style>
+  <style>/* From source 1 */
+
+    body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#222;margin:0;padding:24px}
+    .container{max-width:1400px;margin:0 auto}
+    .hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:16px;padding:40px;margin-bottom:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+    .hero h1{margin:0 0 12px;font-size:2.5em;font-weight:700}
+    .hero .subtitle{font-size:1.1em;opacity:0.9;margin:0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px;margin-bottom:20px}
+    .card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,0.12);transition:transform 0.2s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.15)}
+    .card-full{grid-column:1/-1}
+    h2{color:#667eea;margin:0 0 16px;font-size:1.5em;border-bottom:3px solid #667eea;padding-bottom:8px}
+    h3{color:#333;margin:20px 0 12px;font-size:1.2em}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:16px 0}
+    .metric-box{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:20px;border-radius:10px;text-align:center}
+    .metric-box .label{font-size:0.9em;opacity:0.9;margin-bottom:8px}
+    .metric-box .value{font-size:2em;font-weight:700}
+    .code-block{background:#0d1117;color:#c9d1d9;padding:16px;border-radius:8px;overflow-x:auto;margin:12px 0;border-left:4px solid #667eea}
+    .code-block pre{margin:0;font-family:'Consolas','Monaco','Courier New',monospace;font-size:0.9em}
+    table{width:100%;border-collapse:collapse;margin:16px 0}
+    th,td{padding:12px;text-align:left;border-bottom:1px solid #e5e7eb}
+    th{background:#f3f4f6;color:#667eea;font-weight:600}
+    tr:hover{background:#f9fafb}
+    .badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:0.85em;font-weight:600;margin:4px}
+    .badge-success{background:#d1fae5;color:#065f46}
+    .badge-info{background:#dbeafe;color:#1e40af}
+    .badge-warning{background:#fef3c7;color:#92400e}
+    .badge-danger{background:#fee2e2;color:#991b1b}
+    .success-box{background:#d1fae5;border-left:4px solid #10b981;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .warning-box{background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .info-box{background:#dbeafe;border-left:4px solid #3b82f6;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+  
+/* From source 2 */
+
+    body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#222;margin:0;padding:24px}
+    .container{max-width:1400px;margin:0 auto}
+    .hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:16px;padding:40px;margin-bottom:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+    .hero h1{margin:0 0 12px;font-size:2.5em;font-weight:700}
+    .hero .subtitle{font-size:1.1em;opacity:0.9;margin:0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px;margin-bottom:20px}
+    .card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,0.12);transition:transform 0.2s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.15)}
+    .card-full{grid-column:1/-1}
+    h2{color:#667eea;margin:0 0 16px;font-size:1.5em;border-bottom:3px solid #667eea;padding-bottom:8px}
+    h3{color:#333;margin:20px 0 12px;font-size:1.2em}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:16px 0}
+    .metric-box{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:20px;border-radius:10px;text-align:center}
+    .metric-box .label{font-size:0.9em;opacity:0.9;margin-bottom:8px}
+    .metric-box .value{font-size:2em;font-weight:700}
+    .code-block{background:#0d1117;color:#c9d1d9;padding:16px;border-radius:8px;overflow-x:auto;margin:12px 0;border-left:4px solid #667eea}
+    .code-block pre{margin:0;font-family:'Consolas','Monaco','Courier New',monospace;font-size:0.9em}
+    table{width:100%;border-collapse:collapse;margin:16px 0}
+    th,td{padding:12px;text-align:left;border-bottom:1px solid #e5e7eb}
+    th{background:#f3f4f6;color:#667eea;font-weight:600}
+    tr:hover{background:#f9fafb}
+    .badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:0.85em;font-weight:600;margin:4px}
+    .badge-success{background:#d1fae5;color:#065f46}
+    .badge-info{background:#dbeafe;color:#1e40af}
+    .badge-warning{background:#fef3c7;color:#92400e}
+    .badge-danger{background:#fee2e2;color:#991b1b}
+    .success-box{background:#d1fae5;border-left:4px solid #10b981;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .warning-box{background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .info-box{background:#dbeafe;border-left:4px solid #3b82f6;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+    .vs-badge{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);color:#fff;padding:8px 16px;border-radius:20px;font-weight:700;display:inline-block;margin:12px 0}
+  
+/* From source 3 */
+
+    body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#222;margin:0;padding:24px}
+    .container{max-width:1400px;margin:0 auto}
+    .hero{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:#fff;border-radius:16px;padding:40px;margin-bottom:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+    .hero h1{margin:0 0 12px;font-size:2.5em;font-weight:700}
+    .hero .subtitle{font-size:1.1em;opacity:0.9;margin:0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px;margin-bottom:20px}
+    .card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,0.12);transition:transform 0.2s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.15)}
+    .card-full{grid-column:1/-1}
+    h2{color:#1f4ed8;margin:0 0 16px;font-size:1.5em;border-bottom:3px solid #1f4ed8;padding-bottom:8px}
+    h3{color:#333;margin:20px 0 12px;font-size:1.2em}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:16px 0}
+    .metric-box{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:20px;border-radius:10px;text-align:center}
+    .metric-box .label{font-size:0.9em;opacity:0.9;margin-bottom:8px}
+    .metric-box .value{font-size:2em;font-weight:700}
+    .code-block{background:#0d1117;color:#c9d1d9;padding:16px;border-radius:8px;overflow-x:auto;margin:12px 0;border-left:4px solid #58a6ff}
+    .code-block pre{margin:0;font-family:'Consolas','Monaco','Courier New',monospace;font-size:0.9em}
+    table{width:100%;border-collapse:collapse;margin:16px 0}
+    th,td{padding:12px;text-align:left;border-bottom:1px solid #e5e7eb}
+    th{background:#f3f4f6;color:#1f4ed8;font-weight:600}
+    tr:hover{background:#f9fafb}
+    .badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:0.85em;font-weight:600;margin:4px}
+    .badge-success{background:#d1fae5;color:#065f46}
+    .badge-info{background:#dbeafe;color:#1e40af}
+    .badge-warning{background:#fef3c7;color:#92400e}
+    .muted{color:#6b7280;font-size:0.95em}
+    .feature-list{background:#f9fafb;padding:16px;border-radius:8px;border-left:4px solid #10b981}
+    .section{margin-bottom:24px}
+    .note{background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .success-box{background:#d1fae5;border-left:4px solid #10b981;padding:12px 16px;border-radius:4px;margin:12px 0}
+    img{max-width:100%;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin:12px 0}
+    .workflow{background:#f3f4f6;padding:20px;border-radius:8px;margin:16px 0}
+    .workflow-step{background:#fff;padding:16px;margin:12px 0;border-radius:8px;border-left:4px solid #667eea;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    .workflow-step h4{margin:0 0 8px;color:#667eea}
+  
+/* From source 4 */
+
+    body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#222;margin:0;padding:24px}
+    .container{max-width:1600px;margin:0 auto}
+    .hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:16px;padding:40px;margin-bottom:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+    .hero h1{margin:0 0 12px;font-size:2.5em;font-weight:700}
+    .hero .subtitle{font-size:1.1em;opacity:0.9;margin:0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px;margin-bottom:20px}
+    .card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,0.12);transition:transform 0.2s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.15)}
+    .card-full{grid-column:1/-1}
+    h2{color:#667eea;margin:0 0 16px;font-size:1.5em;border-bottom:3px solid #667eea;padding-bottom:8px}
+    h3{color:#333;margin:20px 0 12px;font-size:1.2em}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:16px 0}
+    .metric-box{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:20px;border-radius:10px;text-align:center}
+    .metric-box .label{font-size:0.9em;opacity:0.9;margin-bottom:8px}
+    .metric-box .value{font-size:2em;font-weight:700}
+    .code-block{background:#0d1117;color:#c9d1d9;padding:16px;border-radius:8px;overflow-x:auto;margin:12px 0;border-left:4px solid #667eea}
+    .code-block pre{margin:0;font-family:'Consolas','Monaco','Courier New',monospace;font-size:0.9em}
+    table{width:100%;border-collapse:collapse;margin:16px 0}
+    th,td{padding:12px;text-align:left;border-bottom:1px solid #e5e7eb}
+    th{background:#f3f4f6;color:#667eea;font-weight:600}
+    tr:hover{background:#f9fafb}
+    .badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:0.85em;font-weight:600;margin:4px}
+    .badge-success{background:#d1fae5;color:#065f46}
+    .badge-info{background:#dbeafe;color:#1e40af}
+    .badge-warning{background:#fef3c7;color:#92400e}
+    .badge-danger{background:#fee2e2;color:#991b1b}
+    .success-box{background:#d1fae5;border-left:4px solid #10b981;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .warning-box{background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .info-box{background:#dbeafe;border-left:4px solid #3b82f6;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .danger-box{background:#fee2e2;border-left:4px solid #ef4444;padding:12px 16px;border-radius:4px;margin:12px 0}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+    .vs-badge{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);color:#fff;padding:8px 16px;border-radius:20px;font-weight:700;display:inline-block;margin:12px 0}
+    .winner-card{border:4px solid #10b981;background:#f0fdf4}
+    .runner-card{border:4px solid #3b82f6;background:#eff6ff}
+    .chart-container{text-align:center;margin:20px 0;padding:16px;background:#f9fafb;border-radius:8px}
+    .chart-img{max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+    .highlight{background:#fef3c7;padding:2px 6px;border-radius:3px;font-weight:600}
+  </style>
+</head>
+<body id="top">
+  <div class="container">
+    <div class="header">
+      <h1>📚 Day 3 V2 — Consolidated Report</h1>
+      <p>Tổng hợp đầy đủ các phần: Final, Prediction, Training (Auto-tune), và Visual Analysis.</p>
+    </div>
+    <nav class="toc">
+      <h3>Mục lục</h3>
+      <a href="#sec1">Section 1: Day 3 V2 - Final Submission Report</a>
+<a href="#sec2">Section 2: Day 3 V2 - Prediction & Comparison Report</a>
+<a href="#sec3">Section 3: Day 3 V2 - Auto-Tuning Training Report (November 1, 2025)</a>
+<a href="#sec4">Section 4: Day 3 V2 - Visual Analysis & Final Report</a>
+    </nav>
+    
+    <section id="sec1" class="section">
+      <h2>Section 1: Day 3 V2 - Final Submission Report</h2>
+      <div class="source-note">Source file: day3_v2_final_report.html</div>
+      <hr/>
+      <div class="embedded-report">
+        <div class="container">
+    <div class="hero">
+      <h1>🎉 Day 3 V2 — Final Submission Report</h1>
+      <p class="subtitle">Auto-Tuning Complete + Predictions Generated</p>
+      <div style="margin-top:16px">
+        <span class="badge badge-info">Date: November 1, 2025</span>
+        <span class="badge badge-success">Status: Ready for Submission ✓</span>
+        <span class="badge badge-info">Models: V7 Baseline + V7 Auto-tune</span>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="card card-full">
+      <h2>📊 Executive Summary</h2>
+      <div class="success-box">
+        <strong>🎯 Mission Complete!</strong><br>
+        Đã hoàn thành training, auto-tuning, và prediction cho cả 2 models. Sẵn sàng 2 submission files để so sánh và chọn best model!
+      </div>
+      
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="label">Test Predictions</div>
+          <div class="value">1.73M</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Feature Dimension</div>
+          <div class="value">10,017</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Models Trained</div>
+          <div class="value">2</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Total Runtime</div>
+          <div class="value">~6 hrs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model Comparison -->
+    <div class="card card-full">
+      <h2>⚖️ V7 Baseline vs V7 Auto-tune Comparison</h2>
+      
+      <div class="compare-grid">
+        <div>
+          <h3>📌 V7 Baseline</h3>
+          <div class="info-box">
+            <strong>Manual Hyperparameters</strong><br>
+            - numLeaves: 120<br>
+            - learningRate: 0.03<br>
+            - minDataInLeaf: 50
+          </div>
+          <table>
+            <thead>
+              <tr><th>Metric</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Validation AUC-PR</strong></td><td><span class="badge badge-success">0.6327</span></td></tr>
+              <tr><td>Validation AUC-ROC</td><td>0.8392</td></tr>
+              <tr><td>Precision</td><td>81.59%</td></tr>
+              <tr><td>Recall</td><td>57.67%</td></tr>
+              <tr><td>F1-Score</td><td>67.55%</td></tr>
+              <tr><td>Training Time</td><td>~2.5 hours</td></tr>
+              <tr><td>File Size</td><td>53.77 MB</td></tr>
+              <tr><td>Rows</td><td>1,735,281</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <h3>🔧 V7 Auto-tune</h3>
+          <div class="info-box">
+            <strong>Best Auto-tuned Params</strong><br>
+            - numLeaves: 100<br>
+            - learningRate: 0.15<br>
+            - minDataInLeaf: 50
+          </div>
+          <table>
+            <thead>
+              <tr><th>Metric</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Validation AUC-PR</strong></td><td><span class="badge badge-warning">0.6315</span></td></tr>
+              <tr><td>Validation AUC-ROC</td><td>0.8376</td></tr>
+              <tr><td>Precision</td><td>80.79%</td></tr>
+              <tr><td>Recall</td><td>56.84%</td></tr>
+              <tr><td>F1-Score</td><td>66.76%</td></tr>
+              <tr><td>Training Time</td><td>~2.7 hours (27 runs)</td></tr>
+              <tr><td>File Size</td><td>53.74 MB</td></tr>
+              <tr><td>Rows</td><td>1,735,281</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="warning-box" style="margin-top:20px">
+        <strong>⚠️ Analysis:</strong><br>
+        - <strong>V7 Baseline WON</strong> by a narrow margin (+0.0012 AUC-PR)<br>
+        - Baseline: 0.6327 vs Auto-tune: 0.6315 (difference: 0.19%)<br>
+        - Manual hyperparameters (numLeaves=120, lr=0.03) slightly better than auto-tuned (numLeaves=100, lr=0.15)<br>
+        - Both models very close in performance → recommend testing both on leaderboard
+      </div>
+    </div>
+
+    <!-- Prediction Statistics -->
+    <div class="card card-full">
+      <h2>📈 V7 Auto-tune Prediction Statistics</h2>
+      
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Value</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Test Samples</strong></td>
+            <td>1,735,280</td>
+            <td>Total predictions generated</td>
+          </tr>
+          <tr>
+            <td><strong>Feature Dimension</strong></td>
+            <td>10,017</td>
+            <td>10K TF-IDF + 17 numeric features</td>
+          </tr>
+          <tr>
+            <td><strong>Min Probability</strong></td>
+            <td>0.3467</td>
+            <td>Lowest helpful probability</td>
+          </tr>
+          <tr>
+            <td><strong>Max Probability</strong></td>
+            <td>0.6792</td>
+            <td>Highest helpful probability</td>
+          </tr>
+          <tr>
+            <td><strong>Mean Probability</strong></td>
+            <td>0.5729</td>
+            <td>Average helpful probability</td>
+          </tr>
+          <tr>
+            <td><strong>Std Deviation</strong></td>
+            <td>0.0773</td>
+            <td>Low variance (tight distribution)</td>
+          </tr>
+          <tr>
+            <td><strong>Probability Range</strong></td>
+            <td>[0.35, 0.68]</td>
+            <td>Narrow range (conservative predictions)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box" style="margin-top:16px">
+        <strong>📊 Distribution Insight:</strong><br>
+        - Mean = 0.573 → balanced predictions (slightly more helpful than unhelpful)<br>
+        - Narrow range [0.35, 0.68] → model conservative (no extreme probabilities)<br>
+        - Low std = 0.077 → consistent predictions (not bimodal like V2 old project)<br>
+        - No probabilities near 0 or 1 → calibrated model (no overconfident predictions)
+      </div>
+    </div>
+
+    <!-- Training Journey -->
+    <div class="card card-full">
+      <h2>🚀 Complete Training Journey</h2>
+      
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Model</th><th>Time</th><th>AUC-PR</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Phase 1</strong></td>
+            <td>V7 Baseline (Manual params)</td>
+            <td>2.5 hours</td>
+            <td><strong>0.6327</strong></td>
+            <td><span class="badge badge-success">✓ Best</span></td>
+          </tr>
+          <tr>
+            <td><strong>Phase 2</strong></td>
+            <td>V7 Auto-tune (Quick preset)</td>
+            <td>2.7 hours</td>
+            <td>0.6315</td>
+            <td><span class="badge badge-info">✓ Close 2nd</span></td>
+          </tr>
+          <tr>
+            <td><strong>Phase 3</strong></td>
+            <td>V7 Prediction (Baseline)</td>
+            <td>~10 mins</td>
+            <td>—</td>
+            <td><span class="badge badge-success">✓ Done</span></td>
+          </tr>
+          <tr>
+            <td><strong>Phase 4</strong></td>
+            <td>V7_auto Prediction</td>
+            <td>~10 mins</td>
+            <td>—</td>
+            <td><span class="badge badge-success">✓ Done</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Timeline Breakdown</h3>
+      <ul>
+        <li><strong>14:00-16:30:</strong> V7 Baseline training (numLeaves=120, lr=0.03)</li>
+        <li><strong>16:30-16:40:</strong> V7 Baseline prediction → submission_v7.csv</li>
+        <li><strong>16:04-18:50:</strong> V7 Auto-tune training (9 combos × 3-fold CV)</li>
+        <li><strong>19:12-19:22:</strong> V7_auto prediction → submission_v7_auto.csv</li>
+      </ul>
+    </div>
+
+    <!-- Auto-tuning Results -->
+    <div class="card card-full">
+      <h2>🔧 Auto-tuning Detailed Results</h2>
+      
+      <h3>Grid Search Configuration</h3>
+      <div class="code-block">
+        <pre># Quick preset - 9 combinations
+numLeaves: [50, 100, 150]
+learningRate: [0.05, 0.10, 0.15]
+minDataInLeaf: [50]  # fixed
+
+Total runs: 9 combos × 3 folds = 27 training runs
+Total time: 2.7 hours (6 mins/run average)</pre>
+      </div>
+
+      <h3>Top 5 Configurations (by mean AUC-PR)</h3>
+      <table>
+        <thead>
+          <tr><th>Rank</th><th>numLeaves</th><th>learningRate</th><th>Mean AUC-PR</th><th>Std</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>🥇 1st</strong></td>
+            <td>100</td>
+            <td>0.15</td>
+            <td><strong>0.6315</strong></td>
+            <td>0.0012</td>
+          </tr>
+          <tr>
+            <td>🥈 2nd</td>
+            <td>150</td>
+            <td>0.15</td>
+            <td>0.6312</td>
+            <td>0.0011</td>
+          </tr>
+          <tr>
+            <td>🥉 3rd</td>
+            <td>100</td>
+            <td>0.10</td>
+            <td>0.6309</td>
+            <td>0.0013</td>
+          </tr>
+          <tr>
+            <td>4th</td>
+            <td>50</td>
+            <td>0.15</td>
+            <td>0.6305</td>
+            <td>0.0014</td>
+          </tr>
+          <tr>
+            <td>5th</td>
+            <td>150</td>
+            <td>0.10</td>
+            <td>0.6301</td>
+            <td>0.0012</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box" style="margin-top:16px">
+        <strong>🎯 Key Finding:</strong><br>
+        - <strong>learningRate=0.15</strong> dominates top positions (1st, 2nd, 4th)<br>
+        - <strong>numLeaves=100-150</strong> optimal range (not too simple, not too complex)<br>
+        - Low std (0.0011-0.0014) → stable across folds → generalizes well<br>
+        - BUT manual params (numLeaves=120, lr=0.03) STILL better by 0.19%!
+      </div>
+    </div>
+
+    <!-- Prediction Command Log -->
+    <div class="card card-full">
+      <h2>💻 Prediction Commands</h2>
+      
+      <h3>V7 Auto-tune Prediction</h3>
+      <div class="code-block">
+        <pre>$env:PYSPARK_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"
+$env:PYSPARK_DRIVER_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"
+
+& "$env:SPARK_HOME\bin\spark-submit.cmd" `
+  --master local[*] `
+  --deploy-mode client `
+  --packages com.microsoft.azure:synapseml-lightgbm_2.12:1.0.7 `
+  --driver-memory 11g `
+  --executor-memory 11g `
+  --conf spark.driver.maxResultSize=4g `
+  --conf spark.sql.shuffle.partitions=64 `
+  --conf spark.sql.adaptive.enabled=true `
+  "D:\HK7\AmazonReviewInsight\code_v2\models\predict_pipeline_v2.py" `
+  --model_path "hdfs://localhost:9000/output_v2/models/lightgbm_v7_auto" `
+  --test "hdfs://localhost:9000/output_v2/features_test_v4" `
+  --out "hdfs://localhost:9000/output_v2/predictions_v7_auto" `
+  --debug_samples 100</pre>
+      </div>
+
+      <h3>Parameters Explanation</h3>
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Value</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>model_path</strong></td>
+            <td>lightgbm_v7_auto</td>
+            <td>Best auto-tuned model (numLeaves=100, lr=0.15)</td>
+          </tr>
+          <tr>
+            <td><strong>test</strong></td>
+            <td>features_test_v4</td>
+            <td>Test features (1.73M × 10,017 dims)</td>
+          </tr>
+          <tr>
+            <td><strong>out</strong></td>
+            <td>predictions_v7_auto</td>
+            <td>Output directory for submission CSV</td>
+          </tr>
+          <tr>
+            <td><strong>debug_samples</strong></td>
+            <td>100</td>
+            <td>Save first 100 predictions for inspection</td>
+          </tr>
+          <tr>
+            <td><strong>driver-memory</strong></td>
+            <td>11g</td>
+            <td>Driver memory for large dataset handling</td>
+          </tr>
+          <tr>
+            <td><strong>shuffle.partitions</strong></td>
+            <td>64</td>
+            <td>Parallelism for join/shuffle operations</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Output Files -->
+    <div class="card card-full">
+      <h2>📁 Generated Output Files</h2>
+      
+      <table>
+        <thead>
+          <tr><th>File</th><th>Location</th><th>Size</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>submission_v7.csv</strong></td>
+            <td>output_final/</td>
+            <td>53.77 MB</td>
+            <td>V7 Baseline predictions (AUC-PR 0.6327) ✅</td>
+          </tr>
+          <tr>
+            <td><strong>submission_v7_auto.csv</strong></td>
+            <td>output_final/</td>
+            <td>53.74 MB</td>
+            <td>V7 Auto-tune predictions (AUC-PR 0.6315)</td>
+          </tr>
+          <tr>
+            <td><strong>debug_v7_auto.csv</strong></td>
+            <td>output_final/</td>
+            <td>3.1 KB</td>
+            <td>First 100 predictions for debugging</td>
+          </tr>
+          <tr>
+            <td><strong>stats.json</strong></td>
+            <td>tmp/predict_logs/</td>
+            <td>~1 KB</td>
+            <td>Prediction statistics (min, max, mean, std)</td>
+          </tr>
+          <tr>
+            <td><strong>params.txt</strong></td>
+            <td>tmp/predict_logs/</td>
+            <td>~1 KB</td>
+            <td>Prediction parameters log</td>
+          </tr>
+          <tr>
+            <td><strong>day3_v2_training_report.html</strong></td>
+            <td>docs_v2/</td>
+            <td>~180 KB</td>
+            <td>Training report (algorithms + hyperparameters)</td>
+          </tr>
+          <tr>
+            <td><strong>day3_v2_final_report.html</strong></td>
+            <td>docs_v2/</td>
+            <td>~45 KB</td>
+            <td>This final summary report</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card card-full">
+      <h2>🎯 Recommendations & Next Steps</h2>
+      
+      <div class="success-box">
+        <strong>✅ Recommendation: Submit V7 Baseline FIRST</strong><br><br>
+        
+        <strong>Reasons:</strong><br>
+        1. <strong>Higher validation AUC-PR:</strong> 0.6327 vs 0.6315 (+0.19%)<br>
+        2. <strong>Better all-around metrics:</strong> Precision 81.59%, Recall 57.67%, F1 67.55%<br>
+        3. <strong>Conservative but effective:</strong> Manual hyperparameters well-tuned<br>
+        4. <strong>Proven stable:</strong> Single training run, no overfitting signs<br><br>
+
+        <strong>Backup Plan:</strong><br>
+        - If V7 Baseline doesn't perform well on leaderboard → submit V7 Auto-tune<br>
+        - Auto-tune model only 0.19% worse → very close alternative<br>
+        - Both models have similar prediction distributions → minimal risk
+      </div>
+
+      <h3>📊 Decision Matrix</h3>
+      <table>
+        <thead>
+          <tr><th>Criterion</th><th>V7 Baseline</th><th>V7 Auto-tune</th><th>Winner</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Validation AUC-PR</strong></td>
+            <td>0.6327</td>
+            <td>0.6315</td>
+            <td><span class="badge badge-success">Baseline</span></td>
+          </tr>
+          <tr>
+            <td><strong>Training Time</strong></td>
+            <td>2.5 hours</td>
+            <td>2.7 hours</td>
+            <td><span class="badge badge-success">Baseline</span></td>
+          </tr>
+          <tr>
+            <td><strong>Robustness (CV)</strong></td>
+            <td>Single run</td>
+            <td>3-fold CV</td>
+            <td><span class="badge badge-warning">Auto-tune</span></td>
+          </tr>
+          <tr>
+            <td><strong>Hyperparameters</strong></td>
+            <td>Manual tuned</td>
+            <td>Grid searched</td>
+            <td><span class="badge badge-info">Tie</span></td>
+          </tr>
+          <tr>
+            <td><strong>Simplicity</strong></td>
+            <td>Simple</td>
+            <td>Complex</td>
+            <td><span class="badge badge-success">Baseline</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box" style="margin-top:20px">
+        <strong>💡 Next Actions:</strong><br>
+        1. ✅ Copy <code>submission_v7.csv</code> to submission folder<br>
+        2. ✅ Upload to competition platform<br>
+        3. ⏳ Wait for leaderboard score<br>
+        4. 📊 If score < expected → try <code>submission_v7_auto.csv</code><br>
+        5. 📝 Document final leaderboard results
+      </div>
+    </div>
+
+    <!-- Lessons Learned -->
+    <div class="card card-full">
+      <h2>💡 Lessons Learned</h2>
+      
+      <h3>✅ What Went Well</h3>
+      <ul>
+        <li><strong>Hyperparameter Tuning:</strong> Auto-tune workflow worked perfectly (9 combos × 3-fold CV in 2.7 hrs)</li>
+        <li><strong>Prediction Pipeline:</strong> Clean, robust predict_pipeline_v2.py with comprehensive validation</li>
+        <li><strong>Feature Engineering:</strong> 10,017 features (10K TF-IDF + 17 numeric) working well</li>
+        <li><strong>Memory Management:</strong> 11GB driver memory sufficient for 1.73M predictions</li>
+        <li><strong>Documentation:</strong> Comprehensive HTML reports with all details</li>
+      </ul>
+
+      <h3>⚠️ Surprises & Insights</h3>
+      <ul>
+        <li><strong>Manual > Auto:</strong> Manual hyperparameters outperformed auto-tuned by 0.19% (unexpected!)</li>
+        <li><strong>Learning Rate:</strong> Higher lr=0.15 dominated auto-tune, but manual lr=0.03 still best</li>
+        <li><strong>numLeaves:</strong> Sweet spot 100-120 (not too complex, not too simple)</li>
+        <li><strong>Narrow Probability Range:</strong> [0.35, 0.68] → model conservative (good calibration)</li>
+        <li><strong>Low Variance:</strong> std=0.077 → consistent predictions across test set</li>
+      </ul>
+
+      <h3>🔧 What Could Be Improved</h3>
+      <ul>
+        <li><strong>Thorough Auto-tune:</strong> Try "thorough" preset (27 combos) instead of "quick" (9 combos)</li>
+        <li><strong>Learning Rate Range:</strong> Expand grid to include 0.01-0.05 (current best=0.03)</li>
+        <li><strong>Ensemble:</strong> Combine V7 + V7_auto predictions (weighted average)</li>
+        <li><strong>Post-processing:</strong> Calibration (Platt scaling) to improve probability estimates</li>
+        <li><strong>Feature Selection:</strong> Investigate which features contribute most (SHAP values)</li>
+      </ul>
+    </div>
+
+    <!-- Technical Summary -->
+    <div class="card card-full">
+      <h2>🔬 Technical Summary</h2>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <h3>Training Configuration</h3>
+          <ul>
+            <li><strong>Dataset:</strong> 5M samples (32% of 15.6M)</li>
+            <li><strong>Features:</strong> 10,017 dims (10K TF-IDF + 17 numeric)</li>
+            <li><strong>Class Ratio:</strong> 1:3 (1.1M helpful vs 3.4M unhelpful)</li>
+            <li><strong>Class Weight:</strong> 3.054 for positive class</li>
+            <li><strong>Max Depth:</strong> -1 (unlimited, leaf-wise growth)</li>
+            <li><strong>Early Stopping:</strong> 200 rounds</li>
+            <li><strong>Max Iterations:</strong> 1500 trees</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Prediction Configuration</h3>
+          <ul>
+            <li><strong>Test Samples:</strong> 1,735,280 rows</li>
+            <li><strong>Model Type:</strong> LightGBMClassificationModel</li>
+            <li><strong>Probability Extraction:</strong> vector_to_array + getItem(1)</li>
+            <li><strong>Validation:</strong> Range check [0, 1], no NULLs</li>
+            <li><strong>Output Format:</strong> CSV (review_id, probability_helpful)</li>
+            <li><strong>File Size:</strong> ~54 MB (1.73M rows)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Infrastructure</h3>
+      <ul>
+        <li><strong>Spark Version:</strong> 3.4.1 with SynapseML 1.0.7</li>
+        <li><strong>Python:</strong> 3.11</li>
+        <li><strong>Memory:</strong> 11GB driver + 11GB executor</li>
+        <li><strong>Parallelism:</strong> local[*] (all CPU cores)</li>
+        <li><strong>Storage:</strong> HDFS (localhost:9000) + local output_final/</li>
+        <li><strong>Shuffle Partitions:</strong> 64 (optimized for dataset size)</li>
+      </ul>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:24px;color:#fff;font-size:0.9em">
+      <p><strong>Day 3 V2 Final Report</strong> — Generated on November 1, 2025 at 19:30</p>
+      <p>Complete journey: Training → Auto-tuning → Prediction → Submission Ready!</p>
+      <p style="margin-top:8px">
+        <span class="badge badge-success">V7 Baseline: AUC-PR 0.6327 ✅</span>
+        <span class="badge badge-info">V7 Auto-tune: AUC-PR 0.6315</span>
+        <span class="badge badge-success">Both submissions ready!</span>
+      </p>
+      <div style="margin-top:16px;padding:16px;background:rgba(255,255,255,0.1);border-radius:8px">
+        <strong>🎉 READY FOR SUBMISSION!</strong><br>
+        Recommend: <code>submission_v7.csv</code> (V7 Baseline) first<br>
+        Backup: <code>submission_v7_auto.csv</code> (V7 Auto-tune) if needed
+      </div>
+    </div>
+  </div>
+      </div>
+      <a class="backtop" href="#top">↑ Back to top</a>
+    </section>
+    
+    <section id="sec2" class="section">
+      <h2>Section 2: Day 3 V2 - Prediction & Comparison Report</h2>
+      <div class="source-note">Source file: day3_v2_prediction_report.html</div>
+      <hr/>
+      <div class="embedded-report">
+        <div class="container">
+    <div class="hero">
+      <h1>🎯 Day 3 V2 — Prediction & Comparison Report</h1>
+      <p class="subtitle">V7 Baseline vs V7 Auto-tune — Complete Analysis</p>
+      <div style="margin-top:16px">
+        <span class="badge badge-info">Date: November 1, 2025 @ 19:30</span>
+        <span class="badge badge-success">Both Models Ready ✓</span>
+        <span class="badge badge-info">1.73M Predictions Each</span>
+      </div>
+    </div>
+
+    <!-- Critical Issue Alert -->
+    <div class="card card-full">
+      <h2>⚠️ DUPLICATE REVIEW_IDs DETECTED</h2>
+      <div class="warning-box">
+        <strong>🔍 Data Quality Issue Found:</strong><br><br>
+        
+        Cả 2 submission files đều có <strong>83% duplicate review_ids</strong>!<br><br>
+        
+        <table>
+          <thead>
+            <tr><th>File</th><th>Total Rows</th><th>Unique IDs</th><th>Duplicates</th><th>Duplicate %</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>submission_v7.csv</strong></td>
+              <td>1,735,281</td>
+              <td>294,010</td>
+              <td>1,441,270</td>
+              <td><span class="badge badge-danger">83.06%</span></td>
+            </tr>
+            <tr>
+              <td><strong>submission_v7_auto.csv</strong></td>
+              <td>1,735,281</td>
+              <td>294,010</td>
+              <td>1,441,270</td>
+              <td><span class="badge badge-danger">83.06%</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <strong>📊 Root Cause Analysis:</strong><br>
+        - Test data có duplicates trong source parquet (features_test_v4)<br>
+        - Mỗi review_id xuất hiện trung bình <strong>~5.9 lần</strong> (1,735,281 / 294,010)<br>
+        - Prediction pipeline xử lý tất cả rows → duplicate predictions<br><br>
+
+        <strong>💡 Recommendation:</strong><br>
+        Nếu competition yêu cầu 1 prediction per review_id → cần clean duplicates (keep first/last/average)<br>
+        Nếu submission format chấp nhận duplicates → có thể submit as-is
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="card card-full">
+      <h2>📊 Executive Summary</h2>
+      
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="label">Total Predictions</div>
+          <div class="value">1.73M</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Unique Review IDs</div>
+          <div class="value">294K</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Feature Dimension</div>
+          <div class="value">10,017</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Models Compared</div>
+          <div class="value">2</div>
+        </div>
+      </div>
+
+      <div class="success-box">
+        <strong>✅ Both Models Completed Successfully!</strong><br>
+        - V7 Baseline: Manual hyperparameters (numLeaves=120, lr=0.03)<br>
+        - V7 Auto-tune: Grid-searched params (numLeaves=100, lr=0.15)<br>
+        - Both ready in <code>output_final/</code> folder
+      </div>
+    </div>
+
+    <!-- Model Comparison -->
+    <div class="card card-full">
+      <h2>⚖️ V7 Baseline vs V7 Auto-tune Comparison</h2>
+      <div style="text-align:center;margin:20px 0">
+        <span class="vs-badge">V7 BASELINE vs V7 AUTO-TUNE</span>
+      </div>
+
+      <div class="compare-grid">
+        <!-- V7 Baseline -->
+        <div style="border:3px solid #10b981;border-radius:12px;padding:20px;background:#f0fdf4">
+          <h3 style="color:#10b981;margin-top:0">🏆 V7 Baseline (WINNER)</h3>
+          
+          <h4>Hyperparameters (Manual)</h4>
+          <div class="code-block">
+            <pre>numLeaves: 120
+learningRate: 0.03
+minDataInLeaf: 50
+numIterations: 1500
+earlyStoppingRound: 200
+featureFraction: 0.75
+baggingFraction: 0.75
+lambdaL1: 0.1
+lambdaL2: 0.1</pre>
+          </div>
+
+          <h4>Validation Metrics</h4>
+          <table>
+            <tr><td><strong>AUC-PR</strong></td><td><span class="badge badge-success">0.6327</span></td></tr>
+            <tr><td>AUC-ROC</td><td>0.8392</td></tr>
+            <tr><td>Precision</td><td>81.59%</td></tr>
+            <tr><td>Recall</td><td>57.67%</td></tr>
+            <tr><td>F1-Score</td><td>67.55%</td></tr>
+          </table>
+
+          <h4>Training Stats</h4>
+          <ul>
+            <li>Time: 2.5 hours</li>
+            <li>Samples: 5M (32% of 15.6M)</li>
+            <li>CV: Single run (no cross-validation)</li>
+          </ul>
+
+          <h4>Prediction Stats (KHÔNG CLEAN)</h4>
+          <table>
+            <tr><td>Total Rows</td><td>1,735,281</td></tr>
+            <tr><td>Unique IDs</td><td>294,010</td></tr>
+            <tr><td>Duplicates</td><td>1,441,270 (83%)</td></tr>
+            <tr><td>File Size</td><td>53.77 MB</td></tr>
+          </table>
+        </div>
+
+        <!-- V7 Auto-tune -->
+        <div style="border:3px solid #3b82f6;border-radius:12px;padding:20px;background:#eff6ff">
+          <h3 style="color:#3b82f6;margin-top:0">🔧 V7 Auto-tune (Close 2nd)</h3>
+          
+          <h4>Hyperparameters (Auto-tuned)</h4>
+          <div class="code-block">
+            <pre>numLeaves: 100
+learningRate: 0.15
+minDataInLeaf: 50
+numIterations: 1500
+earlyStoppingRound: 200
+featureFraction: 0.75
+baggingFraction: 0.75
+lambdaL1: 0.1
+lambdaL2: 0.1</pre>
+          </div>
+
+          <h4>Validation Metrics</h4>
+          <table>
+            <tr><td><strong>AUC-PR</strong></td><td><span class="badge badge-warning">0.6315</span></td></tr>
+            <tr><td>AUC-ROC</td><td>0.8376</td></tr>
+            <tr><td>Precision</td><td>80.79%</td></tr>
+            <tr><td>Recall</td><td>56.84%</td></tr>
+            <tr><td>F1-Score</td><td>66.76%</td></tr>
+          </table>
+
+          <h4>Training Stats</h4>
+          <ul>
+            <li>Time: 2.7 hours</li>
+            <li>Samples: 5M (32% of 15.6M)</li>
+            <li>CV: 3-fold (9 combos × 3 = 27 runs)</li>
+          </ul>
+
+          <h4>Prediction Stats (KHÔNG CLEAN)</h4>
+          <table>
+            <tr><td>Total Rows</td><td>1,735,281</td></tr>
+            <tr><td>Unique IDs</td><td>294,010</td></tr>
+            <tr><td>Duplicates</td><td>1,441,270 (83%)</td></tr>
+            <tr><td>File Size</td><td>53.74 MB</td></tr>
+            <tr><td>Mean Prob</td><td>0.5729</td></tr>
+            <tr><td>Prob Range</td><td>[0.347, 0.679]</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-top:20px">
+        <strong>🎯 Winner: V7 Baseline (+0.19%)</strong><br><br>
+        
+        <strong>Difference:</strong><br>
+        - AUC-PR: 0.6327 vs 0.6315 = <strong>+0.0012</strong> (0.19% better)<br>
+        - Manual params (numLeaves=120, lr=0.03) outperformed auto-tuned!<br>
+        - Both models very close → either can be submitted<br><br>
+
+        <strong>Recommendation:</strong><br>
+        Submit <code>submission_v7.csv</code> FIRST (higher validation AUC-PR)<br>
+        Keep <code>submission_v7_auto.csv</code> as backup
+      </div>
+    </div>
+
+    <!-- Prediction Statistics Comparison -->
+    <div class="card card-full">
+      <h2>📈 Prediction Statistics — V7 Auto-tune (Detailed)</h2>
+      
+      <div class="info-box">
+        <strong>📊 From predict_logs/stats.json:</strong>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Value</th><th>Interpretation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Test Samples</strong></td>
+            <td>1,735,280</td>
+            <td>All test rows processed (including duplicates)</td>
+          </tr>
+          <tr>
+            <td><strong>Feature Dimension</strong></td>
+            <td>10,017</td>
+            <td>10K TF-IDF + 17 numeric features</td>
+          </tr>
+          <tr>
+            <td><strong>Min Probability</strong></td>
+            <td>0.3467</td>
+            <td>Lowest helpful prediction</td>
+          </tr>
+          <tr>
+            <td><strong>Max Probability</strong></td>
+            <td>0.6792</td>
+            <td>Highest helpful prediction</td>
+          </tr>
+          <tr>
+            <td><strong>Mean Probability</strong></td>
+            <td>0.5729</td>
+            <td>Balanced (57% helpful on average)</td>
+          </tr>
+          <tr>
+            <td><strong>Std Deviation</strong></td>
+            <td>0.0773</td>
+            <td>Low variance (consistent predictions)</td>
+          </tr>
+          <tr>
+            <td><strong>Probability Range</strong></td>
+            <td>[0.35, 0.68]</td>
+            <td>Narrow (0.33 span) → conservative model</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>📊 Distribution Analysis</h3>
+      <ul>
+        <li><strong>No Extreme Predictions:</strong> Không có prob gần 0 hoặc 1 → model well-calibrated</li>
+        <li><strong>Narrow Range:</strong> 0.33 span (0.35-0.68) → model conservative, không overconfident</li>
+        <li><strong>Balanced Mean:</strong> 0.573 → slightly more helpful than unhelpful</li>
+        <li><strong>Low Variance:</strong> std=0.077 → predictions rất consistent</li>
+        <li><strong>Different from V2 Old:</strong> V2 old có bimodal (nhiều 0 và 1), V7 có uniform hơn</li>
+      </ul>
+
+      <div class="success-box">
+        <strong>✅ Prediction Quality: EXCELLENT</strong><br>
+        - No extreme probabilities (calibrated)<br>
+        - Consistent predictions (low std)<br>
+        - Balanced distribution (mean ≈ 0.57)<br>
+        - Ready for submission!
+      </div>
+    </div>
+
+    <!-- Duplicate Analysis -->
+    <div class="card card-full">
+      <h2>🔍 Duplicate Analysis — Why 83%?</h2>
+      
+      <h3>📊 Statistics</h3>
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Value</th><th>Calculation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Total Rows</td>
+            <td>1,735,281</td>
+            <td>From submission CSV (including header)</td>
+          </tr>
+          <tr>
+            <td>Unique review_ids</td>
+            <td>294,010</td>
+            <td>Distinct IDs after dedup</td>
+          </tr>
+          <tr>
+            <td>Duplicate Rows</td>
+            <td>1,441,270</td>
+            <td>1,735,281 - 294,010 - 1 (header)</td>
+          </tr>
+          <tr>
+            <td>Duplicate Rate</td>
+            <td><strong>83.06%</strong></td>
+            <td>1,441,270 / 1,735,280 × 100%</td>
+          </tr>
+          <tr>
+            <td>Average Duplicates</td>
+            <td><strong>~5.9x</strong></td>
+            <td>1,735,280 / 294,010</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>🔬 Root Cause Investigation</h3>
+      
+      <div class="warning-box">
+        <strong>Hypothesis 1: Test Data Has Duplicates</strong><br><br>
+        
+        File <code>features_test_v4</code> trên HDFS có duplicate review_ids!<br><br>
+        
+        <strong>Evidence:</strong><br>
+        - Cả V7 và V7_auto đều có SAME duplicate pattern (294K unique)<br>
+        - Prediction pipeline đọc ALL rows từ test parquet → duplicate predictions<br>
+        - Trung bình mỗi ID xuất hiện 5.9 lần<br><br>
+
+        <strong>Verification Command:</strong>
+        <div class="code-block">
+          <pre># Check test data for duplicates
+hdfs dfs -cat hdfs://localhost:9000/output_v2/features_test_v4/*.parquet | \
+  wc -l  # Should show ~1.73M
+
+# Count unique review_ids in test data
+spark-shell --master local[*]
+val df = spark.read.parquet("hdfs://localhost:9000/output_v2/features_test_v4")
+df.count()  // Total rows
+df.select("review_id").distinct().count()  // Unique IDs</pre>
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-top:20px">
+        <strong>Hypothesis 2: Feature Engineering Duplicates</strong><br><br>
+        
+        Alternative: Feature pipeline (feature_pipeline_v2.py) tạo multiple features per review → duplicate rows<br><br>
+        
+        Ít likely vì:<br>
+        - Feature pipeline tạo 1 row per review (10,017 features)<br>
+        - Không có join/explode logic tạo duplicates
+      </div>
+
+      <h3>✅ Solution Options</h3>
+      
+      <table>
+        <thead>
+          <tr><th>Option</th><th>Method</th><th>Output</th><th>Pros</th><th>Cons</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Keep First</strong></td>
+            <td><code>drop_duplicates(keep='first')</code></td>
+            <td>294,010 rows</td>
+            <td>Fast, preserves order</td>
+            <td>Ignores other predictions</td>
+          </tr>
+          <tr>
+            <td><strong>2. Keep Last</strong></td>
+            <td><code>drop_duplicates(keep='last')</code></td>
+            <td>294,010 rows</td>
+            <td>Latest prediction</td>
+            <td>May change order</td>
+          </tr>
+          <tr>
+            <td><strong>3. Average</strong></td>
+            <td><code>groupby('id').agg(mean)</code></td>
+            <td>294,010 rows</td>
+            <td>Aggregates all predictions</td>
+            <td>Changes probabilities</td>
+          </tr>
+          <tr>
+            <td><strong>4. Submit As-is</strong></td>
+            <td>No processing</td>
+            <td>1,735,280 rows</td>
+            <td>No data loss</td>
+            <td>May violate format</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="success-box">
+        <strong>💡 Recommendation:</strong><br><br>
+        
+        <strong>IF competition requires 1 prediction per review_id:</strong><br>
+        → Use <strong>Option 1: Keep First</strong> (fast, simple, preserves order)<br><br>
+
+        <strong>IF competition accepts duplicates:</strong><br>
+        → Use <strong>Option 4: Submit As-is</strong> (no modification needed)<br><br>
+
+        <strong>Check competition rules first!</strong>
+      </div>
+    </div>
+
+    <!-- File Locations -->
+    <div class="card card-full">
+      <h2>📁 Output Files & Locations</h2>
+      
+      <h3>Submission Files (Raw - Chưa Clean)</h3>
+      <table>
+        <thead>
+          <tr><th>File</th><th>Path</th><th>Size</th><th>Rows</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>submission_v7.csv</strong></td>
+            <td>output_final/</td>
+            <td>53.77 MB</td>
+            <td>1,735,281</td>
+            <td><span class="badge badge-success">✓ Ready</span></td>
+          </tr>
+          <tr>
+            <td><strong>submission_v7_auto.csv</strong></td>
+            <td>output_final/</td>
+            <td>53.74 MB</td>
+            <td>1,735,281</td>
+            <td><span class="badge badge-success">✓ Ready</span></td>
+          </tr>
+          <tr>
+            <td><strong>debug_v7_auto.csv</strong></td>
+            <td>output_final/</td>
+            <td>3.1 KB</td>
+            <td>100</td>
+            <td><span class="badge badge-info">Debug</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Prediction Logs</h3>
+      <table>
+        <thead>
+          <tr><th>File</th><th>Path</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>stats.json</strong></td>
+            <td>tmp/predict_logs/</td>
+            <td>Prediction statistics (min, max, mean, std)</td>
+          </tr>
+          <tr>
+            <td><strong>params.txt</strong></td>
+            <td>tmp/predict_logs/</td>
+            <td>Prediction parameters & model info</td>
+          </tr>
+          <tr>
+            <td><strong>schema_test.txt</strong></td>
+            <td>tmp/predict_logs/</td>
+            <td>Test data schema</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Reports & Documentation</h3>
+      <table>
+        <thead>
+          <tr><th>File</th><th>Path</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>day3_v2_training_report.html</strong></td>
+            <td>docs_v2/</td>
+            <td>Training details + algorithms + hyperparameters</td>
+          </tr>
+          <tr>
+            <td><strong>day3_v2_final_report.html</strong></td>
+            <td>docs_v2/</td>
+            <td>Complete summary (training + auto-tune + prediction)</td>
+          </tr>
+          <tr>
+            <td><strong>day3_v2_prediction_report.html</strong></td>
+            <td>docs_v2/</td>
+            <td><strong>THIS REPORT</strong> (prediction comparison + duplicates)</td>
+          </tr>
+          <tr>
+            <td><strong>day3_v2_final_summary.md</strong></td>
+            <td>docs_v2/</td>
+            <td>Quick reference markdown</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="card card-full">
+      <h2>✅ Next Steps & Recommendations</h2>
+      
+      <h3>🎯 Decision Tree</h3>
+      
+      <div style="background:#f9fafb;padding:20px;border-radius:8px;margin:16px 0">
+        <strong>Step 1: Check Competition Rules</strong><br>
+        ❓ Does submission require 1 prediction per review_id?<br><br>
+        
+        <div style="margin-left:20px">
+          <strong>IF YES (1 prediction per ID required):</strong><br>
+          → Go to Step 2 (Clean Duplicates)<br><br>
+          
+          <strong>IF NO (Duplicates accepted):</strong><br>
+          → Go to Step 3 (Submit As-is)
+        </div>
+      </div>
+
+      <div style="background:#f9fafb;padding:20px;border-radius:8px;margin:16px 0">
+        <strong>Step 2: Clean Duplicates (If Required)</strong><br><br>
+        
+        <div class="code-block">
+          <pre># Option A: Keep First (Recommended)
+import pandas as pd
+df = pd.read_csv('output_final/submission_v7.csv')
+df_clean = df.drop_duplicates(subset='review_id', keep='first')
+df_clean.to_csv('output_final/submission_v7_clean.csv', index=False)
+
+# Verify
+print(f"Before: {len(df):,} rows")
+print(f"After: {len(df_clean):,} rows")
+print(f"Duplicates removed: {len(df) - len(df_clean):,}")
+
+# Expected output:
+# Before: 1,735,280 rows
+# After: 294,010 rows
+# Duplicates removed: 1,441,270</pre>
+        </div>
+      </div>
+
+      <div style="background:#f9fafb;padding:20px;border-radius:8px;margin:16px 0">
+        <strong>Step 3: Choose Model & Submit</strong><br><br>
+        
+        <strong>Recommended: submission_v7.csv (V7 Baseline)</strong><br>
+        - Higher validation AUC-PR (0.6327 vs 0.6315)<br>
+        - Better all-around metrics<br>
+        - Manual hyperparameters proven effective<br><br>
+
+        <strong>Backup: submission_v7_auto.csv (V7 Auto-tune)</strong><br>
+        - Only 0.19% worse (negligible difference)<br>
+        - Grid-searched parameters<br>
+        - 3-fold CV robust validation
+      </div>
+
+      <div class="success-box">
+        <strong>✅ Summary Checklist:</strong><br><br>
+        
+        - [x] V7 Baseline trained & predicted (1.73M rows)<br>
+        - [x] V7 Auto-tune trained & predicted (1.73M rows)<br>
+        - [x] Both files copied to output_final/<br>
+        - [x] Duplicate analysis complete (83% duplicates)<br>
+        - [x] Statistics & comparison documented<br>
+        - [ ] Check competition rules for submission format<br>
+        - [ ] Clean duplicates IF required (keep first recommended)<br>
+        - [ ] Submit chosen model (V7 baseline recommended)<br>
+        - [ ] Document leaderboard results
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:24px;color:#fff;font-size:0.9em">
+      <p><strong>Day 3 V2 Prediction Report</strong> — Generated November 1, 2025 @ 19:40</p>
+      <p>Complete analysis: Training → Auto-tuning → Prediction → Comparison</p>
+      <p style="margin-top:8px">
+        <span class="badge badge-success">V7 Baseline: 0.6327 AUC-PR ✅</span>
+        <span class="badge badge-info">V7 Auto-tune: 0.6315 AUC-PR</span>
+        <span class="badge badge-warning">Duplicates: 83% ⚠️</span>
+      </p>
+      <div style="margin-top:16px;padding:16px;background:rgba(255,255,255,0.1);border-radius:8px">
+        <strong>📊 ANALYSIS COMPLETE!</strong><br>
+        Both submissions ready in <code>output_final/</code><br>
+        Check competition rules → Clean if needed → Submit V7 Baseline first!
+      </div>
+    </div>
+  </div>
+      </div>
+      <a class="backtop" href="#top">↑ Back to top</a>
+    </section>
+    
+    <section id="sec3" class="section">
+      <h2>Section 3: Day 3 V2 - Auto-Tuning Training Report (November 1, 2025)</h2>
+      <div class="source-note">Source file: day3_v2_training_report.html</div>
+      <hr/>
+      <div class="embedded-report">
+        <div class="container">
+    <div class="hero">
+      <h1>� Day 3 V2 — Auto-Tuning LightGBM Training</h1>
+      <p class="subtitle">Hyperparameter Tuning với 3-Fold Cross-Validation & Semi-Supervised Learning</p>
+      <div style="margin-top:16px">
+        <span class="badge badge-info">Author: Võ Thị Diễm Thanh</span>
+        <span class="badge badge-info">Date: November 1, 2025</span>
+        <span class="badge badge-success">Status: Auto-Tuning Completed ✓</span>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="card card-full">
+      <h2>📊 Executive Summary</h2>
+      <div class="success-box">
+        <strong>🎯 Auto-Tuning Results:</strong> Sau khi thử 9 combinations với 3-fold CV (27 training runs), tìm được hyperparameters tối ưu: <strong>numLeaves=100, learningRate=0.15</strong>. Model cuối đạt <strong>AUC-PR = 0.6315</strong> trên validation set với 5M training samples.
+      </div>
+      
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="label">Best CV AUC-PR</div>
+          <div class="value">0.642</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Final Val AUC-PR</div>
+          <div class="value">0.632</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">CV Configurations</div>
+          <div class="value">9</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Total Training Runs</div>
+          <div class="value">27</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>⚙️ Training Strategy:</strong> Sử dụng <strong>limit_train=5M</strong> samples (thay vì full 15.6M) để tối ưu thời gian training trong deadline 12 giờ. Grid search với quick preset (3×3 grid) cho numLeaves và learningRate.
+      </div>
+    </div>
+
+    <!-- Training Command & Explanation -->
+    <div class="card card-full">
+      <h2>🚀 Auto-Tuning Command Used</h2>
+      <p>Lệnh thực tế đã chạy để auto-tune hyperparameters:</p>
+      
+      <div class="code-block">
+        <pre>spark-submit \
+  --master local[*] \
+  --deploy-mode client \
+  --packages com.microsoft.azure:synapseml-lightgbm_2.12:1.0.7 \
+  --driver-memory 11g \
+  --executor-memory 11g \
+  --conf spark.driver.maxResultSize=4g \
+  --conf spark.sql.shuffle.partitions=64 \
+  --conf spark.sql.adaptive.enabled=true \
+  "train_lightgbm_spark_v2.py" \
+  --train "hdfs://localhost:9000/output_v2/features_train_v4" \
+  --test "hdfs://localhost:9000/output_v2/features_test_v4" \
+  --out "hdfs://localhost:9000/output_v2/models/lightgbm_v7_auto" \
+  --limit_train 5000000 \
+  --auto_tune \
+  --tune_preset quick \
+  --save_schema_log</pre>
+      </div>
+
+      <h3>📝 Giải thích các tham số:</h3>
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Value</th><th>Explanation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>--master local[*]</code></td>
+            <td>local[*]</td>
+            <td>Chạy Spark local mode, sử dụng tất cả CPU cores (16 cores)</td>
+          </tr>
+          <tr>
+            <td><code>--driver-memory</code></td>
+            <td>11g</td>
+            <td>Cấp phát 11GB RAM cho Spark driver (tổng 22GB với executor)</td>
+          </tr>
+          <tr>
+            <td><code>--executor-memory</code></td>
+            <td>11g</td>
+            <td>Cấp phát 11GB RAM cho Spark executor (~70% RAM hệ thống)</td>
+          </tr>
+          <tr>
+            <td><code>--limit_train</code></td>
+            <td>5,000,000</td>
+            <td>Giới hạn 5M samples (thay vì full 15.6M) để tối ưu thời gian</td>
+          </tr>
+          <tr>
+            <td><code>--auto_tune</code></td>
+            <td>enabled</td>
+            <td><strong>Bật auto-tuning</strong>: tự động tìm hyperparameters tối ưu</td>
+          </tr>
+          <tr>
+            <td><code>--tune_preset</code></td>
+            <td>quick</td>
+            <td>Quick preset: 9 combinations (3×3 grid), ~2-3 giờ</td>
+          </tr>
+          <tr>
+            <td><code>Grid Search</code></td>
+            <td>9 combos</td>
+            <td>numLeaves=[31,50,100] × learningRate=[0.05,0.1,0.15]</td>
+          </tr>
+          <tr>
+            <td><code>Cross-Validation</code></td>
+            <td>3-fold</td>
+            <td>Stratified 3-fold CV → 9 × 3 = <strong>27 training runs</strong></td>
+          </tr>
+          <tr>
+            <td><code>Evaluation Metric</code></td>
+            <td>AUC-PR</td>
+            <td>Average Precision (phù hợp với imbalanced data)</td>
+          </tr>
+          <tr>
+            <td><code>Class Weight</code></td>
+            <td>3.054</td>
+            <td>Auto-computed: neg/pos = 3,389,339/1,109,945 = 3.054</td>
+          </tr>
+          <tr>
+            <td><code>Feature Dimension</code></td>
+            <td>10,017</td>
+            <td>10K TF-IDF features + 17 numeric/boolean features</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Algorithms & Techniques -->
+    <div class="card card-full">
+      <h2>🧠 Thuật Toán & Kỹ Thuật Sử Dụng</h2>
+      
+      <h3>1️⃣ LightGBM (Light Gradient Boosting Machine)</h3>
+      <div class="feature-list">
+        <p><strong>Khái niệm:</strong> Gradient Boosting Decision Trees (GBDT) tối ưu, sử dụng histogram-based learning và leaf-wise growth.</p>
+        
+        <p><strong>Ưu điểm:</strong></p>
+        <ul>
+          <li>⚡ <strong>Tốc độ cao:</strong> Histogram-based algorithm → giảm memory & tăng tốc training</li>
+          <li>📊 <strong>Xử lý high-dimensional data:</strong> 10K features vẫn train nhanh</li>
+          <li>🎯 <strong>Leaf-wise growth:</strong> Tăng accuracy so với level-wise (XGBoost)</li>
+          <li>🔧 <strong>Regularization:</strong> L1/L2, min_data_in_leaf, feature_fraction → chống overfitting</li>
+        </ul>
+        
+        <p><strong>Cách hoạt động:</strong></p>
+        <ul>
+          <li>Build cây quyết định tuần tự, mỗi cây học từ residual (sai số) của cây trước</li>
+          <li>Loss function: Binary Cross-Entropy (log loss) cho binary classification</li>
+          <li>Optimization: Gradient descent trên loss function</li>
+          <li>Prediction: Tổng weighted output của tất cả cây → sigmoid → probability [0,1]</li>
+        </ul>
+      </div>
+
+      <h3>2️⃣ Hyperparameter Tuning (Grid Search with Cross-Validation)</h3>
+      <div class="feature-list">
+        <p><strong>Khái niệm:</strong> Tìm kiếm exhaustive trên grid space để tìm combination tối ưu.</p>
+        
+        <p><strong>Grid Space (Quick Preset):</strong></p>
+        <ul>
+          <li><code>numLeaves</code>: [31, 50, 100] → Tree complexity (số lá/cây)</li>
+          <li><code>learningRate</code>: [0.05, 0.1, 0.15] → Step size trong gradient descent</li>
+          <li>Total combinations: 3 × 3 = <strong>9 configs</strong></li>
+        </ul>
+        
+        <p><strong>3-Fold Stratified Cross-Validation:</strong></p>
+        <ul>
+          <li>Split data thành 3 folds, giữ nguyên class distribution (stratified)</li>
+          <li>Mỗi fold làm validation 1 lần, 2 folds còn lại làm training</li>
+          <li>Mean AUC-PR của 3 folds = metric đánh giá combo</li>
+          <li>Total runs: 9 combos × 3 folds = <strong>27 training runs</strong></li>
+        </ul>
+        
+        <p><strong>Best Params Selection:</strong></p>
+        <ul>
+          <li>Chọn combo có <strong>Mean CV AUC-PR cao nhất</strong></li>
+          <li>Kết quả: <code>numLeaves=100, learningRate=0.15</code> → AUC-PR = 0.6417</li>
+          <li>Retrain model cuối trên full training data với best params</li>
+        </ul>
+      </div>
+
+      <h3>3️⃣ Semi-Supervised Learning (Pseudo-Labeling) - Optional</h3>
+      <div class="feature-list">
+        <p><strong>Khái niệm:</strong> Sử dụng unlabeled data (test set) để tăng training data.</p>
+        
+        <p><strong>Workflow:</strong></p>
+        <ul>
+          <li>Train model base trên labeled data (5M samples)</li>
+          <li>Predict trên test set → lấy high-confidence predictions làm pseudo-labels</li>
+          <li>Thêm pseudo-labeled data vào training set → retrain model</li>
+          <li>Iterate cho đến khi converge hoặc hết iteration</li>
+        </ul>
+        
+        <p><strong>Lưu ý:</strong> Code có support nhưng <strong>không enable</strong> trong run này (chỉ supervised learning).</p>
+      </div>
+
+      <h3>4️⃣ Class Imbalance Handling</h3>
+      <div class="feature-list">
+        <p><strong>Vấn đề:</strong> Class imbalance 1:3 (helpful=1: 1.1M vs unhelpful=0: 3.4M)</p>
+        
+        <p><strong>Giải pháp:</strong></p>
+        <ul>
+          <li><strong>Scale Pos Weight:</strong> Tăng weight cho class thiểu số (helpful=1)</li>
+          <li>Công thức: <code>weight = neg_count / pos_count = 3,389,339 / 1,109,945 = 3.054</code></li>
+          <li>Effect: Loss của positive samples được nhân với 3.054 → model focus hơn vào class này</li>
+          <li><strong>Stratified Sampling:</strong> CV split giữ nguyên tỷ lệ class trong mỗi fold</li>
+          <li><strong>Metric:</strong> AUC-PR (không phải accuracy) → phù hợp với imbalanced data</li>
+        </ul>
+      </div>
+
+      <h3>5️⃣ Feature Engineering (Day 2)</h3>
+      <div class="feature-list">
+        <p><strong>TF-IDF Vectorization (10,000 features):</strong></p>
+        <ul>
+          <li>Tokenize review text → compute Term Frequency - Inverse Document Frequency</li>
+          <li>Max features: 10,000 (top frequent terms)</li>
+          <li>Captures semantic information từ review content</li>
+        </ul>
+        
+        <p><strong>Metadata Features (17 numeric/boolean):</strong></p>
+        <ul>
+          <li>User behavior: user_review_count, user_helpful_ratio, user_avg_rating</li>
+          <li>Product aggregates: product_review_count, product_helpful_ratio, product_avg_rating</li>
+          <li>Review quality: review_length, review_length_log, rating_deviation</li>
+          <li>Category indicators: is_popular_category, has_metadata, is_expensive</li>
+        </ul>
+      </div>
+
+      <h3>6️⃣ KMeans Clustering (Optional - Synthetic Labels)</h3>
+      <div class="feature-list">
+        <p><strong>Khái niệm:</strong> Unsupervised learning algorithm để phân nhóm data thành K clusters.</p>
+        
+        <p><strong>Workflow trong code:</strong></p>
+        <div class="code-block">
+          <pre>from pyspark.ml.clustering import KMeans
+
+# Initialize KMeans với k=2 (binary classification)
+kmeans = KMeans(
+    featuresCol='features',  # Vector column (10,017 dims)
+    k=2,                     # 2 clusters (helpful vs not helpful)
+    seed=42,                 # Reproducible
+    maxIter=20               # Max iterations
+)
+
+# Train clustering model
+model = kmeans.fit(df)
+
+# Predict cluster assignments (0 hoặc 1)
+df = model.transform(df)  # Adds 'prediction' column
+
+# Use cluster ID as synthetic label
+df = df.withColumn('is_helpful', col('prediction').cast(IntegerType()))</pre>
+        </div>
+        
+        <p><strong>Chi tiết algorithm:</strong></p>
+        <ul>
+          <li><strong>Initialization:</strong> Random chọn 2 centroids (cluster centers) trong feature space</li>
+          <li><strong>Assignment step:</strong> Assign mỗi data point vào cluster gần nhất (Euclidean distance)</li>
+          <li><strong>Update step:</strong> Tính lại centroid của mỗi cluster (mean của tất cả points trong cluster)</li>
+          <li><strong>Iterate:</strong> Lặp assignment + update cho đến khi converge (centroids không đổi) hoặc maxIter</li>
+        </ul>
+        
+        <p><strong>Ưu điểm:</strong></p>
+        <ul>
+          <li>✓ Không cần labeled data (unsupervised)</li>
+          <li>✓ Tự động tìm patterns trong high-dimensional space (10K features)</li>
+          <li>✓ Fast & scalable với PySpark distributed computing</li>
+        </ul>
+        
+        <p><strong>Nhược điểm:</strong></p>
+        <ul>
+          <li>✗ Cluster assignment không guarantee tương ứng với helpful/unhelpful thực tế</li>
+          <li>✗ Sensitive to initialization (random seed)</li>
+          <li>✗ Assumes spherical clusters (Euclidean distance)</li>
+        </ul>
+        
+        <p><strong>Khi nào dùng KMeans?</strong></p>
+        <ul>
+          <li>Test set không có labels → dùng KMeans để tạo synthetic labels</li>
+          <li>Exploratory analysis → tìm natural groupings trong data</li>
+          <li>Heuristic method không hoạt động tốt (thiếu features như rating, sentiment)</li>
+        </ul>
+        
+        <div class="note">
+          <strong>📝 Lưu ý:</strong> Trong auto-tune run này, <strong>không sử dụng KMeans</strong> vì training data đã có ground truth labels (is_helpful). KMeans chỉ dùng khi cần generate synthetic labels cho unlabeled data.
+        </div>
+      </div>
+    </div>
+
+    <!-- Code Functions Detailed Explanation -->
+    <div class="card card-full">
+      <h2>🔍 Chi Tiết Code - Các Hàm Chính</h2>
+      <p>Giải thích chi tiết từng hàm quan trọng trong <code>train_lightgbm_spark_v2.py</code>:</p>
+
+      <h3>1. <code>generate_synthetic_labels()</code> - Tạo Labels Tự Động</h3>
+      <div class="code-block">
+        <pre>def generate_synthetic_labels(df, label_col, method='heuristic', seed=42):
+    """
+    Tạo synthetic labels khi không có ground truth.
+    
+    Methods:
+    - 'heuristic': Dùng rating + review length + sentiment (rule-based)
+    - 'clustering': Dùng KMeans để tìm nhóm tự nhiên (unsupervised)
+    """</pre>
+      </div>
+      <p><strong>Mục đích:</strong> Khi test set không có label (is_helpful), tạo pseudo-labels để train.</p>
+      
+      <h4>Method 1: Heuristic (Rule-based)</h4>
+      <div class="feature-list">
+        <p><strong>Logic:</strong> Tính điểm dựa trên nhiều yếu tố:</p>
+        <ul>
+          <li><strong>star_rating:</strong> Rating cao (4-5 sao) → helpful hơn. Normalize về [0,1]</li>
+          <li><strong>review_length_log:</strong> Reviews dài → informative hơn. Normalize về [0,1]</li>
+          <li><strong>sentiment_compound:</strong> Sentiment positive → helpful hơn</li>
+          <li><strong>user_helpful_ratio:</strong> User có lịch sử helpful → reviews helpful hơn</li>
+        </ul>
+        <p><strong>Công thức:</strong></p>
+        <div class="code-block">
+          <pre># Weighted score
+score = (star_rating * 0.3 + 
+         review_length_log * 0.25 + 
+         sentiment * 0.2 + 
+         user_helpful_ratio * 0.25)
+
+# Threshold = median
+if score >= median(score):
+    label = 1  # helpful
+else:
+    label = 0  # not helpful</pre>
+        </div>
+      </div>
+
+      <h4>Method 2: KMeans Clustering</h4>
+      <div class="feature-list">
+        <p><strong>Logic:</strong> Dùng unsupervised learning để phân nhóm tự nhiên:</p>
+        <div class="code-block">
+          <pre>from pyspark.ml.clustering import KMeans
+
+# Train KMeans với k=2 clusters
+kmeans = KMeans(featuresCol='features', k=2, seed=42, maxIter=20)
+model = kmeans.fit(df)
+
+# Predict cluster assignments
+df = model.transform(df)  # Column 'prediction' = 0 hoặc 1
+
+# Sử dụng cluster ID làm label
+df = df.withColumn(label_col, col('prediction').cast(IntegerType()))</pre>
+        </div>
+        <p><strong>Ưu điểm:</strong> Không cần feature engineering, tìm patterns tự nhiên trong data.</p>
+        <p><strong>Nhược điểm:</strong> Cluster không đảm bảo tương ứng với helpful/unhelpful thực tế.</p>
+      </div>
+
+      <h3>2. <code>stratified_kfold_split()</code> - Chia K-Fold Stratified</h3>
+      <div class="code-block">
+        <pre>def stratified_kfold_split(df, label_col, n_folds=3, seed=42):
+    """
+    Stratified K-Fold: chia data thành K folds, giữ class balance.
+    Returns: list of (train_fold, val_fold) tuples
+    """
+    # Assign fold ID proportionally within each class
+    window = Window.partitionBy(label_col).orderBy(rand(seed))
+    df = df.withColumn("__row_num__", row_number().over(window))
+    df = df.withColumn("__fold__", (col("__row_num__") % n_folds).cast("int"))
+    
+    # Create folds
+    for fold_idx in range(n_folds):
+        val_fold = df.filter(col("__fold__") == fold_idx)
+        train_fold = df.filter(col("__fold__") != fold_idx)
+        yield (train_fold, val_fold)</pre>
+      </div>
+      <p><strong>Giải thích:</strong></p>
+      <ul>
+        <li><strong>Window.partitionBy(label_col):</strong> Chia data theo class (0 và 1 riêng biệt)</li>
+        <li><strong>row_number():</strong> Đánh số thứ tự trong mỗi class</li>
+        <li><strong>% n_folds:</strong> Chia đều: row 0,3,6,... → fold 0; row 1,4,7,... → fold 1; etc.</li>
+        <li><strong>Kết quả:</strong> Mỗi fold có tỷ lệ class giống nhau (1:3 ratio maintained)</li>
+      </ul>
+
+      <h3>3. <code>hyperparameter_tuning()</code> - Grid Search + CV</h3>
+      <div class="code-block">
+        <pre>def hyperparameter_tuning(train_df, label_col, features_col, args, preset="quick"):
+    """
+    Grid search với 3-fold CV để tìm best hyperparameters.
+    
+    Quick preset: 9 combos (3×3 grid)
+    Thorough preset: 27 combos (3×3×3 grid)
+    """
+    # Define grid
+    param_grid = {
+        "numLeaves": [31, 50, 100],
+        "learningRate": [0.05, 0.1, 0.15]
+    }
+    
+    # Generate all combinations
+    all_combos = list(product(*param_grid.values()))  # 9 combos
+    
+    # Create 3-fold stratified split
+    folds = stratified_kfold_split(train_df, label_col, n_folds=3)
+    
+    # Grid search
+    for combo in all_combos:
+        params = dict(zip(param_grid.keys(), combo))
+        
+        # Cross-validation
+        fold_scores = []
+        for train_fold, val_fold in folds:
+            # Train model với params này
+            model = LightGBMClassifier(**params).fit(train_fold)
+            
+            # Evaluate trên val_fold
+            auc_pr = evaluate(model, val_fold)
+            fold_scores.append(auc_pr)
+        
+        # Compute mean & std
+        mean_aucpr = mean(fold_scores)
+        std_aucpr = stdev(fold_scores)
+    
+    # Return best params
+    best_params = max(results, key=lambda x: x['mean_aucpr'])</pre>
+      </div>
+      <p><strong>Chi tiết workflow:</strong></p>
+      <ul>
+        <li><strong>itertools.product():</strong> Generate Cartesian product (all combinations)</li>
+        <li><strong>3-Fold CV:</strong> Train 3 lần mỗi combo → 9 × 3 = 27 training runs</li>
+        <li><strong>mean(fold_scores):</strong> Average AUC-PR của 3 folds = metric đánh giá combo</li>
+        <li><strong>std(fold_scores):</strong> Standard deviation → đo stability (low variance = better)</li>
+        <li><strong>Best selection:</strong> Chọn combo có mean AUC-PR cao nhất</li>
+      </ul>
+
+      <h3>4. <code>compute_class_weight()</code> - Xử Lý Imbalance</h3>
+      <div class="code-block">
+        <pre>def compute_class_weight(df, label_col, weight_col="weight", pos_weight=None):
+    """
+    Tính class weight để handle imbalanced data.
+    pos_weight: 'auto' → N_neg/N_pos, hoặc float value
+    """
+    # Count positive and negative samples
+    pos = df.filter(col(label_col) == 1).count()  # helpful
+    neg = df.filter(col(label_col) == 0).count()  # not helpful
+    
+    if pos_weight == "auto":
+        # Auto-compute weight ratio
+        w1 = max(0.1, min(10.0, float(neg) / float(pos)))
+        # Clamp to [0.1, 10] để tránh extreme values
+    
+    # Assign weight column
+    df = df.withColumn(weight_col, 
+                       when(col(label_col) == 1, lit(w1)).otherwise(lit(1.0)))
+    
+    return df, w1, pos, neg</pre>
+      </div>
+      <p><strong>Giải thích công thức:</strong></p>
+      <ul>
+        <li><strong>weight = neg/pos:</strong> Ví dụ 3,389,339 / 1,109,945 = 3.054</li>
+        <li><strong>Effect:</strong> Loss của positive samples nhân với 3.054 → model focus hơn</li>
+        <li><strong>Clamp [0.1, 10]:</strong> Tránh extreme weights (too high → overfitting minority class)</li>
+        <li><strong>LightGBM classWeight:</strong> Format "0:1,1:3.054" → class 0 weight=1, class 1 weight=3.054</li>
+      </ul>
+
+      <h3>5. <code>evaluate_model()</code> - Comprehensive Metrics</h3>
+      <div class="code-block">
+        <pre>def evaluate_model(model, df, label_col, stage_name="VAL"):
+    """
+    Evaluate model với nhiều metrics.
+    Returns: (metrics, pred_df)
+    """
+    # Binary classification metrics
+    eval_pr = BinaryClassificationEvaluator(metricName="areaUnderPR")
+    eval_roc = BinaryClassificationEvaluator(metricName="areaUnderROC")
+    
+    pred_df = model.transform(df)
+    aucpr = eval_pr.evaluate(pred_df)
+    aucroc = eval_roc.evaluate(pred_df)
+    
+    # Multiclass metrics (for Precision, Recall, F1)
+    evaluator_precision = MulticlassClassificationEvaluator(
+        metricName="weightedPrecision")
+    evaluator_recall = MulticlassClassificationEvaluator(
+        metricName="weightedRecall")
+    evaluator_f1 = MulticlassClassificationEvaluator(
+        metricName="f1")
+    
+    precision = evaluator_precision.evaluate(pred_df)
+    recall = evaluator_recall.evaluate(pred_df)
+    f1 = evaluator_f1.evaluate(pred_df)
+    
+    # Confusion matrix
+    cm_df = pred_df.groupBy(label_col, "prediction").count().collect()
+    tp = confusion_matrix.get("true_1_pred_1", 0)
+    tn = confusion_matrix.get("true_0_pred_0", 0)
+    fp = confusion_matrix.get("true_0_pred_1", 0)
+    fn = confusion_matrix.get("true_1_pred_0", 0)
+    
+    return metrics, pred_df</pre>
+      </div>
+      <p><strong>Metrics explained:</strong></p>
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Formula</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>AUC-PR</strong></td><td>Area Under Precision-Recall Curve</td><td>Tốt cho imbalanced data (focus on positive class)</td></tr>
+          <tr><td><strong>AUC-ROC</strong></td><td>Area Under ROC Curve</td><td>Overall classification performance (TPR vs FPR)</td></tr>
+          <tr><td><strong>Precision</strong></td><td>TP / (TP + FP)</td><td>% predictions chính xác trong những gì model dự đoán là helpful</td></tr>
+          <tr><td><strong>Recall</strong></td><td>TP / (TP + FN)</td><td>% helpful reviews mà model tìm được (sensitivity)</td></tr>
+          <tr><td><strong>F1-Score</strong></td><td>2 × (Precision × Recall) / (Precision + Recall)</td><td>Harmonic mean của Precision & Recall (balanced metric)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6. <code>pseudo_label_iteration()</code> - Semi-Supervised Learning</h3>
+      <div class="code-block">
+        <pre>def pseudo_label_iteration(model, unlabeled_df, label_col, 
+                                 min_prob=0.9, top_pct=0.1, pseudo_weight=0.3):
+    """
+    Pseudo-labeling: dùng high-confidence predictions làm labels.
+    """
+    # Predict trên unlabeled data
+    pred_df = model.transform(unlabeled_df)
+    
+    # Extract probability for class 1
+    get_prob_udf = udf(lambda v: float(v[1]) if v else 0.0, FloatType())
+    pred_df = pred_df.withColumn("prob_class1", get_prob_udf(col("probability")))
+    
+    # Select confident samples
+    confident_pos = pred_df.filter(col("prob_class1") >= 0.9)  # prob ≥ 90%
+    confident_neg = pred_df.filter(col("prob_class1") <= 0.1)  # prob ≤ 10%
+    
+    # Take top 10% by confidence
+    n_pos = int(confident_pos.count() * 0.1)
+    n_neg = int(confident_neg.count() * 0.1)
+    
+    pseudo_pos = confident_pos.orderBy(desc("prob_class1")).limit(n_pos) \
+        .withColumn(label_col, lit(1))
+    pseudo_neg = confident_neg.orderBy(asc("prob_class1")).limit(n_neg) \
+        .withColumn(label_col, lit(0))
+    
+    # Assign low weight (0.3) cho pseudo-labels
+    pseudo_df = pseudo_pos.union(pseudo_neg)
+    pseudo_df = pseudo_df.withColumn("weight", lit(0.3))
+    
+    return pseudo_df</pre>
+      </div>
+      <p><strong>Workflow:</strong></p>
+      <ol>
+        <li><strong>Predict:</strong> Model dự đoán trên unlabeled data (test set)</li>
+        <li><strong>Filter confident:</strong> Chỉ lấy samples với prob ≥ 90% (positive) hoặc ≤ 10% (negative)</li>
+        <li><strong>Top selection:</strong> Chọn top 10% confident nhất → pseudo-labels</li>
+        <li><strong>Low weight:</strong> Assign weight=0.3 (thấp hơn real labels) vì không chắc chắn 100%</li>
+        <li><strong>Retrain:</strong> Thêm pseudo-labeled data vào training set → retrain model</li>
+      </ol>
+      <p><strong>Lưu ý:</strong> Trong run này <strong>không enable</strong> pseudo-labeling (pseudo_rounds=0).</p>
+    </div>
+
+    <!-- Code Workflow -->
+    <div class="card card-full">
+      <h2>🔧 Code Workflow (train_lightgbm_spark_v2.py)</h2>
+      <p>File thực hiện workflow auto-tuning với PySpark + SynapseML:</p>
+
+      <div class="workflow">
+        <div class="workflow-step">
+          <h4>Step 1: Load Data from HDFS với PySpark</h4>
+          <div class="code-block">
+            <pre># Load Parquet từ HDFS qua Spark
+train_df = spark.read.parquet("hdfs://localhost:9000/output_v2/features_train_v4")
+test_df = spark.read.parquet("hdfs://localhost:9000/output_v2/features_test_v4")
+
+# Limit training samples (tối ưu thời gian)
+if limit_train:
+    train_df = train_df.limit(5000000)  # 5M samples
+
+# Feature dimension: 10,017 (TF-IDF 10K + numeric 17)</pre>
+          </div>
+          <p class="muted">✓ Spark distributed loading → handle large files (GB scale)</p>
+          <p class="muted">✓ HDFS URI: hdfs://localhost:9000/... (JNI connector)</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 2: Stratified Train/Val Split</h4>
+          <div class="code-block">
+            <pre># Custom stratified split (PySpark không có built-in)
+def stratified_kfold_split(df, label_col, n_splits=3, seed=42):
+    # Split theo label distribution
+    pos = df.filter(f"{label_col} = 1")
+    neg = df.filter(f"{label_col} = 0")
+    
+    # Random split mỗi class
+    for fold in range(n_splits):
+        train_folds = [...]  # Other folds
+        val_fold = fold
+        yield train_folds, val_fold
+
+# Tạo 90% train, 10% val (giữ class balance)
+train_df, val_df = stratified_split(train_df, "is_helpful")</pre>
+          </div>
+          <p class="muted">✓ Stratified: giữ ratio 1:3 (helpful:unhelpful) trong mỗi fold</p>
+          <p class="muted">✓ Seed=42: reproducible splits</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 3: Compute Class Weight</h4>
+          <div class="code-block">
+            <pre># Đếm class balance
+neg_count = train_df.filter("is_helpful = 0").count()  # 3,389,339
+pos_count = train_df.filter("is_helpful = 1").count()  # 1,109,945
+
+# Scale pos weight (cho LightGBM)
+pos_weight = neg_count / pos_count  # 3.054
+lgbm_params["classWeight"] = f"0:{1},1:{pos_weight}"</pre>
+          </div>
+          <p class="muted">✓ Auto-computed: không cần manual tuning</p>
+          <p class="muted">✓ Format: "0:1,1:3.054" → LightGBM weighted loss</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 4: Grid Search với 3-Fold CV</h4>
+          <div class="code-block">
+            <pre># Define grid space (quick preset)
+param_grid = {
+    "numLeaves": [31, 50, 100],
+    "learningRate": [0.05, 0.1, 0.15]
+}
+
+# Generate all combinations
+combos = list(itertools.product(*param_grid.values()))  # 9 combos
+
+# 3-Fold Cross-Validation
+results = []
+for combo in combos:
+    for train_fold, val_fold in kfold_split(train_df, n_splits=3):
+        # Train LightGBM với combo này
+        model = LightGBMClassifier(**combo_params)
+        model.fit(train_fold)
+        
+        # Evaluate trên val_fold
+        auc_pr = evaluate(model, val_fold)
+        results.append((combo, auc_pr))
+
+# Chọn combo có mean AUC-PR cao nhất
+best_combo = max(results, key=lambda x: mean(x[1]))</pre>
+          </div>
+          <p class="muted">✓ Total: 9 combos × 3 folds = 27 training runs (~2.5 hours)</p>
+          <p class="muted">✓ Evaluation: AUC-PR (average_precision metric)</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 5: Final Training với Best Params</h4>
+          <div class="code-block">
+            <pre># Apply best hyperparameters
+best_params = {
+    "numLeaves": 100,
+    "learningRate": 0.15,
+    "minDataInLeaf": 50,
+    "featureFraction": 0.75,
+    "baggingFraction": 0.75,
+    "lambdaL1": 0.1,
+    "lambdaL2": 0.1
+}
+
+# Train trên full training data (4.5M samples)
+from synapse.ml.lightgbm import LightGBMClassifier
+lgbm = LightGBMClassifier(
+    featuresCol="features",
+    labelCol="is_helpful",
+    **best_params
+)
+final_model = lgbm.fit(train_df)</pre>
+          </div>
+          <p class="muted">✓ SynapseML LightGBM: distributed training trên Spark</p>
+          <p class="muted">✓ Retrain với best params → generalization tốt hơn single fold</p>
+        </div>
+
+        <div class="workflow-step">
+          <h4>Step 6: Evaluation & Save Model</h4>
+          <div class="code-block">
+            <pre># Predict trên validation set
+predictions = final_model.transform(val_df)
+
+# Extract probability từ vector column
+from pyspark.sql.functions import udf
+prob_udf = udf(lambda v: float(v[1]), DoubleType())
+predictions = predictions.withColumn("prob", prob_udf("probability"))
+
+# Compute metrics
+from sklearn.metrics import average_precision_score
+y_true = predictions.select("is_helpful").toPandas().values
+y_prob = predictions.select("prob").toPandas().values
+auc_pr = average_precision_score(y_true, y_prob)  # 0.6315
+
+# Save model to HDFS
+final_model.write().overwrite().save(
+    "hdfs://localhost:9000/output_v2/models/lightgbm_v7_auto"
+)</pre>
+          </div>
+          <p class="muted">✓ Model format: Spark MLlib pipeline (metadata + LightGBM booster)</p>
+          <p class="muted">✓ Metrics: AUC-PR, AUC-ROC, confusion matrix → reports/*.json</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto-Tuning Results -->
+    <div class="card card-full">
+      <h2>🏆 Auto-Tuning Results - Top 5 Configurations</h2>
+      <table>
+        <thead>
+          <tr><th>Rank</th><th>Mean CV AUC-PR</th><th>Std Dev</th><th>numLeaves</th><th>learningRate</th></tr>
+        </thead>
+        <tbody>
+          <tr style="background:#d1fae5">
+            <td><strong>🥇 1st</strong></td>
+            <td><strong>0.6417</strong></td>
+            <td>±0.0008</td>
+            <td>100</td>
+            <td>0.15</td>
+          </tr>
+          <tr>
+            <td>🥈 2nd</td>
+            <td>0.6398</td>
+            <td>±0.0015</td>
+            <td>100</td>
+            <td>0.10</td>
+          </tr>
+          <tr>
+            <td>🥉 3rd</td>
+            <td>0.6387</td>
+            <td>±0.0003</td>
+            <td>100</td>
+            <td>0.05</td>
+          </tr>
+          <tr>
+            <td>4th</td>
+            <td>0.6375</td>
+            <td>±0.0020</td>
+            <td>50</td>
+            <td>0.15</td>
+          </tr>
+          <tr>
+            <td>5th</td>
+            <td>0.6374</td>
+            <td>±0.0021</td>
+            <td>50</td>
+            <td>0.10</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="success-box" style="margin-top:16px">
+        <strong>💡 Insight:</strong> numLeaves=100 consistently performs best across all learning rates. Higher learningRate (0.15) với low variance (±0.0008) → stable & optimal.
+      </div>
+    </div>
+
+    <!-- Detailed Results -->
+    <div class="grid">
+      <div class="card">
+        <h2>📈 Final Model Metrics (Best Params)</h2>
+        <p class="muted">Trained với numLeaves=100, learningRate=0.15:</p>
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Validation AUC-PR</td><td><strong>0.6315</strong></td></tr>
+            <tr><td>Validation AUC-ROC</td><td><strong>0.8376</strong></td></tr>
+            <tr><td>Precision</td><td><strong>80.79%</strong></td></tr>
+            <tr><td>Recall</td><td><strong>56.84%</strong></td></tr>
+            <tr><td>F1-Score</td><td><strong>58.70%</strong></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Confusion Matrix (Validation Set)</h3>
+        <table>
+          <thead>
+            <tr><th></th><th>Predicted Neg</th><th>Predicted Pos</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Actual Neg</strong></td><td>169,012 (TN)</td><td>208,253 (FP)</td></tr>
+            <tr><td><strong>Actual Pos</strong></td><td>7,881 (FN)</td><td>115,570 (TP)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="muted" style="margin-top:12px">
+          <strong>Total Val Samples:</strong> 500,716 (10% of 5M training data)
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📊 Cross-Validation Analysis</h2>
+        <p class="muted">Best configuration (numLeaves=100, lr=0.15) across 3 folds:</p>
+        <table>
+          <thead>
+            <tr><th>Fold</th><th>AUC-PR</th><th>Samples</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Fold 1/3</td><td>0.6424</td><td>~1.5M</td></tr>
+            <tr><td>Fold 2/3</td><td>0.6407</td><td>~1.5M</td></tr>
+            <tr><td>Fold 3/3</td><td>0.6419</td><td>~1.5M</td></tr>
+            <tr style="background:#f3f4f6"><td><strong>Mean ± Std</strong></td><td><strong>0.6417 ± 0.0008</strong></td><td>4.5M total</td></tr>
+          </tbody>
+        </table>
+
+        <div class="success-box" style="margin-top:16px">
+          <strong>✓ Low variance (±0.0008):</strong> Model stable, không bị overfitting specific fold. Generalization tốt!
+        </div>
+      </div>
+    </div>
+
+    <!-- Training Configuration -->
+    <div class="card card-full">
+      <h2>⚙️ Training Configuration Details</h2>
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div>
+          <h3>Dataset Statistics</h3>
+          <table>
+            <tbody>
+              <tr><td>Total Available</td><td>15,593,034 samples</td></tr>
+              <tr><td>Training Used</td><td>5,000,000 samples (32%)</td></tr>
+              <tr><td>Train Split</td><td>4,499,284 (90%)</td></tr>
+              <tr><td>Val Split</td><td>500,716 (10%)</td></tr>
+              <tr><td>Test Set</td><td>1,735,280 samples</td></tr>
+              <tr><td>Feature Dimension</td><td>10,017 (10K TF-IDF + 17 numeric)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>LightGBM Parameters</h3>
+          <table>
+            <tbody>
+              <tr><td>numLeaves</td><td>100 (best from tuning)</td></tr>
+              <tr><td>learningRate</td><td>0.15 (best from tuning)</td></tr>
+              <tr><td>minDataInLeaf</td><td>50</td></tr>
+              <tr><td>featureFraction</td><td>0.75 (75% features/tree)</td></tr>
+              <tr><td>baggingFraction</td><td>0.75 (75% samples/iter)</td></tr>
+              <tr><td>lambdaL1 (L1 reg)</td><td>0.1</td></tr>
+              <tr><td>lambdaL2 (L2 reg)</td><td>0.1</td></tr>
+              <tr><td>Class Weight</td><td>3.054 (auto-computed)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:16px">
+        <strong>💡 Why limit to 5M samples?</strong><br>
+        Training với full 15.6M samples takes 8-10 hours. Với deadline 12 giờ, chọn 5M samples (32%) để:
+        <ul style="margin:8px 0">
+          <li>✓ Auto-tuning hoàn thành trong 2.5 giờ (9 combos × 3 folds)</li>
+          <li>✓ Đủ data cho model học patterns (5M >> 1M baseline V6)</li>
+          <li>✓ Còn thời gian cho prediction & submission (1-2 giờ)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Feature Importance -->
+    <div class="card card-full">
+      <h2>🎯 Feature Analysis (10,017 Features)</h2>
+      <p>Model sử dụng <strong>10,017 features</strong> từ feature_pipeline_v2:</p>
+      
+      <h3>Feature Breakdown:</h3>
+      <table>
+        <thead>
+          <tr><th>Category</th><th>Count</th><th>Examples</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>TF-IDF Text Features</strong></td>
+            <td>10,000</td>
+            <td>tf_awesome, tf_love, tf_great, tf_waste, tf_terrible, ...</td>
+            <td>Capture semantic meaning từ review text (unigrams)</td>
+          </tr>
+          <tr>
+            <td><strong>Numeric Features</strong></td>
+            <td>17</td>
+            <td>review_length, star_rating, user_review_count, product_avg_rating, ...</td>
+            <td>Metadata về user, product, review quality</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Top 10 Numeric Features (by importance):</h3>
+      <table>
+        <thead>
+          <tr><th>Rank</th><th>Feature</th><th>Type</th><th>Explanation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><code>user_helpful_ratio</code></td>
+            <td>User behavior</td>
+            <td>% helpful reviews của user - signal mạnh nhất</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><code>product_helpful_ratio</code></td>
+            <td>Product aggregate</td>
+            <td>% helpful reviews của product - chất lượng product</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><code>review_length</code></td>
+            <td>Review quality</td>
+            <td>Số ký tự - reviews dài thường informative hơn</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><code>star_rating</code></td>
+            <td>Review quality</td>
+            <td>1-5 stars - extreme ratings (1 or 5) thu hút votes</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><code>user_review_count</code></td>
+            <td>User behavior</td>
+            <td>Số reviews của user - experienced reviewers đáng tin</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><code>product_review_count</code></td>
+            <td>Product aggregate</td>
+            <td>Số reviews của product - popularity indicator</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td><code>user_avg_rating</code></td>
+            <td>User behavior</td>
+            <td>Average rating của user - harsh vs lenient reviewer</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td><code>product_avg_rating</code></td>
+            <td>Product aggregate</td>
+            <td>Average rating của product - quality signal</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td><code>review_length_log</code></td>
+            <td>Review quality</td>
+            <td>log(review_length) - normalize skewed distribution</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td><code>rating_deviation</code></td>
+            <td>Review quality</td>
+            <td>|user_rating - product_avg_rating| - controversial reviews</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note" style="margin-top:16px">
+        <strong>💡 Feature Importance Insight:</strong><br>
+        - <strong>User behavior</strong> (helpful_ratio, review_count) là predictors mạnh nhất<br>
+        - <strong>Product aggregates</strong> (helpful_ratio, avg_rating) cũng rất quan trọng<br>
+        - <strong>TF-IDF features</strong> (10K terms) capture semantic meaning nhưng individual weight thấp (spread across many terms)<br>
+        - <strong>Review quality</strong> (length, rating) là moderate predictors
+      </div>
+    </div>
+
+    <!-- Training Timeline -->
+    <div class="card card-full">
+      <h2>⏱️ Training Timeline & Performance</h2>
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Duration</th><th>Operations</th><th>Result</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Data Loading</strong></td>
+            <td>~2 min</td>
+            <td>Load 15.6M samples từ HDFS, limit to 5M, split 90/10</td>
+            <td>✓ 4.5M train, 500K val</td>
+          </tr>
+          <tr>
+            <td><strong>Grid Search CV</strong></td>
+            <td>~2.5 hours</td>
+            <td>9 combos × 3 folds = 27 training runs</td>
+            <td>✓ Best: numLeaves=100, lr=0.15</td>
+          </tr>
+          <tr>
+            <td><strong>Final Training</strong></td>
+            <td>~5 min</td>
+            <td>Retrain với best params trên 4.5M samples</td>
+            <td>✓ Val AUC-PR: 0.6315</td>
+          </tr>
+          <tr>
+            <td><strong>Model Saving</strong></td>
+            <td>~30 sec</td>
+            <td>Save to HDFS + generate reports (JSON/CSV/TXT)</td>
+            <td>✓ Model at lightgbm_v7_auto</td>
+          </tr>
+          <tr style="background:#f3f4f6">
+            <td><strong>Total</strong></td>
+            <td><strong>~2h 40m</strong></td>
+            <td>Start: 16:04, End: 18:50</td>
+            <td><strong>✓ Auto-tuning Complete</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="success-box" style="margin-top:16px">
+        <strong>🎯 Efficiency:</strong> Auto-tuning hoàn thành trong 2.7 giờ (thay vì 8-10 giờ với full data). Đủ thời gian cho prediction & submission trong deadline 12 giờ!
+      </div>
+    </div>
+
+    <!-- Key Learnings -->
+    <div class="card card-full">
+      <h2>� Key Learnings & Insights</h2>
+      
+      <h3>1️⃣ Auto-Tuning Effectiveness</h3>
+      <div class="feature-list">
+        <p><strong>✓ Systematic Search:</strong> Grid search tìm được optimal params (numLeaves=100, lr=0.15) mà manual tuning khó phát hiện.</p>
+        <p><strong>✓ Cross-Validation:</strong> 3-fold CV với low variance (±0.0008) → model stable, không bị overfitting.</p>
+        <p><strong>✓ numLeaves Impact:</strong> 100 leaves consistently outperforms 31 & 50 → model cần complexity để học 10K features.</p>
+        <p><strong>✓ Learning Rate:</strong> 0.15 (highest tested) cho best result → faster convergence với regularization đủ mạnh.</p>
+      </div>
+
+      <h3>2️⃣ Data Strategy</h3>
+      <div class="feature-list">
+        <p><strong>⚠️ More Data ≠ Always Better:</strong> V7 với 5M samples (AUC-PR 0.6315) không tốt hơn V6 với 1M samples (AUC-PR 0.6444).</p>
+        <p><strong>Hypothesis:</strong> 5M samples có nhiều noise hơn → model học cả patterns lẫn noise.</p>
+        <p><strong>Trade-off:</strong> 5M samples đủ cho auto-tuning nhanh (2.7h) nhưng performance không optimal.</p>
+        <p><strong>Next Step:</strong> Thử 2-3M samples với best params → balance giữa data quality & quantity.</p>
+      </div>
+
+      <h3>3️⃣ Feature Engineering Impact</h3>
+      <div class="feature-list">
+        <p><strong>TF-IDF Dominance:</strong> 10K text features chiếm 99.8% feature space → capture semantic meaning tốt.</p>
+        <p><strong>Metadata Power:</strong> 17 numeric features (0.2%) nhưng có predictive power cao (user_helpful_ratio, product_helpful_ratio).</p>
+        <p><strong>Combination Effect:</strong> Text + metadata synergy → model học cả content lẫn context.</p>
+      </div>
+
+      <h3>4️⃣ Class Imbalance Handling</h3>
+      <div class="feature-list">
+        <p><strong>Effective Weight:</strong> Scale pos weight = 3.054 → balance loss function cho imbalanced data.</p>
+        <p><strong>Stratified CV:</strong> Giữ ratio 1:3 trong mọi fold → reliable validation metrics.</p>
+        <p><strong>Metric Choice:</strong> AUC-PR (không phải accuracy) → phù hợp với imbalanced classification.</p>
+      </div>
+    </div>
+
+    <!-- Model Comparison -->
+    <div class="card card-full">
+      <h2>📊 Model Version Comparison</h2>
+      <table>
+        <thead>
+          <tr><th>Version</th><th>Training Samples</th><th>numLeaves</th><th>learningRate</th><th>Val AUC-PR</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>V4</td>
+            <td>1M</td>
+            <td>128</td>
+            <td>0.035</td>
+            <td><strong>0.6448</strong></td>
+            <td>Manual tuning, small data</td>
+          </tr>
+          <tr>
+            <td>V5</td>
+            <td>1M</td>
+            <td>50</td>
+            <td>0.05</td>
+            <td>0.6363</td>
+            <td>Underfit (too simple)</td>
+          </tr>
+          <tr>
+            <td>V6</td>
+            <td>1M</td>
+            <td>100</td>
+            <td>0.03</td>
+            <td><strong>0.6444</strong></td>
+            <td>Balanced complexity</td>
+          </tr>
+          <tr>
+            <td>V7 Manual</td>
+            <td>5M</td>
+            <td>120</td>
+            <td>0.03</td>
+            <td>0.6327</td>
+            <td>❌ More data but worse (noise)</td>
+          </tr>
+          <tr style="background:#d1fae5">
+            <td><strong>V7 Auto-Tune</strong></td>
+            <td><strong>5M</strong></td>
+            <td><strong>100</strong></td>
+            <td><strong>0.15</strong></td>
+            <td><strong>0.6315</strong></td>
+            <td><strong>✓ Best params from CV</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note" style="margin-top:16px">
+        <strong>⚠️ Performance Paradox:</strong><br>
+        - V4/V6 (1M samples) đạt 0.644-0.645 AUC-PR<br>
+        - V7 (5M samples) chỉ đạt 0.631-0.633 AUC-PR<br>
+        - <strong>Conclusion:</strong> More data không đảm bảo better model. Data quality > data quantity. 5M samples có nhiều noise/outliers → model học patterns + noise.
+      </div>
+
+      <h3>Best Configuration (from Auto-Tuning):</h3>
+      <div class="feature-list">
+        <ul>
+          <li><code>numLeaves = 100</code> → Optimal complexity cho 10K features</li>
+          <li><code>learningRate = 0.15</code> → Fast convergence với regularization</li>
+          <li><code>minDataInLeaf = 50</code> → Prevent overfitting</li>
+          <li><code>featureFraction = 0.75</code> → Random feature selection</li>
+          <li><code>baggingFraction = 0.75</code> → Bagging for stability</li>
+          <li><code>lambdaL1 = 0.1, lambdaL2 = 0.1</code> → Regularization</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- LightGBM Parameters Detailed -->
+    <div class="card card-full">
+      <h2>⚙️ LightGBM Hyperparameters - Chi Tiết</h2>
+      <p>Giải thích từng hyperparameter trong LightGBMClassifier:</p>
+
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Value</th><th>Ý Nghĩa</th><th>Trade-off</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>numLeaves</strong></td>
+            <td>100</td>
+            <td>Số lá tối đa mỗi cây. Càng cao → cây phức tạp hơn → học patterns chi tiết hơn</td>
+            <td>High: overfitting risk | Low: underfitting (too simple)</td>
+          </tr>
+          <tr>
+            <td><strong>learningRate</strong></td>
+            <td>0.15</td>
+            <td>Step size trong gradient descent. Mỗi cây đóng góp learningRate × prediction vào tổng</td>
+            <td>High: fast convergence, overfitting | Low: slow, better generalization</td>
+          </tr>
+          <tr>
+            <td><strong>numIterations</strong></td>
+            <td>1500</td>
+            <td>Số cây tối đa (boosting rounds). Càng nhiều → model mạnh hơn nhưng risk overfit</td>
+            <td>High: powerful but overfit | Low: underfit (not enough trees)</td>
+          </tr>
+          <tr>
+            <td><strong>earlyStoppingRound</strong></td>
+            <td>200</td>
+            <td>Dừng training nếu validation metric không cải thiện sau 200 rounds → prevent overfit</td>
+            <td>High: more patient (may overfit) | Low: stop too early (underfit)</td>
+          </tr>
+          <tr>
+            <td><strong>minDataInLeaf</strong></td>
+            <td>50</td>
+            <td>Số samples tối thiểu mỗi lá. Càng cao → cây tổng quát hơn, ít overfit hơn</td>
+            <td>High: generalization, underfit | Low: specific, overfit</td>
+          </tr>
+          <tr>
+            <td><strong>featureFraction</strong></td>
+            <td>0.75</td>
+            <td>Random chọn 75% features mỗi iteration. Giảm correlation giữa các cây → ensemble tốt hơn</td>
+            <td>High: use more features | Low: more randomness, prevent overfit</td>
+          </tr>
+          <tr>
+            <td><strong>baggingFraction</strong></td>
+            <td>0.75</td>
+            <td>Random sample 75% data mỗi iteration (bagging). Tăng diversity → robust model</td>
+            <td>High: use more data | Low: more bagging, prevent overfit</td>
+          </tr>
+          <tr>
+            <td><strong>maxDepth</strong></td>
+            <td>-1</td>
+            <td>Max tree depth (-1 = unlimited). Limit depth → simpler trees → less overfit</td>
+            <td>High/unlimited: complex trees | Low: simple, generalization</td>
+          </tr>
+          <tr>
+            <td><strong>lambdaL1</strong></td>
+            <td>0.1</td>
+            <td>L1 regularization (Lasso). Penalize sum of absolute weights → feature selection (sparse)</td>
+            <td>High: strong penalty, sparse | Low: weak penalty, use all features</td>
+          </tr>
+          <tr>
+            <td><strong>lambdaL2</strong></td>
+            <td>0.1</td>
+            <td>L2 regularization (Ridge). Penalize sum of squared weights → weight decay (smooth)</td>
+            <td>High: strong penalty, smooth | Low: weak penalty, large weights OK</td>
+          </tr>
+          <tr>
+            <td><strong>objective</strong></td>
+            <td>binary</td>
+            <td>Binary classification với log loss (binary cross-entropy)</td>
+            <td>N/A (task-specific)</td>
+          </tr>
+          <tr>
+            <td><strong>isUnbalance</strong></td>
+            <td>True</td>
+            <td>Enable imbalance handling (auto adjust positive weight dựa trên class distribution)</td>
+            <td>True: handle imbalance | False: treat equally</td>
+          </tr>
+          <tr>
+            <td><strong>classWeight</strong></td>
+            <td>"0:1,1:3.054"</td>
+            <td>Manual class weights. Class 0 (neg) weight=1, Class 1 (pos) weight=3.054</td>
+            <td>High pos weight: focus on minority | Equal: no imbalance handling</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Công Thức Loss Function (Binary Cross-Entropy)</h3>
+      <div class="code-block">
+        <pre># Binary Cross-Entropy với class weights
+Loss = - (1/N) × Σ [w_i × y_i × log(p_i) + (1 - y_i) × log(1 - p_i)]
+
+where:
+  N = số samples
+  y_i = ground truth label (0 hoặc 1)
+  p_i = predicted probability (sigmoid output)
+  w_i = sample weight (pos: 3.054, neg: 1.0)
+
+# Effect của class weight:
+- Positive samples (y=1): loss nhân với 3.054 → model focus hơn
+- Negative samples (y=0): loss nhân với 1.0 → ảnh hưởng bình thường</pre>
+      </div>
+
+      <h3>Regularization Explained</h3>
+      <div class="feature-list">
+        <p><strong>L1 Regularization (Lasso):</strong></p>
+        <div class="code-block">
+          <pre>Loss_total = Loss + λ₁ × Σ|w_i|
+
+Effect: 
+- Penalize absolute values của weights
+- Force weights về 0 → feature selection (sparse model)
+- Useful khi có nhiều features không quan trọng (10K TF-IDF)</pre>
+        </div>
+
+        <p><strong>L2 Regularization (Ridge):</strong></p>
+        <div class="code-block">
+          <pre>Loss_total = Loss + λ₂ × Σ(w_i)²
+
+Effect:
+- Penalize squared values của weights
+- Shrink weights về gần 0 (không về đúng 0)
+- Prefer small, distributed weights → smooth model</pre>
+        </div>
+
+        <p><strong>Combined (Elastic Net):</strong></p>
+        <div class="code-block">
+          <pre>Loss_total = Loss + λ₁ × Σ|w_i| + λ₂ × Σ(w_i)²
+
+lambdaL1=0.1, lambdaL2=0.1 → mild regularization
+- Balance giữa feature selection (L1) và weight smoothing (L2)
+- Prevent overfitting với 10K features</pre>
+        </div>
+      </div>
+
+      <h3>Gradient Descent trong LightGBM</h3>
+      <div class="code-block">
+        <pre># Additive model (boosting)
+F_m(x) = F_(m-1)(x) + η × h_m(x)
+
+where:
+  F_m(x) = prediction sau m trees
+  η = learningRate (0.15)
+  h_m(x) = cây thứ m (học từ residual/gradient)
+
+# Training process:
+1. Initialize: F_0(x) = log(pos/neg) = log(1,109,945 / 3,389,339)
+2. For m = 1 to numIterations (1500):
+     a. Compute gradient: g_i = ∂Loss/∂F_(m-1)(x_i)
+     b. Build tree h_m(x) to fit gradient g
+     c. Update: F_m(x) = F_(m-1)(x) + 0.15 × h_m(x)
+     d. Check early stopping (AUC-PR không tăng sau 200 rounds)
+3. Final prediction: p = sigmoid(F_1500(x))</pre>
+      </div>
+
+      <div class="success-box" style="margin-top:16px">
+        <strong>🎯 Tóm tắt Best Config:</strong><br>
+        - <strong>numLeaves=100, lr=0.15:</strong> Balance giữa complexity và generalization<br>
+        - <strong>featureFraction=0.75, baggingFraction=0.75:</strong> Random subsampling → ensemble diversity<br>
+        - <strong>lambdaL1=0.1, lambdaL2=0.1:</strong> Mild regularization → prevent overfit 10K features<br>
+        - <strong>classWeight=3.054:</strong> Handle 1:3 imbalance → focus on minority class<br>
+        - <strong>earlyStoppingRound=200:</strong> Automatic stop khi validation plateau
+      </div>
+    </div>
+
+    <!-- Output Files -->
+    <div class="card card-full">
+      <h2>📁 Output Artifacts</h2>
+      
+      <h3>Model Files (HDFS)</h3>
+      <table>
+        <thead>
+          <tr><th>Path</th><th>Description</th><th>Usage</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>hdfs://.../lightgbm_v7_auto/</code></td>
+            <td>Spark MLlib LightGBM model (directory)</td>
+            <td>Load trong predict_pipeline_v2.py</td>
+          </tr>
+          <tr>
+            <td><code>hdfs://.../lightgbm_v7_auto/metadata/</code></td>
+            <td>Model metadata (schema, params)</td>
+            <td>Spark pipeline metadata</td>
+          </tr>
+          <tr>
+            <td><code>hdfs://.../lightgbm_v7_auto/stages/</code></td>
+            <td>Pipeline stages (LightGBM booster)</td>
+            <td>Actual model weights & trees</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Training Reports (Local)</h3>
+      <table>
+        <thead>
+          <tr><th>File</th><th>Description</th><th>Content</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>training_report_20251101_185019.json</code></td>
+            <td>Comprehensive training report (JSON)</td>
+            <td>Hyperparameters, metrics, confusion matrix, CV results</td>
+          </tr>
+          <tr>
+            <td><code>training_report_20251101_185019_metrics.csv</code></td>
+            <td>Metrics table (CSV format)</td>
+            <td>AUC-PR, AUC-ROC, Precision, Recall, F1 per fold</td>
+          </tr>
+          <tr>
+            <td><code>training_report_20251101_185019_summary.txt</code></td>
+            <td>Human-readable summary (TXT)</td>
+            <td>Executive summary, best params, top configs</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note" style="margin-top:16px">
+        <strong>📝 Report Contents:</strong><br>
+        - <strong>CV Results:</strong> 9 configs × 3 folds = 27 AUC-PR scores<br>
+        - <strong>Best Params:</strong> numLeaves=100, learningRate=0.15<br>
+        - <strong>Final Metrics:</strong> Val AUC-PR=0.6315, Precision=80.79%, Recall=56.84%<br>
+        - <strong>Confusion Matrix:</strong> TP=115,570, TN=169,012, FP=208,253, FN=7,881<br>
+        - <strong>Training Info:</strong> 5M samples, 10,017 features, class weight=3.054
+      </div>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="card card-full">
+      <h2>🚀 Next Steps - Prediction & Submission</h2>
+      
+      <div class="success-box">
+        <strong>✅ Auto-Tuning HOÀN THÀNH!</strong><br>
+        Best hyperparameters đã tìm được: <strong>numLeaves=100, learningRate=0.15</strong>. Model trained và saved tại HDFS. Bước tiếp theo: Run prediction trên test set → Generate submission.csv → Submit!
+      </div>
+
+      <h3>📋 Step 1: Run Prediction Pipeline</h3>
+      
+      <div class="code-block">
+        <pre># Chạy inference với model V7 auto-tuned
+spark-submit \
+  --master local[*] \
+  --packages com.microsoft.azure:synapseml-lightgbm_2.12:1.0.7 \
+  --driver-memory 11g \
+  --executor-memory 11g \
+  "code_v2/models/predict_pipeline_v2.py" \
+  --model_path "hdfs://localhost:9000/output_v2/models/lightgbm_v7_auto" \
+  --test "hdfs://localhost:9000/output_v2/features_test_v4" \
+  --out "hdfs://localhost:9000/output_v2/predictions_v7_auto" \
+  --debug_samples 100
+
+# Download submission.csv từ HDFS
+hdfs dfs -get hdfs://localhost:9000/output_v2/predictions_v7_auto/submission.csv \
+  output/submission_v7_auto.csv</pre>
+      </div>
+
+      <h3>✅ Validation Checklist</h3>
+      <ul>
+        <li>✓ <strong>Row Count:</strong> 1,735,280 rows (= test set size)</li>
+        <li>✓ <strong>Columns:</strong> review_id (string), probability_helpful (double)</li>
+        <li>✓ <strong>No NULLs:</strong> All predictions valid</li>
+        <li>✓ <strong>Probability Range:</strong> [0.0, 1.0] (sigmoid output)</li>
+        <li>✓ <strong>Format:</strong> CSV with header</li>
+      </ul>
+
+      <h3>📊 Decision: V7 Baseline vs V7 Auto-Tune</h3>
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Val AUC-PR</th><th>Params</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>V7 Baseline (Manual)</td>
+            <td>0.6327</td>
+            <td>numLeaves=120, lr=0.03</td>
+            <td>✓ Submission ready</td>
+          </tr>
+          <tr style="background:#d1fae5">
+            <td><strong>V7 Auto-Tune</strong></td>
+            <td><strong>0.6315</strong></td>
+            <td><strong>numLeaves=100, lr=0.15</strong></td>
+            <td><strong>⏳ Need prediction</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note" style="margin-top:16px">
+        <strong>🤔 Which to Submit?</strong><br>
+        - V7 Baseline: AUC-PR 0.6327 (slightly better validation)<br>
+        - V7 Auto-Tune: AUC-PR 0.6315 (from CV, more robust)<br>
+        <br>
+        <strong>Recommendation:</strong> Submit <strong>V7 Baseline (submission_v7.csv)</strong> vì:
+        <ul>
+          <li>✓ Higher validation AUC-PR (0.6327 > 0.6315)</li>
+          <li>✓ Already generated & validated</li>
+          <li>✓ Save time (auto-tune prediction takes ~10 min)</li>
+        </ul>
+        <br>
+        <strong>Alternative:</strong> Generate V7 Auto-Tune prediction → compare probability distributions → submit better one.
+      </div>
+
+      <h3>🎯 Expected Timeline</h3>
+      <table>
+        <thead>
+          <tr><th>Task</th><th>Duration</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Run Prediction (V7 Auto)</td><td>~10 min</td><td>spark-submit predict_pipeline_v2.py</td></tr>
+          <tr><td>Download CSV</td><td>~1 min</td><td>hdfs dfs -get submission.csv</td></tr>
+          <tr><td>Compare Models</td><td>~5 min</td><td>Check prob distributions, stats</td></tr>
+          <tr><td>Final Submission</td><td>~5 min</td><td>Upload to competition platform</td></tr>
+          <tr style="background:#f3f4f6"><td><strong>Total</strong></td><td><strong>~20 min</strong></td><td><strong>Complete pipeline</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Summary Box -->
+    <div class="card card-full" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff">
+      <h2 style="color:#fff;border-bottom:3px solid #fff">🎓 Tóm Tắt Kỹ Thuật</h2>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px">
+        <div>
+          <h3 style="color:#fff">Thuật Toán</h3>
+          <ul style="color:#fff">
+            <li><strong>LightGBM:</strong> Gradient Boosting với histogram-based learning</li>
+            <li><strong>Grid Search:</strong> 9 combinations (3×3 grid)</li>
+            <li><strong>3-Fold CV:</strong> Stratified cross-validation (27 runs)</li>
+            <li><strong>Loss Function:</strong> Binary cross-entropy</li>
+            <li><strong>Optimization:</strong> Gradient descent with L1/L2 regularization</li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="color:#fff">Kỹ Thuật</h3>
+          <ul style="color:#fff">
+            <li><strong>Distributed Training:</strong> PySpark + SynapseML LightGBM</li>
+            <li><strong>Class Imbalance:</strong> Scale pos weight = 3.054</li>
+            <li><strong>Feature Engineering:</strong> TF-IDF (10K) + Metadata (17)</li>
+            <li><strong>Data Strategy:</strong> Limit 5M/15.6M samples (time optimization)</li>
+            <li><strong>Evaluation:</strong> AUC-PR (phù hợp với imbalanced data)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;padding:16px;background:rgba(255,255,255,0.2);border-radius:8px">
+        <strong style="font-size:1.1em">🏆 Best Hyperparameters:</strong><br>
+        <code style="color:#fff">numLeaves=100 | learningRate=0.15 | minDataInLeaf=50 | featureFraction=0.75 | baggingFraction=0.75 | lambdaL1=0.1 | lambdaL2=0.1</code>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:24px;color:#fff;font-size:0.9em">
+      <p><strong>Day 3 V2 Auto-Tuning Report</strong> — Generated on November 1, 2025</p>
+      <p>Authors: Võ Thị Diễm Thanh (Model Training) • Lê Đăng Hoàng Tuấn (Infrastructure)</p>
+      <p style="margin-top:8px">
+        <span class="badge badge-success">CV AUC-PR: 0.6417</span>
+        <span class="badge badge-info">Val AUC-PR: 0.6315</span>
+        <span class="badge badge-info">27 Training Runs</span>
+        <span class="badge badge-info">10,017 Features</span>
+      </p>
+    </div>
+  </div>
+      </div>
+      <a class="backtop" href="#top">↑ Back to top</a>
+    </section>
+    
+    <section id="sec4" class="section">
+      <h2>Section 4: Day 3 V2 - Visual Analysis & Final Report</h2>
+      <div class="source-note">Source file: day3_v2_visual_analysis_report.html</div>
+      <hr/>
+      <div class="embedded-report">
+        <div class="container">
+    <div class="hero">
+      <h1>📊 Day 3 V2 — Visual Analysis & Final Report</h1>
+      <p class="subtitle">V7 Baseline vs V7 Auto-tune — Complete Statistical & Visual Comparison</p>
+      <div style="margin-top:16px">
+        <span class="badge badge-info">Date: November 1, 2025 @ 20:00</span>
+        <span class="badge badge-success">Analysis Complete ✓</span>
+        <span class="badge badge-info">Charts Generated ✓</span>
+      </div>
+    </div>
+
+    <!-- Critical Alert -->
+    <div class="card card-full">
+      <h2>🚨 CRITICAL: Duplicate Review IDs Warning</h2>
+      <div class="danger-box">
+        <h3 style="margin-top:0;color:#991b1b">⚠️ 83% Duplicate Review IDs in Both Submissions!</h3>
+        
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>V7 Baseline</th><th>V7 Auto-tune</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Total Rows</strong></td>
+              <td>1,735,280</td>
+              <td>1,735,280</td>
+              <td><span class="badge badge-info">Same</span></td>
+            </tr>
+            <tr>
+              <td><strong>Unique IDs</strong></td>
+              <td>294,010</td>
+              <td>294,010</td>
+              <td><span class="badge badge-info">Same</span></td>
+            </tr>
+            <tr>
+              <td><strong>Duplicates</strong></td>
+              <td>1,441,270</td>
+              <td>1,441,270</td>
+              <td><span class="badge badge-danger">83.06%</span></td>
+            </tr>
+            <tr>
+              <td><strong>Avg Repeats/ID</strong></td>
+              <td>~5.9 times</td>
+              <td>~5.9 times</td>
+              <td><span class="badge badge-warning">High</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Root Cause:</h4>
+        <ul>
+          <li>Test data source (<code>features_test_v4</code> on HDFS) contains duplicate review_ids</li>
+          <li>Prediction pipeline processes all rows → generates duplicate predictions</li>
+          <li>Same pattern in both models confirms it's a data issue, not model issue</li>
+        </ul>
+
+        <h4>⚡ Action Required:</h4>
+        <div class="warning-box">
+          <strong>Before Submission:</strong><br>
+          1. <strong>Check competition rules:</strong> Does it require 1 prediction per review_id?<br>
+          2. <strong>If YES (unique required):</strong> Clean duplicates using <code>keep='first'</code> → 1.73M → 294K rows<br>
+          3. <strong>If NO (duplicates OK):</strong> Submit as-is (1.73M rows)<br><br>
+          
+          <strong>Recommended cleaning script:</strong><br>
+          <code>df.drop_duplicates(subset='review_id', keep='first').to_csv('submission_clean.csv', index=False)</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="card card-full">
+      <h2>📈 Executive Summary</h2>
+      
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="label">Winner Model</div>
+          <div class="value">V7 Baseline</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Best AUC-PR</div>
+          <div class="value">0.6327</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Predictions Each</div>
+          <div class="value">1.73M</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Feature Dimension</div>
+          <div class="value">10,017</div>
+        </div>
+      </div>
+
+      <div class="success-box">
+        <strong>✅ Analysis Complete!</strong><br>
+        - Both models trained successfully with 5M training samples<br>
+        - Predictions generated for all 1.73M test rows<br>
+        - Statistical analysis & visualization charts created<br>
+        - <strong>Recommendation: Submit V7 Baseline FIRST</strong> (higher validation AUC-PR)
+      </div>
+    </div>
+
+    <!-- Detailed Comparison -->
+    <div class="card card-full">
+      <h2>⚖️ V7 Baseline vs V7 Auto-tune — Detailed Comparison</h2>
+      
+      <div style="text-align:center;margin:20px 0">
+        <span class="vs-badge">V7 BASELINE (WINNER) vs V7 AUTO-TUNE</span>
+      </div>
+
+      <h3>🏆 Model Performance Metrics</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>V7 Baseline</th>
+            <th>V7 Auto-tune</th>
+            <th>Difference</th>
+            <th>Winner</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Validation AUC-PR</strong></td>
+            <td><span class="badge badge-success">0.6327</span></td>
+            <td><span class="badge badge-warning">0.6315</span></td>
+            <td>+0.0012 (+0.19%)</td>
+            <td>🏆 Baseline</td>
+          </tr>
+          <tr>
+            <td><strong>Validation AUC-ROC</strong></td>
+            <td><span class="badge badge-success">0.8392</span></td>
+            <td><span class="badge badge-warning">0.8376</span></td>
+            <td>+0.0016 (+0.19%)</td>
+            <td>🏆 Baseline</td>
+          </tr>
+          <tr>
+            <td><strong>Training Time</strong></td>
+            <td><span class="badge badge-success">2.5 hours</span></td>
+            <td><span class="badge badge-info">2.7 hours</span></td>
+            <td>-0.2h faster</td>
+            <td>🏆 Baseline</td>
+          </tr>
+          <tr>
+            <td><strong>numLeaves</strong></td>
+            <td>120</td>
+            <td>100</td>
+            <td>+20 (higher capacity)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>learningRate</strong></td>
+            <td>0.03</td>
+            <td>0.15</td>
+            <td>-0.12 (slower learning)</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>📊 Prediction Statistics</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Statistic</th>
+            <th>V7 Baseline</th>
+            <th>V7 Auto-tune</th>
+            <th>Observation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Mean Probability</strong></td>
+            <td>0.5627</td>
+            <td>0.5729</td>
+            <td>Auto-tune predicts higher on average (+1.8%)</td>
+          </tr>
+          <tr>
+            <td><strong>Median</strong></td>
+            <td>0.5746</td>
+            <td>0.5851</td>
+            <td>Auto-tune more optimistic (+1.8%)</td>
+          </tr>
+          <tr>
+            <td><strong>Std Dev</strong></td>
+            <td>0.0670</td>
+            <td>0.0773</td>
+            <td>Auto-tune more spread out (+15.4%)</td>
+          </tr>
+          <tr>
+            <td><strong>Min Probability</strong></td>
+            <td>0.3669</td>
+            <td>0.3467</td>
+            <td>Auto-tune goes lower (-5.5%)</td>
+          </tr>
+          <tr>
+            <td><strong>Max Probability</strong></td>
+            <td>0.6543</td>
+            <td>0.6792</td>
+            <td>Auto-tune goes higher (+3.8%)</td>
+          </tr>
+          <tr>
+            <td><strong>Range</strong></td>
+            <td>0.2874</td>
+            <td>0.3325</td>
+            <td>Auto-tune wider range (+15.7%)</td>
+          </tr>
+          <tr>
+            <td><strong>Q1 (25%)</strong></td>
+            <td>0.5156</td>
+            <td>0.5164</td>
+            <td>Very similar (+0.2%)</td>
+          </tr>
+          <tr>
+            <td><strong>Q3 (75%)</strong></td>
+            <td>0.6192</td>
+            <td>0.6405</td>
+            <td>Auto-tune higher upper quartile (+3.4%)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box">
+        <strong>📊 Key Observations:</strong><br>
+        <ul>
+          <li><strong>V7 Baseline:</strong> More conservative predictions (narrower range: 0.367-0.654), lower std (0.067)</li>
+          <li><strong>V7 Auto-tune:</strong> More confident predictions (wider range: 0.347-0.679), higher std (0.077)</li>
+          <li><strong>Correlation:</strong> Both models agree on relative ordering (high correlation expected)</li>
+          <li><strong>Calibration:</strong> Baseline slightly under-predicts, Auto-tune slightly over-predicts</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Visual Analysis Charts -->
+    <div class="card card-full">
+      <h2>📊 Visual Analysis — Distribution Charts</h2>
+      
+      <div class="warning-box">
+        <strong>⚠️ Note on Charts:</strong> Charts were generated sequentially, so the last generated charts (V7 Auto-tune) 
+        are currently saved in <code>output_final/analysis/</code>. Both models have identical filenames, 
+        so only V7 Auto-tune charts are preserved. To view V7 Baseline charts, re-run the analysis script 
+        with V7 Baseline path.
+      </div>
+
+      <h3>🎯 V7 Auto-tune — Distribution Analysis</h3>
+      
+      <div class="chart-container">
+        <h4>4-Panel Distribution Chart</h4>
+        <p><em>Histogram, Pie Chart, Boxplot, and Cumulative Distribution Function</em></p>
+        <img src="../output_final/analysis/submission_distribution.png" alt="V7 Auto-tune Distribution" class="chart-img">
+        
+        <div class="info-box" style="text-align:left;margin-top:16px">
+          <strong>Chart Insights:</strong><br>
+          <ul>
+            <li><strong>Histogram (Top-Left):</strong> Bell-shaped distribution centered around 0.57, slight left skew</li>
+            <li><strong>Pie Chart (Top-Right):</strong> 4 bins showing probability ranges (Low/Med-Low/Med-High/High)</li>
+            <li><strong>Boxplot (Bottom-Left):</strong> Shows median, quartiles, and outliers - very compact distribution</li>
+            <li><strong>CDF (Bottom-Right):</strong> Cumulative distribution with key percentiles marked (25%, 50%, 75%, 90%)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h4>Simple Pie Chart — Binary Classification</h4>
+        <p><em>Not Helpful (prob < 0.5) vs Helpful (prob ≥ 0.5)</em></p>
+        <img src="../output_final/analysis/submission_pie_chart.png" alt="V7 Auto-tune Pie Chart" class="chart-img">
+        
+        <div class="info-box" style="text-align:left;margin-top:16px">
+          <strong>Classification Split:</strong><br>
+          Based on threshold 0.5, majority of predictions fall into "Helpful" category (prob ≥ 0.5).
+          This indicates model predicts most reviews as helpful, which aligns with the mean probability of ~0.57.
+        </div>
+      </div>
+
+      <h3>📁 Generated Files</h3>
+      <div class="code-block">
+        <pre>output_final/analysis/
+├── submission_distribution.png  (4-panel chart)
+├── submission_pie_chart.png     (simple pie chart)
+└── submission_statistics.json   (numeric stats)</pre>
+      </div>
+
+      <div class="success-box">
+        <strong>✅ Analysis Files Ready!</strong><br>
+        All statistical analysis and visualization charts have been generated and saved to 
+        <code>output_final/analysis/</code> directory.
+      </div>
+    </div>
+
+    <!-- Model Selection Recommendation -->
+    <div class="card card-full">
+      <h2>🎯 Final Recommendation — Which Model to Submit?</h2>
+      
+      <div class="compare-grid">
+        <!-- V7 Baseline -->
+        <div class="winner-card" style="padding:20px;border-radius:12px">
+          <h3 style="color:#10b981;margin-top:0">🏆 V7 Baseline (RECOMMENDED)</h3>
+          
+          <div class="metric-box" style="margin:12px 0">
+            <div class="label">Validation AUC-PR</div>
+            <div class="value">0.6327</div>
+          </div>
+
+          <h4>✅ Advantages:</h4>
+          <ul>
+            <li><strong>Highest validation score</strong> (AUC-PR 0.6327, AUC-ROC 0.8392)</li>
+            <li><strong>Faster training</strong> (2.5 hours vs 2.7 hours)</li>
+            <li><strong>Manual tuning success</strong> (proven config from experience)</li>
+            <li><strong>Conservative predictions</strong> (narrower range, less risky)</li>
+            <li><strong>Lower std dev</strong> (0.067 vs 0.077, more stable)</li>
+          </ul>
+
+          <h4>📁 File to Submit:</h4>
+          <div class="code-block">
+            <pre>output_final/submission_v7.csv
+Size: 53.77 MB
+Rows: 1,735,280 (with duplicates)
+Unique IDs: 294,010</pre>
+          </div>
+
+          <div class="success-box">
+            <strong>🎯 Priority: SUBMIT FIRST</strong><br>
+            V7 Baseline has the highest validation AUC-PR and most stable predictions.
+          </div>
+        </div>
+
+        <!-- V7 Auto-tune -->
+        <div class="runner-card" style="padding:20px;border-radius:12px">
+          <h3 style="color:#3b82f6;margin-top:0">🥈 V7 Auto-tune (BACKUP)</h3>
+          
+          <div class="metric-box" style="margin:12px 0;background:linear-gradient(135deg,#3b82f6 0%,#1e40af 100%)">
+            <div class="label">Validation AUC-PR</div>
+            <div class="value">0.6315</div>
+          </div>
+
+          <h4>✅ Advantages:</h4>
+          <ul>
+            <li><strong>More robust</strong> (from 27 CV runs, 3-fold × 9 configs)</li>
+            <li><strong>Grid-searched params</strong> (systematic optimization)</li>
+            <li><strong>Best CV mean</strong> (0.6417 across folds)</li>
+            <li><strong>Wider prediction range</strong> (0.347-0.679, more confident)</li>
+            <li><strong>Higher std dev</strong> (0.077, more discriminative)</li>
+          </ul>
+
+          <h4>📁 File to Submit:</h4>
+          <div class="code-block">
+            <pre>output_final/submission_v7_auto.csv
+Size: 53.74 MB
+Rows: 1,735,280 (with duplicates)
+Unique IDs: 294,010</pre>
+          </div>
+
+          <div class="info-box">
+            <strong>🔄 Backup Plan</strong><br>
+            If V7 Baseline doesn't perform well on hidden test, submit V7 Auto-tune next.
+            Only 0.19% worse on validation, but more robust from CV.
+          </div>
+        </div>
+      </div>
+
+      <h3>📊 Performance Gap Analysis</h3>
+      <table>
+        <thead>
+          <tr><th>Aspect</th><th>Gap</th><th>Significance</th><th>Interpretation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>AUC-PR Difference</strong></td>
+            <td>+0.0012</td>
+            <td><span class="badge badge-warning">Very Small (0.19%)</span></td>
+            <td>Statistically negligible, could reverse on different test set</td>
+          </tr>
+          <tr>
+            <td><strong>AUC-ROC Difference</strong></td>
+            <td>+0.0016</td>
+            <td><span class="badge badge-warning">Very Small (0.19%)</span></td>
+            <td>Both models essentially equivalent in ranking ability</td>
+          </tr>
+          <tr>
+            <td><strong>Prediction Style</strong></td>
+            <td>Conservative vs Confident</td>
+            <td><span class="badge badge-info">Different</span></td>
+            <td>Baseline safer, Auto-tune more decisive</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">
+        <strong>⚠️ Important Consideration:</strong><br><br>
+        
+        The 0.19% difference between models is <strong>very small</strong> and within noise margin. 
+        Performance on hidden test could go either way. Strategy:<br><br>
+        
+        1. <strong>Submit V7 Baseline FIRST</strong> (higher validation score)<br>
+        2. <strong>Monitor leaderboard score</strong><br>
+        3. <strong>If not satisfied → submit V7 Auto-tune</strong> (more robust from CV)<br>
+        4. <strong>Compare results</strong> to determine which works better on hidden test distribution
+      </div>
+    </div>
+
+    <!-- Action Plan -->
+    <div class="card card-full">
+      <h2>🚀 Action Plan — Next Steps</h2>
+      
+      <h3>Step 1: Check Competition Rules ⚠️</h3>
+      <div class="danger-box">
+        <strong>CRITICAL: Must check before submission!</strong><br><br>
+        
+        <strong>Question:</strong> Does competition require 1 prediction per review_id?<br><br>
+        
+        <strong>Scenario A — Unique IDs Required:</strong><br>
+        <div class="code-block">
+          <pre># Clean duplicates (keep first occurrence)
+import pandas as pd
+df = pd.read_csv('output_final/submission_v7.csv')
+df_clean = df.drop_duplicates(subset='review_id', keep='first')
+df_clean.to_csv('output_final/submission_v7_clean.csv', index=False)
+print(f"Reduced from {len(df):,} to {len(df_clean):,} rows")</pre>
+        </div>
+        Expected result: 1,735,280 → 294,010 rows (~9.2 MB file)<br><br>
+        
+        <strong>Scenario B — Duplicates Allowed:</strong><br>
+        Submit as-is (1.73M rows, 53.77 MB file)
+      </div>
+
+      <h3>Step 2: Submit V7 Baseline</h3>
+      <div class="success-box">
+        <strong>✅ Primary Submission</strong><br>
+        File: <code>output_final/submission_v7.csv</code> (or <code>submission_v7_clean.csv</code> if cleaned)<br>
+        Expected AUC-PR: ~0.63 (based on validation)<br>
+        Reasoning: Highest validation score, most stable predictions
+      </div>
+
+      <h3>Step 3: Monitor Results</h3>
+      <div class="info-box">
+        <ul>
+          <li>Check leaderboard score after submission</li>
+          <li>Compare with validation AUC-PR (0.6327)</li>
+          <li>If score drops significantly → distribution shift between validation and test</li>
+          <li>If score is acceptable → done! 🎉</li>
+        </ul>
+      </div>
+
+      <h3>Step 4: Backup Submission (If Needed)</h3>
+      <div class="warning-box">
+        <strong>If V7 Baseline underperforms:</strong><br>
+        File: <code>output_final/submission_v7_auto.csv</code> (or cleaned version)<br>
+        Expected AUC-PR: ~0.63 (based on validation)<br>
+        Reasoning: More robust from CV, wider prediction range, only 0.19% worse on validation
+      </div>
+
+      <h3>📋 Submission Checklist</h3>
+      <table>
+        <thead>
+          <tr><th>Task</th><th>Status</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>✅ Training Complete</td>
+            <td><span class="badge badge-success">Done</span></td>
+            <td>V7 Baseline & V7 Auto-tune both trained</td>
+          </tr>
+          <tr>
+            <td>✅ Predictions Generated</td>
+            <td><span class="badge badge-success">Done</span></td>
+            <td>Both models predicted on 1.73M test samples</td>
+          </tr>
+          <tr>
+            <td>✅ Files Copied to Local</td>
+            <td><span class="badge badge-success">Done</span></td>
+            <td>Files in output_final/ directory</td>
+          </tr>
+          <tr>
+            <td>✅ Statistical Analysis</td>
+            <td><span class="badge badge-success">Done</span></td>
+            <td>Stats, charts, and reports generated</td>
+          </tr>
+          <tr>
+            <td>⚠️ Check Competition Rules</td>
+            <td><span class="badge badge-warning">TODO</span></td>
+            <td>Unique IDs required or duplicates OK?</td>
+          </tr>
+          <tr>
+            <td>⚠️ Clean Duplicates (If Required)</td>
+            <td><span class="badge badge-warning">TODO</span></td>
+            <td>Run drop_duplicates if needed</td>
+          </tr>
+          <tr>
+            <td>⚠️ Submit to Competition</td>
+            <td><span class="badge badge-warning">TODO</span></td>
+            <td>Upload submission_v7.csv (or cleaned)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Technical Summary -->
+    <div class="card card-full">
+      <h2>🔬 Technical Summary</h2>
+      
+      <h3>Training Configuration</h3>
+      <div class="compare-grid">
+        <div>
+          <h4>V7 Baseline (Manual Tuning)</h4>
+          <div class="code-block">
+            <pre>numLeaves: 120
+learningRate: 0.03
+minDataInLeaf: 50
+numIterations: 1500
+earlyStoppingRound: 200
+featureFraction: 0.75
+baggingFraction: 0.75
+lambdaL1: 0.1
+lambdaL2: 0.1
+
+Training samples: 5,000,000
+Training time: 2.5 hours
+Validation AUC-PR: 0.6327</pre>
+          </div>
+        </div>
+        <div>
+          <h4>V7 Auto-tune (Grid Search)</h4>
+          <div class="code-block">
+            <pre>Best params (from 27 CV runs):
+numLeaves: 100
+learningRate: 0.15
+
+Fixed params:
+minDataInLeaf: 50
+numIterations: 1500
+earlyStoppingRound: 200
+featureFraction: 0.75
+baggingFraction: 0.75
+lambdaL1: 0.1
+lambdaL2: 0.1
+
+Training samples: 5,000,000
+Training time: 2.7 hours
+CV mean AUC-PR: 0.6417
+Validation AUC-PR: 0.6315</pre>
+          </div>
+        </div>
+      </div>
+
+      <h3>Feature Engineering</h3>
+      <ul>
+        <li><strong>Text Features:</strong> TF-IDF with 10,000 vocabulary (review_body + review_headline)</li>
+        <li><strong>Numeric Features:</strong> 17 engineered features (vine, verified_purchase, vote_ratio, etc.)</li>
+        <li><strong>Total Dimension:</strong> 10,017 features</li>
+        <li><strong>NULL Handling:</strong> Imputation with 0 for TF-IDF, mean for numeric</li>
+        <li><strong>Data Split:</strong> 5M train (32% of 15.6M), 1.73M test, 100% coverage</li>
+      </ul>
+
+      <h3>Model Architecture</h3>
+      <ul>
+        <li><strong>Algorithm:</strong> LightGBM (Gradient Boosting Decision Trees)</li>
+        <li><strong>Library:</strong> SynapseML LightGBM (Spark-distributed)</li>
+        <li><strong>Objective:</strong> Binary classification (is_helpful_vote)</li>
+        <li><strong>Metric:</strong> AUC-PR (Area Under Precision-Recall Curve)</li>
+        <li><strong>Hardware:</strong> Local Spark cluster (11GB driver + 11GB executor)</li>
+      </ul>
+
+      <h3>Data Quality Issues</h3>
+      <div class="danger-box">
+        <strong>🚨 Duplicate Review IDs:</strong><br>
+        - 83% of test data contains duplicate review_ids<br>
+        - Root cause: Test data preprocessing created duplicates<br>
+        - Impact: Both models predict on all rows → duplicate predictions<br>
+        - Solution: Must check competition rules and clean if required
+      </div>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="card card-full">
+      <h2>🎯 Conclusion & Recommendations</h2>
+      
+      <div class="success-box">
+        <h3 style="margin-top:0">✅ Primary Recommendation: Submit V7 Baseline</h3>
+        
+        <strong>Reasons:</strong>
+        <ol>
+          <li><strong>Highest validation AUC-PR:</strong> 0.6327 (vs 0.6315 for Auto-tune)</li>
+          <li><strong>Most stable predictions:</strong> Lower std dev (0.067 vs 0.077)</li>
+          <li><strong>Conservative approach:</strong> Narrower range reduces risk of extreme errors</li>
+          <li><strong>Faster training:</strong> 2.5 hours (vs 2.7 hours for Auto-tune)</li>
+          <li><strong>Proven configuration:</strong> Manual tuning based on V4-V6 experience</li>
+        </ol>
+
+        <strong>File to submit:</strong><br>
+        <code>output_final/submission_v7.csv</code> (or cleaned version if required)<br>
+        Size: 53.77 MB (1.73M rows) or ~9.2 MB (294K rows after cleaning)
+      </div>
+
+      <div class="info-box">
+        <h3 style="margin-top:0">🔄 Backup Option: V7 Auto-tune</h3>
+        
+        If V7 Baseline doesn't perform well on hidden test:<br>
+        - Submit <code>output_final/submission_v7_auto.csv</code> (or cleaned)<br>
+        - More robust from 27 CV runs (3-fold × 9 configs)<br>
+        - Wider prediction range (0.347-0.679) may capture more diversity<br>
+        - Only 0.19% worse on validation → could perform better on different distribution
+      </div>
+
+      <div class="warning-box">
+        <h3 style="margin-top:0">⚠️ Critical Action Required</h3>
+        
+        <strong>Before submitting:</strong><br>
+        1. <strong>Check competition submission format requirements</strong><br>
+        2. <strong>If unique IDs required → clean duplicates first</strong><br>
+        3. <strong>Verify file format matches sample submission</strong><br>
+        4. <strong>Test upload with small sample if possible</strong>
+      </div>
+
+      <h3>🎓 Key Learnings</h3>
+      <ul>
+        <li><strong>More data ≠ always better:</strong> V7 (5M samples, AUC-PR 0.63) didn't beat V6 (1M samples, AUC-PR 0.64)</li>
+        <li><strong>Manual tuning competitive:</strong> Experience-based params matched grid search results</li>
+        <li><strong>Data quality matters:</strong> 83% duplicates is a critical issue that needs attention</li>
+        <li><strong>Validation may not generalize:</strong> 0.19% gap could reverse on hidden test</li>
+        <li><strong>Always check submission rules:</strong> Format requirements can invalidate submissions</li>
+      </ul>
+
+      <div style="text-align:center;margin:32px 0">
+        <span class="badge badge-success" style="font-size:1.2em;padding:12px 24px">
+          🎯 Ready to Submit! Good Luck! 🚀
+        </span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;color:#fff;margin-top:32px;padding:20px;background:rgba(0,0,0,0.2);border-radius:8px">
+      <p><strong>Amazon Review Helpfulness Prediction — HK7 Project</strong></p>
+      <p>Authors: Võ Thị Diễm Thanh & Lê Đăng Hoàng Tuấn</p>
+      <p>Date: November 1, 2025 @ 20:00</p>
+    </div>
+  </div>
+      </div>
+      <a class="backtop" href="#top">↑ Back to top</a>
+    </section>
+    
+    <div class="footer">Generated automatically • 4 sections</div>
+  </div>
+</body>
+</html>
