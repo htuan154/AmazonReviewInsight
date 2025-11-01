@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-11-01T15:35:59.392140",
+  "id_col": "review_id",
+  "label_col": "is_helpful",
+  "features_col": "features",
+  "numFeatures": 10017,
+  "posWeight": 3.005905981568999,
+  "class_distribution": {
+    "positive": 3503228,
+    "negative": 10530374
+  },
+  "train_samples": 14033602,
+  "val_samples": 1559432,
+  "evaluation_metrics": {
+    "aucpr": 0.6273508544556016,
+    "aucroc": 0.8316459203558522,
+    "precision": 0.8038131378546253,
+    "recall": 0.5734286586398125,
+    "f1": 0.5920032158018314,
+    "confusion_matrix": {
+      "TP": 361362,
+      "TN": 532861,
+      "FP": 637593,
+      "FN": 27616
+    }
+  },
+  "seed": 42,
+  "hyperparameters": {
+    "numLeaves": 100,
+    "learningRate": 0.03,
+    "numIterations": 1500,
+    "earlyStoppingRound": 200,
+    "featureFraction": 0.75,
+    "baggingFraction": 0.75,
+    "minDataInLeaf": 30,
+    "maxDepth": -1
+  },
+  "pseudo_labeling": null,
+  "hyperparameter_tuning": null
+}

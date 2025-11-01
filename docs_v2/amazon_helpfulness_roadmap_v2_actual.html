@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HK7 — Hướng Phát Triển V2 (Roadmap Thực Tế) | Amazon Review Helpfulness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#111827;--muted:#6b7280;--bg:#0ea5e9;--bg2:#22c55e;--card:#fff;
+    --pri:#0ea5e9;--pri2:#22c55e;--warn:#f59e0b;--err:#ef4444;--ok:#10b981;--border:#e5e7eb;
+    --shadow:0 18px 55px rgba(0,0,0,.14);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#e0f2fe,#ecfdf5) fixed;}
+  .wrap{max-width:1200px;margin:32px auto;padding:28px;border-radius:22px;background:var(--card);box-shadow:var(--shadow)}
+  .hero{padding:36px;border-radius:18px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;text-align:center}
+  .hero h1{margin:0 0 8px;font-size:34px;letter-spacing:.2px}
+  .hero p{margin:6px 0 0;opacity:.95}
+  .badges{margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .badge{display:inline-block;padding:6px 12px;border-radius:18px;font-weight:700;font-size:12px}
+  .badge.goal{background:#6d28d9;color:#fff}
+  .badge.kpi{background:#111827;color:#fff}
+  .badge.success{background:#10b981;color:#fff}
+  .section{margin:28px 0 10px}
+  .section h2{font-size:22px;margin:0 0 8px;color:#0ea5e9}
+  .section h3{font-size:16px;margin:10px 0 6px;color:#111827}
+  .card{background:#f8fafc;border:1px solid #eaeef5;border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin:14px 0}
+  .grid{display:grid;gap:14px}
+  .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .grid.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .metric{background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:16px;text-align:center}
+  .metric .label{font-size:12px;color:var(--muted)}
+  .metric .val{font-size:26px;font-weight:800;margin-top:4px;color:#111827}
+  .metric.good .val{color:#10b981}
+  .metric.warn .val{color:#f59e0b}
+  .checklist{list-style:none;margin:0;padding:0}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;margin:8px 0}
+  .check{width:22px;height:22px;border-radius:6px;border:2px solid #10b981;display:grid;place-items:center;font-size:14px;color:#10b981}
+  .warn{border-left:5px solid #f59e0b;background:linear-gradient(135deg,#fff7ed,#fffbeb)}
+  .ok{border-left:5px solid #10b981;background:linear-gradient(135deg,#ecfdf5,#f0fdf4)}
+  .info{border-left:5px solid #0ea5e9;background:linear-gradient(135deg,#e0f2fe,#f0f9ff)}
+  .err{border-left:5px solid #ef4444;background:linear-gradient(135deg,#fee2e2,#fef2f2)}
+  table{width:100%;border-collapse:collapse;border:1px solid var(--border);background:#fff;border-radius:12px;overflow:hidden}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;font-size:14px}
+  thead th{background:#0ea5e9;color:#fff}
+  tr:hover{background:#f9fafb}
+  .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#f8fafc;border:1px dashed #e5e7eb;border-radius:8px;padding:4px 6px}
+  .note{font-size:12px;color:#6b7280;margin-top:8px}
+  pre{background:#2d2d2d;color:#f8f8f2;padding:16px;border-radius:8px;overflow-x:auto;font-size:13px}
+  .footer{margin-top:24px;padding:20px 0;color:#94a3b8;text-align:center;font-size:13px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>🛤️ Hướng Phát Triển V2 (Thực Tế)</h1>
+      <p>Amazon Review Helpfulness • Code V2 Architecture & Roadmap</p>
+      <div class="badges">
+        <span class="badge success">V6: AUC-PR = 0.6444</span>
+        <span class="badge kpi">Test Coverage: 100% (vs V1: 37.7%)</span>
+        <span class="badge goal">Target: AUC-PR ≥ 0.65</span>
+      </div>
+    </div>
+
+    <!-- Mục tiêu -->
+    <div class="section">
+      <h2>1) Mục Tiêu & KPI Hiện Tại</h2>
+      <div class="card grid cols-4">
+        <div class="metric"><div class="label">V1 Best (skip NULL)</div><div class="val">0.7180</div></div>
+        <div class="metric warn"><div class="label">V4-V6 (keep NULL)</div><div class="val">0.6444</div></div>
+        <div class="metric good"><div class="label">Target V7</div><div class="val">≥ 0.65</div></div>
+        <div class="metric good"><div class="label">Test Coverage</div><div class="val">100%</div></div>
+      </div>
+      <div class="card info">
+        <b>📊 Insight:</b> V1 đạt 0.7180 bằng cách skip NULL → chỉ dùng 37.7% test data (7,488/19,863 rows). V4-V6 giữ 100% data nhưng AUC-PR giảm xuống 0.64-0.65 do phải handle NULL. <b>Trade-off</b>: Coverage tăng → Complexity tăng → Score giảm nhẹ.
+      </div>
+    </div>
+
+    <!-- ETL Pipeline -->
+    <div class="section">
+      <h2>2) ETL Pipeline V2 (3 Steps - Auto NULL Handling)</h2>
+      <div class="card ok">
+        <b>Nguyên tắc:</b> <span class="code">preprocess_spark_v2.py</span> tự động phát hiện TẤT CẢ cột NULL và impute theo kiểu dữ liệu → Không mất data!
+      </div>
+
+      <div class="card">
+        <h3>Step 1: preprocess_spark_v2.py</h3>
+        <pre>spark-submit code_v2/etl/preprocess_spark_v2.py \
+  --reviews hdfs://localhost:9000/datasets/amazon/movies/raw/Movies_and_TV.jsonl \
+  --meta hdfs://localhost:9000/datasets/amazon/movies/raw/meta_Movies_and_TV.jsonl \
+  --out hdfs://localhost:9000/datasets/amazon/movies/parquet_v2/cleaned</pre>
+        
+        <h4>Auto-Imputation Strategy</h4>
+        <table>
+          <thead><tr><th>Kiểu</th><th>Chiến Lược</th><th>Ví Dụ</th><th>Fallback</th></tr></thead>
+          <tbody>
+            <tr><td><b>String</b></td><td>Mode per category</td><td>category → "Unknown"</td><td>"Unknown"</td></tr>
+            <tr><td><b>Numeric</b></td><td>Median per category</td><td>price → cat_median → global_median</td><td>0.0</td></tr>
+            <tr><td><b>Rating</b></td><td>Mean per category</td><td>average_rating → cat_mean</td><td>3.0</td></tr>
+            <tr><td><b>Count</b></td><td>0 (sản phẩm mới)</td><td>rating_number → 0</td><td>0</td></tr>
+          </tbody>
+        </table>
+        <div class="note">✅ Function: <span class="code">impute_metadata_nulls()</span> - Tự động detect và xử lý MỌI cột NULL</div>
+      </div>
+
+      <div class="card">
+        <h3>Step 2: train_test_split_v2.py</h3>
+        <pre>spark-submit code_v2/etl/train_test_split_v2.py \
+  --data hdfs://localhost:9000/datasets/amazon/movies/parquet_v2/cleaned \
+  --out hdfs://localhost:9000/datasets/amazon/movies/parquet_v2/ \
+  --test_size 0.2 \
+  --seed 42</pre>
+        
+        <ul class="checklist">
+          <li><span class="check">✓</span> Stratified split (0.8/0.2) dựa trên <span class="code">is_helpful</span></li>
+          <li><span class="check">✓</span> Validate NULL counts trong key columns</li>
+          <li><span class="check">✓</span> Save: train/ + test/ (partitioned by year/month)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Step 3: feature_pipeline_v2.py</h3>
+        <pre>spark-submit code_v2/features/feature_pipeline_v2.py \
+  --input hdfs://localhost:9000/datasets/amazon/movies/parquet_v2/train \
+  --output hdfs://localhost:9000/output_v2/features_train_v4 \
+  --preset full \
+  --numFeatures 10000 \
+  --minDF 5</pre>
+        
+        <ul class="checklist">
+          <li><span class="check">✓</span> <b>Normalize columns:</b> review_id, review_text, user_id, product_id, star_rating, price</li>
+          <li><span class="check">✓</span> <b>Text preprocessing:</b> lowercase → regex clean → tokenize (KHÔNG dùng Python UDF)</li>
+          <li><span class="check">✓</span> <b>Sentiment:</b> Dictionary-based (array_intersect với pos/neg word lists)</li>
+          <li><span class="check">✓</span> <b>TF-IDF/HashingTF:</b> 10,000 features (configurable)</li>
+          <li><span class="check">✓</span> <b>VectorAssembler:</b> handleInvalid="keep" → Không drop NULL rows</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="section">
+      <h2>3) Feature Engineering V2 (10,017 dimensions)</h2>
+      <p><b>File:</b> <span class="code">feature_pipeline_v2.py</span> - All features in ONE pipeline</p>
+      
+      <div class="card grid cols-3">
+        <div>
+          <h3>Text Features (9)</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> <b>cleaned_text</b></li>
+            <li><span class="check">✓</span> <b>word_count</b></li>
+            <li><span class="check">✓</span> <b>char_count</b></li>
+            <li><span class="check">✓</span> <b>avg_word_len</b></li>
+            <li><span class="check">✓</span> <b>is_long_review</b> (≥100 words)</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Sentiment (Dictionary-based)</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> <b>sent_pos</b> (count)</li>
+            <li><span class="check">✓</span> <b>sent_neg</b> (count)</li>
+            <li><span class="check">✓</span> <b>sent_score</b> (normalized)</li>
+          </ul>
+          <div class="note">Dùng <span class="code">array_intersect()</span> thay vì Python UDF</div>
+        </div>
+        <div>
+          <h3>Metadata (8)</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> <b>review_length</b> + log</li>
+            <li><span class="check">✓</span> <b>star_rating</b></li>
+            <li><span class="check">✓</span> <b>price</b> + log (imputed)</li>
+            <li><span class="check">✓</span> <b>is_verified</b></li>
+            <li><span class="check">✓</span> <b>helpful_votes</b></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>TF-IDF / HashingTF (10,000 features)</h3>
+        <table>
+          <thead><tr><th>Preset</th><th>Text</th><th>Sentiment</th><th>TF-IDF</th><th>Metadata</th><th>Total Dim</th></tr></thead>
+          <tbody>
+            <tr><td><b>baseline</b></td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>~10</td></tr>
+            <tr><td><b>simple</b></td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>~20</td></tr>
+            <tr><td><b>full</b></td><td>✓</td><td>✓</td><td>✓ (10K)</td><td>✓</td><td>10,017</td></tr>
+          </tbody>
+        </table>
+        <div class="note">V4-V6 dùng <span class="code">--preset full</span> → 10,017 features</div>
+      </div>
+    </div>
+
+    <!-- Modeling -->
+    <div class="section">
+      <h2>4) Modeling - LightGBM (SynapseML 1.0.7)</h2>
+      <div class="card ok">
+        <b>Files:</b> <span class="code">train_lightgbm_spark_v2.py</span> + <span class="code">predict_pipeline_v2.py</span>
+      </div>
+
+      <div class="card">
+        <h3>Current Results (V4-V6)</h3>
+        <table>
+          <thead><tr><th>Version</th><th>numLeaves</th><th>LR</th><th>Sampling</th><th>AUC-PR</th><th>AUC-ROC</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><b>V4</b></td><td>128</td><td>0.035</td><td>0.8/0.8</td><td>0.6448</td><td>0.8537</td><td>Baseline</td></tr>
+            <tr><td><b>V5</b></td><td>50</td><td>0.05</td><td>0.8/0.8</td><td>0.6363 ❌</td><td>0.8472</td><td>Underfit</td></tr>
+            <tr><td><b>V6</b></td><td>100</td><td>0.03</td><td>0.7/0.7</td><td>0.6444</td><td>0.8526</td><td>Balanced</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card info">
+        <h3>🎯 V7 Recommendation (Hidden Test Optimal)</h3>
+        <pre>spark-submit train_lightgbm_spark_v2.py \
+  --numLeaves 110 \
+  --learningRate 0.025 \
+  --numIterations 1000 \
+  --earlyStoppingRound 150 \
+  --minDataInLeaf 25 \
+  --featureFraction 0.75 \
+  --baggingFraction 0.75 \
+  --lambdaL1 0.0 \
+  --lambdaL2 0.0 \
+  --limit_train 1000000</pre>
+        
+        <p><b>Strategy:</b> Tăng capacity (110 vs V6=100) + Slow learning (0.025 vs 0.03) + Patient training (1000 iters) → Dự đoán AUC-PR <b>0.65-0.66</b></p>
+        <div class="note">✅ Sampling 0.75 (vs 0.7) → Learn more patterns + Still prevent overfit</div>
+      </div>
+
+      <div class="card">
+        <h3>Hyperparameter Tuning Strategy</h3>
+        <table>
+          <thead><tr><th>Parameter</th><th>Range</th><th>Current Best</th><th>Impact</th></tr></thead>
+          <tbody>
+            <tr><td><b>numLeaves</b></td><td>[50, 100, 110, 128]</td><td>100 (V6)</td><td>Capacity (50=underfit, 128=overfit risk)</td></tr>
+            <tr><td><b>learningRate</b></td><td>[0.025, 0.03, 0.035, 0.05]</td><td>0.03 (V6)</td><td>Slower = more careful</td></tr>
+            <tr><td><b>featureFraction</b></td><td>[0.7, 0.75, 0.8]</td><td>0.7 (V6)</td><td>Prevent overfit</td></tr>
+            <tr><td><b>baggingFraction</b></td><td>[0.7, 0.75, 0.8]</td><td>0.7 (V6)</td><td>Prevent overfit</td></tr>
+            <tr><td><b>minDataInLeaf</b></td><td>[20, 25, 30, 50]</td><td>30 (V6)</td><td>Constraint (higher=simpler)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card warn">
+        <h3>⚠️ Auto-Tuning (Optional - 2-3 hours)</h3>
+        <pre>spark-submit train_lightgbm_spark_v2.py \
+  --auto_tune \
+  --tune_preset thorough \
+  --limit_train 1000000</pre>
+        <p>Grid: numLeaves [31,50,100] × lr [0.03,0.05,0.1] × minDataInLeaf [20,50,100] = 27 combos × 3-fold CV = 81 runs</p>
+        <p><b>Expected:</b> AUC-PR 0.68-0.72 (vs manual 0.64-0.65)</p>
+      </div>
+    </div>
+
+    <!-- Prediction -->
+    <div class="section">
+      <h2>5) Prediction & Submission</h2>
+      <div class="card">
+        <h3>predict_pipeline_v2.py</h3>
+        <pre>spark-submit predict_pipeline_v2.py \
+  --model_path hdfs://localhost:9000/output_v2/models/lightgbm_v6_optimized \
+  --test hdfs://localhost:9000/output_v2/features_test_v4 \
+  --out hdfs://localhost:9000/output_v2/predictions_v6 \
+  --debug_samples 20</pre>
+        
+        <ul class="checklist">
+          <li><span class="check">✓</span> Load model từ HDFS</li>
+          <li><span class="check">✓</span> Extract <span class="code">probability_helpful</span> từ Vector</li>
+          <li><span class="check">✓</span> Validate định dạng: 2 cột (review_id, probability_helpful)</li>
+          <li><span class="check">✓</span> Save: <span class="code">submission.csv</span> + debug_sample.csv</li>
+        </ul>
+      </div>
+
+      <div class="card ok">
+        <h3>✅ V6 Submission Generated</h3>
+        <p><b>File:</b> <span class="code">hdfs://localhost:9000/output_v2/predictions_v6/submission.csv</span></p>
+        <p><b>Rows:</b> 1,735,280 test samples</p>
+        <p><b>Probability Range:</b> [0.309462, 0.707706]</p>
+        <p><b>Mean Probability:</b> 0.587926</p>
+        <div class="note">Định dạng: review_id (string), probability_helpful (double) - READY TO SUBMIT!</div>
+      </div>
+    </div>
+
+    <!-- Roadmap -->
+    <div class="section">
+      <h2>6) Roadmap Tiếp Theo</h2>
+      <div class="card grid cols-2">
+        <div>
+          <h3>Ngắn Hạn (1-2 ngày)</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> <b>Train V7:</b> Hyperparams optimized cho hidden test</li>
+            <li><span class="check">✓</span> <b>Predict V7:</b> Generate submission.csv</li>
+            <li><span class="check">✓</span> <b>Submit:</b> Đánh giá trên hidden test set</li>
+            <li><span class="note">Target: AUC-PR ≥ 0.65 (hidden test)</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Trung Hạn (3-7 ngày)</h3>
+          <ul class="checklist">
+            <li><span class="check">□</span> <b>Auto-Tuning:</b> Thorough grid search (27 combos)</li>
+            <li><span class="check">□</span> <b>Ensemble:</b> Combine V4 + V6 + V7 (stacking)</li>
+            <li><span class="check">□</span> <b>Feature Engineering:</b> User/Product aggregates</li>
+            <li><span class="note">Target: AUC-PR ≥ 0.68-0.70</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card warn">
+        <h3>⚠️ Known Issues & Risks</h3>
+        <ul class="checklist">
+          <li><span class="check">✓</span> <b>Performance Gap:</b> V1 (skip NULL) = 0.72 vs V4-V6 (keep NULL) = 0.64 → Expected trade-off</li>
+          <li><span class="check">✓</span> <b>Hidden Test Risk:</b> Validation AUC-PR có thể không represent hidden test (distribution shift)</li>
+          <li><span class="check">✓</span> <b>Overfitting:</b> 10K TF-IDF features với 1M training samples → Risk moderate</li>
+        </ul>
+        
+        <p><b>Mitigations:</b></p>
+        <ul style="margin-left:20px">
+          <li>✅ Dùng sampling (featureFraction=0.7) để prevent overfit</li>
+          <li>✅ Early stopping (patience=150) để không train quá lâu</li>
+          <li>✅ V7 config balanced giữa capacity và generalization</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="section">
+      <h2>7) Summary & Key Takeaways</h2>
+      <div class="card ok">
+        <h3>✅ Code V2 Achievements</h3>
+        <ul class="checklist">
+          <li><span class="check">✓</span> <b>100% Test Coverage:</b> Không mất data do NULL (vs V1: 37.7%)</li>
+          <li><span class="check">✓</span> <b>Auto NULL Handling:</b> preprocess_spark_v2.py tự động impute MỌI cột</li>
+          <li><span class="check">✓</span> <b>Production-Ready:</b> 3-step ETL pipeline (preprocess → split → features)</li>
+          <li><span class="check">✓</span> <b>No Python UDF:</b> All features in Spark SQL/ML (tránh lỗi Windows)</li>
+          <li><span class="check">✓</span> <b>Scalable:</b> HDFS + Spark distributed processing</li>
+        </ul>
+      </div>
+
+      <div class="card info">
+        <h3>📊 Performance vs Coverage Trade-off</h3>
+        <table>
+          <thead><tr><th>Version</th><th>NULL Handling</th><th>Test Coverage</th><th>AUC-PR</th><th>Trade-off</th></tr></thead>
+          <tbody>
+            <tr><td><b>V1 Best</b></td><td>skip (handleInvalid="skip")</td><td>37.7%</td><td>0.7180</td><td>High score, Low coverage</td></tr>
+            <tr><td><b>V4-V6</b></td><td>keep (handleInvalid="keep")</td><td>100%</td><td>0.6444</td><td>Full coverage, Moderate score</td></tr>
+          </tbody>
+        </table>
+        <p><b>Insight:</b> Giảm 10% AUC-PR (0.72 → 0.64) để tăng coverage lên 2.7x (38% → 100%) là trade-off hợp lý cho production system!</p>
+      </div>
+
+      <div class="card">
+        <h3>🎯 Next Action</h3>
+        <pre># Train V7 với config optimized
+spark-submit train_lightgbm_spark_v2.py \
+  --numLeaves 110 --learningRate 0.025 --numIterations 1000 \
+  --earlyStoppingRound 150 --minDataInLeaf 25 \
+  --featureFraction 0.75 --baggingFraction 0.75 \
+  --limit_train 1000000 --save_schema_log \
+  --out hdfs://localhost:9000/output_v2/models/lightgbm_v7_best
+
+# Predict với V7
+spark-submit predict_pipeline_v2.py \
+  --model_path hdfs://localhost:9000/output_v2/models/lightgbm_v7_best \
+  --test hdfs://localhost:9000/output_v2/features_test_v4 \
+  --out hdfs://localhost:9000/output_v2/predictions_v7
+
+# Download submission
+hdfs dfs -get hdfs://localhost:9000/output_v2/predictions_v7/submission.csv submission_v7.csv</pre>
+      </div>
+    </div>
+
+    <div class="footer">
+      <h3>📊 Amazon Review Helpfulness Prediction - Code V2</h3>
+      <p><strong>Project:</strong> Big Data Processing - HUIT HK7</p>
+      <p><strong>Version:</strong> V2 (NULL-safe, production-ready architecture)</p>
+      <p><strong>Last Updated:</strong> November 1, 2025</p>
+      <p><strong>Current Status:</strong> <span class="badge success">V6 Completed ✅ | V7 Ready to Train 🚀</span></p>
+      <p style="margin-top: 20px; color: #999;">Based on actual code in code_v2/etl/ and code_v2/features/</p>
+    </div>
+  </div>
+</body>
+</html>

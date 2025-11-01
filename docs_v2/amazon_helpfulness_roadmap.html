@@ -96,65 +96,78 @@
 
     <!-- Data & NULL Policy -->
     <div class="section">
-      <h2>2) Chính Sách Dữ Liệu & NULL</h2>
+      <h2>2) Chính Sách Dữ Liệu & NULL (Auto-Imputation V2)</h2>
       <div class="card ok">
-        <b>Nguyên tắc:</b> thêm bước <span class="code">Imputation</span> trước <span class="code">VectorAssembler</span>, không dùng <span class="code">handleInvalid="skip"</span> để tránh drop.
+        <b>Nguyên tắc V2:</b> <span class="code">preprocess_spark_v2.py</span> tự động phát hiện TẤT CẢ cột NULL và impute theo kiểu dữ liệu. <u>KHÔNG</u> dùng <span class="code">handleInvalid="skip"</span> → Không mất 62% test data!
       </div>
       <div class="card">
-        <h3>2.1 Bảng Imputation</h3>
+        <h3>2.1 Chiến Lược Auto-Imputation</h3>
         <table>
-          <thead><tr><th>Cột</th><th>Kiểu</th><th>Chiến lược</th><th>Ghi chú</th></tr></thead>
+          <thead><tr><th>Kiểu Dữ Liệu</th><th>Chiến Lược</th><th>Ví Dụ</th><th>Fallback</th></tr></thead>
           <tbody>
-            <tr><td>price</td><td>float / str / None</td><td>Chuẩn hoá tiền tệ → <b>median by main_category</b></td><td>Thêm cờ <span class="code">is_price_missing</span></td></tr>
-            <tr><td>average_rating</td><td>float / None</td><td><b>mean per category</b> (fallback: global 4.0)</td><td>Thêm <span class="code">is_avg_rating_missing</span></td></tr>
-            <tr><td>rating_number</td><td>int / None</td><td><b>0</b></td><td>“Sản phẩm mới”</td></tr>
-            <tr><td>store</td><td>str / None</td><td><b>"Unknown"</b></td><td>LabelEncode + cờ missing</td></tr>
-            <tr><td>categories</td><td>list / None</td><td>Điền <b>["Uncategorized"]</b></td><td>One-vs-rest hashing</td></tr>
+            <tr><td><b>String</b></td><td>Mode per category → "Unknown"</td><td>category, store → "Unknown"</td><td>"Unknown"</td></tr>
+            <tr><td><b>Numeric</b></td><td>Median per category → Global median</td><td>price → cat_median → global_median → 0.0</td><td>0.0</td></tr>
+            <tr><td><b>Rating</b></td><td>Mean per category → 3.0 (neutral)</td><td>average_rating → cat_mean → 3.0</td><td>3.0</td></tr>
+            <tr><td><b>Count</b></td><td>0 (sản phẩm mới)</td><td>rating_number → 0</td><td>0</td></tr>
           </tbody>
         </table>
-        <div class="note">* Lưu lại các cột <i>missing flags</i> vì chính việc thiếu dữ liệu cũng là tín hiệu.</div>
+        <div class="note">✅ Đã implement: <span class="code">impute_metadata_nulls()</span> - Tự động xử lý MỌI cột NULL không cần hardcode</div>
       </div>
       <div class="card">
-        <h3>2.2 Lược Đồ Join</h3>
+        <h3>2.2 ETL Pipeline V2 (3 Steps)</h3>
         <ul class="checklist">
-          <li><span class="check">✓</span> Review: <span class="code">Movies_and_TV.jsonl</span> chứa <span class="code">asin</span>, nhiều dòng có <span class="code">parent_asin</span>.</li>
-          <li><span class="check">✓</span> Meta: <span class="code">meta_Movies_and_TV.jsonl</span> khóa <span class="code">parent_asin</span>.</li>
-          <li><span class="check">✓</span> <b>Chiến lược:</b> Join chính theo <span class="code">parent_asin</span> (fallback <span class="code">asin</span> khi thiếu).</li>
+          <li><span class="check">✓</span> <b>Step 1:</b> <span class="code">preprocess_spark_v2.py</span> → Load reviews + metadata → Auto-impute NULL → Save parquet</li>
+          <li><span class="check">✓</span> <b>Step 2:</b> <span class="code">train_test_split_v2.py</span> → Stratified split (0.8/0.2) → Validate no NULL → Save train/test</li>
+          <li><span class="check">✓</span> <b>Step 3:</b> <span class="code">feature_pipeline_v2.py</span> → Normalize columns → Text + Metadata + Sentiment → VectorAssembler (handleInvalid="keep")</li>
         </ul>
+        <div class="note">📊 <b>Kết quả:</b> Test coverage <span style="color:#10b981">100%</span> (vs V1: 37.7%) - Không mất data do NULL!</div>
       </div>
-    </div>
-
-    <!-- Features -->
+    </div>    <!-- Features -->
     <div class="section">
-      <h2>3) Kỹ Thuật Đặc Trưng (Feature Engineering)</h2>
+      <h2>3) Kỹ Thuật Đặc Trưng (Feature Engineering V2)</h2>
+      <p><b>File:</b> <span class="code">feature_pipeline_v2.py</span> - Không dùng Python UDF (tránh lỗi Windows)</p>
       <div class="card grid cols-3">
         <div>
-          <h3>User-level</h3>
+          <h3>Text Features (9)</h3>
           <ul class="checklist">
-            <li><span class="check">✓</span> <b>user_review_count</b></li>
-            <li><span class="check">✓</span> <b>user_helpfulness_ratio</b></li>
-            <li><span class="check">✓</span> user_avg_rating</li>
-            <li><span class="check">✓</span> user_avg_review_length</li>
+            <li><span class="check">✓</span> <b>cleaned_text</b> (regex)</li>
+            <li><span class="check">✓</span> <b>word_count</b></li>
+            <li><span class="check">✓</span> <b>char_count</b></li>
+            <li><span class="check">✓</span> <b>avg_word_len</b></li>
+            <li><span class="check">✓</span> <b>is_long_review</b> (≥100)</li>
+            <li><span class="check">✓</span> <b>TF-IDF/HashingTF</b> (10K)</li>
           </ul>
         </div>
         <div>
-          <h3>Product-level</h3>
+          <h3>Sentiment (Dictionary)</h3>
           <ul class="checklist">
-            <li><span class="check">✓</span> <b>product_review_count</b></li>
-            <li><span class="check">✓</span> <b>product_helpfulness_ratio</b></li>
-            <li><span class="check">✓</span> product_sentiment_std</li>
-            <li><span class="check">✓</span> product_rating_std</li>
+            <li><span class="check">✓</span> <b>sent_pos</b> (count)</li>
+            <li><span class="check">✓</span> <b>sent_neg</b> (count)</li>
+            <li><span class="check">✓</span> <b>sent_score</b> (norm)</li>
+            <li><span class="note">array_intersect (không UDF)</span></li>
           </ul>
         </div>
         <div>
-          <h3>Text nâng cao</h3>
+          <h3>Metadata (7+)</h3>
           <ul class="checklist">
-            <li><span class="check">✓</span> TF-IDF (baseline)</li>
-            <li><span class="check">✓</span> Word2Vec / FastText</li>
-            <li><span class="check">✓</span> Sentence/BERT embeddings</li>
-            <li><span class="check">✓</span> Bigram/Trigram salient terms</li>
+            <li><span class="check">✓</span> <b>review_length</b> + log</li>
+            <li><span class="check">✓</span> <b>star_rating</b></li>
+            <li><span class="check">✓</span> <b>price</b> + log</li>
+            <li><span class="check">✓</span> <b>is_verified</b></li>
+            <li><span class="check">✓</span> <b>helpful_votes</b></li>
           </ul>
         </div>
+      </div>
+      <div class="card">
+        <h3>Feature Presets (--preset)</h3>
+        <table>
+          <thead><tr><th>Preset</th><th>Text</th><th>Sentiment</th><th>TF-IDF</th><th>Metadata</th><th>Dim</th></tr></thead>
+          <tbody>
+            <tr><td><b>baseline</b></td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>~10</td></tr>
+            <tr><td><b>simple</b></td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>~20</td></tr>
+            <tr><td><b>full</b></td><td>✓</td><td>✓</td><td>✓ (10K)</td><td>✓</td><td>10,017</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

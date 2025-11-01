@@ -38,6 +38,16 @@ def first_existing(df: DataFrame, candidates: List[str]) -> str | None:
 
 
 def normalize_columns(df: DataFrame) -> DataFrame:
+    # review_id (CRITICAL: must preserve for train/test/submission)
+    ID_CANDIDATES = ["review_id", "id", "asin", "reviewerID", "item_id"]
+    id_col = first_existing(df, ID_CANDIDATES)
+    if id_col and id_col != "review_id":
+        df = df.withColumn("review_id", F.col(id_col).cast(T.StringType()))
+    elif "review_id" not in df.columns:
+        # Generate sequential ID as fallback (but warn user)
+        print("[WARN] No review_id found, generating sequential IDs. This may break train/test alignment!")
+        df = df.withColumn("review_id", F.monotonically_increasing_id().cast(T.StringType()))
+    
     # review_text
     txt_col = first_existing(df, TEXT_CANDIDATES)
     if txt_col is None:
@@ -164,7 +174,7 @@ def select_numeric_columns(df: DataFrame) -> list[str]:
         "review_length","review_length_log","rating_deviation",
         "user_review_count","product_review_count",
         "user_avg_rating","product_avg_rating",
-        "user_helpful_ratio","product_helpful_ratio",
+        # "user_helpful_ratio","product_helpful_ratio",  # REMOVED: LOO still leaks label info
         "word_count","char_count","avg_word_len","is_long_review",
         "sent_pos","sent_neg","sent_score","price","price_log","star_rating"
     ]
@@ -210,6 +220,9 @@ def main():
     else:
         feature_inputs = numeric_cols
 
+    # CRITICAL: Use 'keep' to handle NaN/NULL (fills with 0.0) - essential for hidden test
+    # V1 used 'skip' → dropped 62% of test data → high AUC-PR but unrealistic
+    # V4 uses 'keep' → imputes missing → model learns to handle NULL → generalizes better
     va = VectorAssembler(inputCols=feature_inputs, outputCol="features", handleInvalid="keep")
     stages.append(va)
 
@@ -217,14 +230,34 @@ def main():
     model = pipe.fit(base)          # IDF cần fit
     out   = model.transform(base)
 
-    # Cột để quan sát nhanh (không in trùng với numeric)
-    debug_cols = [c for c in ["user_id","product_id","review_text","cleaned_text"] if c in out.columns]
-    sel_cols = debug_cols + [c for c in numeric_cols if c not in debug_cols]
+    # CRITICAL: Always keep review_id for train/test/submission alignment
+    # CRITICAL: Keep is_helpful for training (it's the TRUE LABEL, not leakage!)
+    must_keep = ["review_id"]  # Always keep ID
+    
+    # Keep is_helpful if exists (needed for training with real labels)
+    if "is_helpful" in out.columns:
+        must_keep.append("is_helpful")
+    
+    debug_cols = [c for c in ["user_id", "product_id", "review_text", "cleaned_text"] if c in out.columns]
+    
+    # Build selection list
+    sel_cols = must_keep + debug_cols + [c for c in numeric_cols if c not in must_keep + debug_cols]
     if "text_tfidf" in out.columns:
         sel_cols += ["text_tfidf"]
     sel_cols += ["features"]
-
+    
+    # Remove ONLY leakage columns (not is_helpful!)
+    # is_helpful = TARGET LABEL (real ground truth from helpful_vote > 0)
+    # helpful_votes = RAW vote count (leakage)
+    # helpful_ratio = Computed from helpful_votes (leakage)
+    LEAKY_COLS = {"helpful_votes", "helpful_ratio", "label"}
+    sel_cols = [c for c in sel_cols if c not in LEAKY_COLS]
+    
     out = out.select(*sel_cols)
+    
+    # Verify review_id exists
+    if "review_id" not in out.columns:
+        raise RuntimeError("CRITICAL: review_id missing from output! Cannot proceed.")
 
     print("[INFO] Schema:")
     out.printSchema()

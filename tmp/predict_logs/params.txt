@@ -1,0 +1,10 @@
+PREDICTION PARAMETERS
+================================================================================
+Timestamp: 2025-11-01T19:12:30.642284
+features_col = features
+force = False
+id_col = review_id
+model_kind = lgbm
+model_path = hdfs://localhost:9000/output_v2/models/lightgbm_v7_auto
+out_dir = hdfs://localhost:9000/output_v2/predictions_v7_auto
+test_path = hdfs://localhost:9000/output_v2/features_test_v4

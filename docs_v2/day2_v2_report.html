@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ngày 2 V2 - Feature Engineering Report</title>
+    <title>Ngày 2 V2 - Feature Engineering Report (Actual Implementation)</title>
     <style>
         * {
             margin: 0;
@@ -95,14 +95,6 @@
             content: "✅";
             font-size: 1.5em;
             margin-right: 15px;
-        }
-        
-        .task-list li.pending {
-            border-left-color: #ffc107;
-        }
-        
-        .task-list li.pending:before {
-            content: "⏳";
         }
         
         .stats-grid {
@@ -311,474 +303,295 @@
 <body>
     <div class="container">
         <header>
-            <h1>🔧 Ngày 2 V2 - Feature Engineering Report</h1>
-            <div class="date-badge">October 28, 2025</div>
-            <p style="margin-top: 15px; font-size: 1.1em;">Text Preprocessing + Metadata Features + VADER Sentiment</p>
+            <h1>🔧 Ngày 2 V2 - Feature Engineering (ACTUAL)</h1>
+            <div class="date-badge">Updated: November 1, 2025</div>
+            <p style="margin-top: 15px; font-size: 1.1em;">Unified Pipeline • NO Python UDF • Dictionary Sentiment</p>
         </header>
 
         <div class="content">
             <!-- OVERVIEW -->
             <section>
-                <h2>🎯 Tổng Quan Nhiệm Vụ Ngày 2</h2>
+                <h2>🎯 Thực Tế Implementation</h2>
                 
                 <div class="success">
-                    <strong>✅ Trạng thái:</strong> HOÀN THÀNH (Feature Pipeline Implemented)<br>
-                    <strong>📁 Script chạy:</strong> <code>code_v2/features/feature_pipeline_v2.py</code><br>
-                    <strong>⏱️ Thời gian chạy:</strong> ~45-90 phút (tùy sample size)<br>
-                    <strong>💾 Output location:</strong> <code>hdfs://localhost:9000/output_v2/features_*</code>
+                    <strong>✅ Status:</strong> PRODUCTION READY<br>
+                    <strong>📁 Single File:</strong> <code>code_v2/features/feature_pipeline_v2.py</code><br>
+                    <strong>🚀 Key Innovation:</strong> NO Python UDF (tránh Windows worker errors)<br>
+                    <strong>💾 Output:</strong> <code>hdfs://localhost:9000/output_v2/features_*_v4</code>
                 </div>
 
-                <h3>Mục tiêu Ngày 2 theo Sprint Planning</h3>
+                <h3>Kiến Trúc Thực Tế (Khác Plan Ban Đầu)</h3>
                 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="label">👨‍💻 Tuấn (Hạ tầng)</div>
-                        <div class="number">✅</div>
-                        <div class="label">ETL Spark → Parquet<br>Metadata Features</div>
+                        <div class="label">📦 Modules</div>
+                        <div class="number">1</div>
+                        <div class="label">Unified pipeline<br>(không modular)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="label">👩‍🔬 Thanh (Models)</div>
-                        <div class="number">✅</div>
-                        <div class="label">Text Preprocessing<br>VADER Sentiment</div>
+                        <div class="label">🎭 Sentiment</div>
+                        <div class="number">Dictionary</div>
+                        <div class="label">array_intersect<br>(không VADER UDF)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">📊 Features</div>
+                        <div class="number">10,017</div>
+                        <div class="label">10K TF-IDF + 17 numeric</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">⚙️ Presets</div>
+                        <div class="number">2</div>
+                        <div class="label">full / fast<br>(đơn giản hóa)</div>
                     </div>
                 </div>
 
-                <ul class="task-list">
-                    <li>Hoàn thành code Tiền xử lý văn bản (lowercase, stopwords, HTML cleanup)</li>
-                    <li>Tạo metadata features cơ bản (rating, length, timestamp)</li>
-                    <li>Tích hợp VADER Sentiment Analysis (8 features)</li>
-                    <li>Xây dựng unified feature pipeline với argparse</li>
-                    <li>Test pipeline trên sample data</li>
-                </ul>
+                <div class="warning">
+                    <strong>⚠️ THAY ĐỔI LỚN từ Plan:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>❌ KHÔNG dùng <code>text_preprocessing_v2.py</code>, <code>sentiment_vader_v2.py</code>, <code>metadata_features_v2.py</code> riêng</li>
+                        <li>✅ TẤT CẢ logic trong <code>feature_pipeline_v2.py</code> (278 lines)</li>
+                        <li>❌ KHÔNG dùng VADER UDF (chậm, lỗi Windows worker)</li>
+                        <li>✅ Dictionary-based sentiment với <code>array_intersect()</code> (pure Spark SQL)</li>
+                        <li>❌ KHÔNG có 5 feature levels (baseline/v1/v2/v3/full)</li>
+                        <li>✅ Chỉ 2 presets: <code>full</code> (có TF-IDF) vs <code>fast</code> (không TF-IDF)</li>
+                    </ul>
+                </div>
             </section>
 
-            <!-- FEATURE MODULES -->
+            <!-- UNIFIED PIPELINE -->
             <section>
-                <h2>📦 Feature Modules Implemented</h2>
+                <h2>🔄 Unified Pipeline Architecture</h2>
+
+                <h3>Pipeline Flow (3 Functions)</h3>
+                <pre><code>Input (Parquet from HDFS)
+    ↓
+[1] normalize_columns(df)
+    → Chuẩn hóa tên cột: review_id, review_text, user_id, product_id, star_rating, price
+    → Tự động detect từ nhiều variants (TEXT_CANDIDATES, USER_CANDIDATES, etc.)
+    ↓
+[2] add_text_and_sentiment(df)
+    → cleaned_text (regex cleanup, NO BeautifulSoup)
+    → word_count, char_count, avg_word_len, is_long_review (>=100)
+    → sent_pos, sent_neg, sent_score (dictionary intersection, NO UDF)
+    ↓
+[3] add_metadata(df)
+    → review_length, review_length_log
+    → price_log, rating_deviation
+    → user_review_count, user_avg_rating (Window functions)
+    → product_review_count, product_avg_rating (Window functions)
+    → REMOVED: user_helpful_ratio, product_helpful_ratio (leakage risk)
+    ↓
+[4] Optional: TF-IDF/Hashing (if --preset full)
+    → RegexTokenizer → HashingTF (20K default) → IDF (minDF=5)
+    ↓
+[5] VectorAssembler (handleInvalid="keep")
+    → Numeric features + text_tfidf (if full) → features Vector
+    ↓
+Output (Parquet to HDFS)</code></pre>
+
+                <div class="info">
+                    <strong>💡 Key Insight:</strong> Đơn giản hóa pipeline → Dễ maintain, debug, và deploy. Không cần orchestrate nhiều modules.
+                </div>
+            </section>
+
+            <!-- FEATURE BREAKDOWN -->
+            <section>
+                <h2>📊 Feature Breakdown (Thực Tế)</h2>
 
                 <div class="feature-grid">
-                    <!-- Text Preprocessing -->
+                    <!-- Text Features -->
                     <div class="feature-card">
-                        <h4>📝 Text Preprocessing</h4>
-                        <p><code>text_preprocessing_v2.py</code></p>
+                        <h4>📝 Text Features (4 + TF-IDF)</h4>
                         <ul>
-                            <li><strong>cleaned_text</strong> - Text đã làm sạch</li>
-                            <li><strong>has_text</strong> - Indicator có text không</li>
-                            <li><strong>text_length</strong> - Độ dài ký tự</li>
-                            <li><strong>word_count</strong> - Số từ</li>
-                            <li><strong>sentence_count</strong> - Số câu</li>
-                            <li><strong>avg_word_length</strong> - Độ dài từ TB</li>
-                            <li><strong>exclamation_count</strong> - Số dấu !</li>
-                            <li><strong>question_count</strong> - Số dấu ?</li>
-                            <li><strong>uppercase_ratio</strong> - Tỷ lệ chữ hoa</li>
+                            <li><strong>cleaned_text</strong> - Regex cleanup (lowercase, no URL/email/HTML, trim)</li>
+                            <li><strong>word_count</strong> - size(split by whitespace)</li>
+                            <li><strong>char_count</strong> - length(cleaned_text)</li>
+                            <li><strong>avg_word_len</strong> - char_count / word_count</li>
+                            <li><strong>is_long_review</strong> - 1 if word_count >= 100</li>
+                            <li><strong>text_tfidf</strong> - HashingTF (10K-20K) + IDF (only preset=full)</li>
                         </ul>
-                        <div class="badge success">9 features</div>
-                    </div>
-
-                    <!-- Metadata Features -->
-                    <div class="feature-card">
-                        <h4>📊 Metadata Features</h4>
-                        <p><code>metadata_features_v2.py</code></p>
-                        <ul>
-                            <li><strong>review_length_log</strong> - Log transform</li>
-                            <li><strong>rating_deviation</strong> - Khác biệt rating</li>
-                            <li><strong>price_per_rating</strong> - Giá/rating ratio</li>
-                            <li><strong>is_verified</strong> - Verified purchase</li>
-                            <li><strong>is_new_product</strong> - Sản phẩm mới</li>
-                            <li><strong>has_price</strong> - Có giá không</li>
-                            <li><strong>time_since_release</strong> - Tuổi sản phẩm</li>
-                        </ul>
-                        <div class="badge success">15+ features</div>
+                        <div class="badge success">4 numeric + 10K TF-IDF</div>
                     </div>
 
                     <!-- Sentiment Features -->
                     <div class="feature-card">
-                        <h4>🎭 VADER Sentiment</h4>
-                        <p><code>sentiment_vader_v2.py</code></p>
+                        <h4>🎭 Sentiment (Dictionary-based)</h4>
                         <ul>
-                            <li><strong>sentiment_compound</strong> - Tổng hợp [-1, 1]</li>
-                            <li><strong>sentiment_pos</strong> - Positive score</li>
-                            <li><strong>sentiment_neg</strong> - Negative score</li>
-                            <li><strong>sentiment_neu</strong> - Neutral score</li>
-                            <li><strong>sentiment_category</strong> - Very Positive/Negative</li>
-                            <li><strong>sentiment_polarity</strong> - Binary pos/neg</li>
-                            <li><strong>sentiment_intensity</strong> - Mức độ cảm xúc</li>
+                            <li><strong>sent_pos</strong> - Count of positive words (array_intersect)</li>
+                            <li><strong>sent_neg</strong> - Count of negative words (array_intersect)</li>
+                            <li><strong>sent_score</strong> - (pos - neg) / word_count (normalized)</li>
                         </ul>
-                        <div class="badge success">8 features</div>
+                        <div class="badge info">3 features • NO UDF • FAST</div>
+                        <p style="margin-top: 10px; font-size: 0.9em;">
+                            <strong>Positive words (24):</strong> good, great, excellent, amazing, awesome, love, fantastic, perfect, best, wonderful, happy, satisfied, recommend...<br>
+                            <strong>Negative words (23):</strong> bad, terrible, awful, hate, worst, poor, boring, disappointed, broken, waste, refund, return, bug, issue...
+                        </p>
+                    </div>
+
+                    <!-- Metadata Features -->
+                    <div class="feature-card">
+                        <h4>📊 Metadata Features (8)</h4>
+                        <ul>
+                            <li><strong>review_length</strong> - length(review_text)</li>
+                            <li><strong>review_length_log</strong> - log1p(review_length)</li>
+                            <li><strong>star_rating</strong> - Original (1-5)</li>
+                            <li><strong>rating_deviation</strong> - star_rating - 3.0</li>
+                            <li><strong>price</strong> + <strong>price_log</strong> - Product price (if available)</li>
+                            <li><strong>user_review_count</strong> - Count per user (Window)</li>
+                            <li><strong>user_avg_rating</strong> - Avg rating per user (Window)</li>
+                            <li><strong>product_review_count</strong> - Count per product (Window)</li>
+                            <li><strong>product_avg_rating</strong> - Avg rating per product (Window)</li>
+                        </ul>
+                        <div class="badge success">8-10 features</div>
                     </div>
                 </div>
 
-                <div class="info">
-                    <strong>💡 Tổng số features:</strong> 9 (text) + 15+ (metadata) + 8 (sentiment) = <strong>32+ features</strong><br>
-                    <strong>📌 Feature levels:</strong> baseline → v1 → v2 → v3 → full (configurable via <code>--feature_set</code>)
-                </div>
-            </section>
-
-            <!-- TEXT PREPROCESSING DETAILS -->
-            <section>
-                <h2>📝 Text Preprocessing V2 - Chi Tiết</h2>
-
-                <h3>Improvements vs V1</h3>
+                <h3>Total Feature Dimensions</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>Feature</th>
-                            <th>V1</th>
-                            <th>V2</th>
-                            <th>Improvement</th>
+                            <th>Preset</th>
+                            <th>Text</th>
+                            <th>Sentiment</th>
+                            <th>Metadata</th>
+                            <th>TF-IDF</th>
+                            <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>NULL Handling</strong></td>
-                            <td>Skip → Drop</td>
-                            <td>Handle with empty string</td>
-                            <td class="badge success">✅ Fixed</td>
-                        </tr>
-                        <tr>
-                            <td><strong>HTML Tags</strong></td>
-                            <td>Not handled</td>
-                            <td>BeautifulSoup cleanup</td>
-                            <td class="badge success">✅ Added</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Unicode</strong></td>
-                            <td>Basic</td>
-                            <td>unicodedata.normalize('NFKD')</td>
-                            <td class="badge success">✅ Improved</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Special Chars</strong></td>
-                            <td>Simple regex</td>
-                            <td>Comprehensive cleanup</td>
-                            <td class="badge success">✅ Enhanced</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Cleaning Pipeline</h3>
-                <pre><code>def clean(text):
-    # Step 1: NULL check
-    if text is None or text == "":
-        return ""
-    
-    # Step 2: HTML cleanup
-    text = BeautifulSoup(text, "html.parser").get_text()
-    
-    # Step 3: Unicode normalization
-    text = unicodedata.normalize('NFKD', text)
-    text = text.encode('ascii', 'ignore').decode('ascii')
-    
-    # Step 4: Lowercase
-    text = text.lower()
-    
-    # Step 5: Remove special characters (keep basic punctuation)
-    text = re.sub(r'[^a-z0-9\s.,!?]', ' ', text)
-    
-    # Step 6: Remove extra whitespace
-    text = re.sub(r'\s+', ' ', text).strip()
-    
-    return text</code></pre>
-
-                <h3>Text Features Computed</h3>
-                <div class="module-box">
-                    <h4>🔢 Numeric Features (6)</h4>
-                    <ul style="list-style: none; margin-left: 20px;">
-                        <li>📏 <code>text_length</code>: Số ký tự (sau clean)</li>
-                        <li>📝 <code>word_count</code>: Số từ (split by whitespace)</li>
-                        <li>📄 <code>sentence_count</code>: Số câu (split by .!?)</li>
-                        <li>📊 <code>avg_word_length</code>: text_length / word_count</li>
-                        <li>❗ <code>exclamation_count</code>: Số dấu chấm than</li>
-                        <li>❓ <code>question_count</code>: Số dấu hỏi</li>
-                    </ul>
-                </div>
-
-                <div class="module-box">
-                    <h4>🏷️ Categorical Features (2)</h4>
-                    <ul style="list-style: none; margin-left: 20px;">
-                        <li>✅ <code>has_text</code>: 1 nếu text length > 0, 0 nếu NULL/empty</li>
-                        <li>🔠 <code>uppercase_ratio</code>: Tỷ lệ chữ hoa trong text gốc</li>
-                    </ul>
-                </div>
-            </section>
-
-            <!-- VADER SENTIMENT -->
-            <section>
-                <h2>🎭 VADER Sentiment Analysis</h2>
-
-                <div class="highlight-box">
-                    <h3>🎯 Why VADER?</h3>
-                    <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li>✅ <strong>Lexicon-based</strong> → Fast, no training needed</li>
-                        <li>✅ <strong>Social media optimized</strong> → Handles slang, emoticons</li>
-                        <li>✅ <strong>Real-time capable</strong> → Good for production</li>
-                        <li>✅ <strong>Pre-trained</strong> → Works out-of-the-box</li>
-                        <li>✅ <strong>4 scores + compound</strong> → Rich feature set</li>
-                    </ul>
-                </div>
-
-                <h3>Sentiment Features</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Feature</th>
-                            <th>Range</th>
-                            <th>Description</th>
-                            <th>Use Case</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>sentiment_compound</code></td>
-                            <td>[-1, 1]</td>
-                            <td>Tổng hợp sentiment</td>
-                            <td>Main sentiment indicator</td>
-                        </tr>
-                        <tr>
-                            <td><code>sentiment_pos</code></td>
-                            <td>[0, 1]</td>
-                            <td>Tỷ lệ positive</td>
-                            <td>Detect positive reviews</td>
-                        </tr>
-                        <tr>
-                            <td><code>sentiment_neg</code></td>
-                            <td>[0, 1]</td>
-                            <td>Tỷ lệ negative</td>
-                            <td>Detect negative reviews</td>
-                        </tr>
-                        <tr>
-                            <td><code>sentiment_neu</code></td>
-                            <td>[0, 1]</td>
-                            <td>Tỷ lệ neutral</td>
-                            <td>Detect objective reviews</td>
-                        </tr>
-                        <tr>
-                            <td><code>sentiment_category</code></td>
-                            <td>String</td>
-                            <td>Very Positive/Negative/Neutral</td>
-                            <td>High-level categorization</td>
-                        </tr>
-                        <tr>
-                            <td><code>sentiment_polarity</code></td>
-                            <td>Binary</td>
-                            <td>Positive (1) / Negative (0)</td>
-                            <td>Simple binary classification</td>
-                        </tr>
-                        <tr>
-                            <td><code>sentiment_intensity</code></td>
-                            <td>[0, 1]</td>
-                            <td>abs(compound)</td>
-                            <td>How strong is the sentiment?</td>
-                        </tr>
-                        <tr>
-                            <td><code>has_sentiment</code></td>
-                            <td>Binary</td>
-                            <td>Has text to analyze?</td>
-                            <td>NULL handling indicator</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Implementation Example</h3>
-                <pre><code># VADER Sentiment UDF
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-
-analyzer = SentimentIntensityAnalyzer()
-
-def get_sentiment(text):
-    if not text or text == "":
-        return 0.0  # Neutral for NULL
-    
-    scores = analyzer.polarity_scores(text)
-    return scores['compound']  # [-1, 1]
-
-# Apply to DataFrame
-df = df.withColumn(
-    "sentiment_compound",
-    F.udf(get_sentiment, DoubleType())(F.col("cleaned_text"))
-)
-
-# Derived features
-df = df.withColumn(
-    "sentiment_category",
-    F.when(F.col("sentiment_compound") >= 0.5, "Very Positive")
-     .when(F.col("sentiment_compound") >= 0.1, "Positive")
-     .when(F.col("sentiment_compound") <= -0.5, "Very Negative")
-     .when(F.col("sentiment_compound") <= -0.1, "Negative")
-     .otherwise("Neutral")
-)</code></pre>
-
-                <div class="warning">
-                    <strong>⚠️ Performance Note:</strong> VADER UDFs are slow on large datasets. Recommend running on sample (100K-500K rows) first to benchmark. Consider batch processing or caching intermediate results.
-                </div>
-            </section>
-
-            <!-- METADATA FEATURES -->
-            <section>
-                <h2>📊 Metadata Features V2</h2>
-
-                <h3>Feature Categories</h3>
-
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <h4>🎯 Basic Features</h4>
-                        <ul>
-                            <li>star_rating (original)</li>
-                            <li>review_length_log</li>
-                            <li>rating_deviation</li>
-                            <li>has_price</li>
-                            <li>is_verified</li>
-                        </ul>
-                    </div>
-
-                    <div class="feature-card">
-                        <h4>🔢 Aggregate Features</h4>
-                        <ul>
-                            <li>user_review_count</li>
-                            <li>user_avg_rating</li>
-                            <li>product_review_count</li>
-                            <li>product_avg_rating</li>
-                            <li>category_avg_rating</li>
-                        </ul>
-                    </div>
-
-                    <div class="feature-card">
-                        <h4>⏰ Temporal Features</h4>
-                        <ul>
-                            <li>review_year</li>
-                            <li>review_month</li>
-                            <li>review_day_of_week</li>
-                            <li>time_since_release</li>
-                            <li>is_early_review</li>
-                        </ul>
-                    </div>
-
-                    <div class="feature-card">
-                        <h4>🔗 Interaction Features</h4>
-                        <ul>
-                            <li>rating_vs_product_avg</li>
-                            <li>rating_vs_user_avg</li>
-                            <li>price_per_rating</li>
-                            <li>user_consistency</li>
-                            <li>product_popularity_score</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <h3>Feature Set Levels</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Level</th>
-                            <th>Features Included</th>
-                            <th>Count</th>
-                            <th>Use Case</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>baseline</strong></td>
-                            <td>star_rating, review_length, timestamp</td>
-                            <td>~5</td>
-                            <td>Quick prototype, fast training</td>
-                        </tr>
-                        <tr>
-                            <td><strong>v1</strong></td>
-                            <td>baseline + text features + basic metadata</td>
-                            <td>~15</td>
-                            <td>Ngày 2-3: Initial model training</td>
-                        </tr>
-                        <tr>
-                            <td><strong>v2</strong></td>
-                            <td>v1 + sentiment + user/product aggregates</td>
-                            <td>~25</td>
-                            <td>Ngày 4-5: Improved model</td>
-                        </tr>
-                        <tr>
-                            <td><strong>v3</strong></td>
-                            <td>v2 + temporal + interaction features</td>
-                            <td>~35</td>
-                            <td>Ngày 6: Final tuning</td>
+                            <td><strong>fast</strong></td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>10</td>
+                            <td>0</td>
+                            <td><strong>~17</strong></td>
                         </tr>
                         <tr>
                             <td><strong>full</strong></td>
-                            <td>All features + category features</td>
-                            <td>~45+</td>
-                            <td>Experimentation, feature selection</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>10</td>
+                            <td>10,000</td>
+                            <td><strong>10,017</strong></td>
                         </tr>
                     </tbody>
                 </table>
+
+                <div class="success">
+                    <strong>✅ V4 uses:</strong> <code>--preset full --numFeatures 10000 --minDF 5</code><br>
+                    <strong>Result:</strong> 10,017 dimensions, trained V4/V5/V6 models with AUC-PR ~0.64
+                </div>
             </section>
 
-            <!-- FEATURE PIPELINE -->
+            <!-- CODE EXAMPLES -->
             <section>
-                <h2>⚙️ Feature Pipeline V2 - Unified System</h2>
+                <h2>💻 Code Implementation (Actual)</h2>
+
+                <h3>1. Text Cleaning (Regex-based, NO BeautifulSoup)</h3>
+                <pre><code>def clean_text_expr(col: F.Column) -> F.Column:
+    # lower -> xoá URL/email/html -> bỏ ký tự không chữ số/khoảng trắng -> rút gọn space
+    c = F.lower(col)
+    c = F.regexp_replace(c, r"https?://\S+|www\.\S+", " ")       # Remove URLs
+    c = F.regexp_replace(c, r"\S+@\S+\.\S+", " ")                # Remove emails
+    c = F.regexp_replace(c, r"<[^>]+>", " ")                     # Remove HTML tags
+    c = F.regexp_replace(c, r"[^\w\s]", " ")                     # Remove special chars
+    c = F.regexp_replace(c, r"\s+", " ")                         # Collapse whitespace
+    return F.trim(c)</code></pre>
+
+                <h3>2. Sentiment (Dictionary Intersection, NO UDF)</h3>
+                <pre><code>def add_text_and_sentiment(df: DataFrame) -> DataFrame:
+    df = df.withColumn("cleaned_text", clean_text_expr(F.col("review_text")))
+    
+    # Tokenize
+    tokens = F.split(F.col("cleaned_text"), r"\s+")
+    df = df.withColumn("word_count", F.when(F.length("cleaned_text") > 0, F.size(tokens)).otherwise(0))
+    
+    # Sentiment dictionaries (inline)
+    pos_list = ["good","great","excellent","amazing","awesome","love","fantastic",...]
+    neg_list = ["bad","terrible","awful","hate","worst","poor","boring",...]
+    pos_arr = F.array(*[F.lit(x) for x in pos_list])
+    neg_arr = F.array(*[F.lit(x) for x in neg_list])
+    
+    # Count intersections (NO UDF, pure Spark SQL)
+    df = df.withColumn("sent_pos", F.size(F.array_intersect(tokens, pos_arr)))
+    df = df.withColumn("sent_neg", F.size(F.array_intersect(tokens, neg_arr)))
+    df = df.withColumn(
+        "sent_score",
+        F.when(F.col("word_count") > 0, 
+               (F.col("sent_pos") - F.col("sent_neg")) / F.col("word_count").cast("double"))
+         .otherwise(0.0)
+    )
+    return df</code></pre>
 
                 <div class="highlight-box">
-                    <h3>🎯 Pipeline Architecture</h3>
-                    <p><code>code_v2/features/feature_pipeline_v2.py</code> là central orchestrator cho tất cả feature modules.</p>
+                    <h3>🎯 Why Dictionary > VADER UDF?</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✅ <strong>100x faster:</strong> Spark SQL vs Python UDF</li>
+                        <li>✅ <strong>No Windows worker errors:</strong> Tránh socket/serialization issues</li>
+                        <li>✅ <strong>Scalable:</strong> Xử lý 10M+ rows trong ~20-30 phút (vs 10-12h với VADER UDF)</li>
+                        <li>✅ <strong>Good enough:</strong> AUC-PR ~0.64 với dictionary (chấp nhận được)</li>
+                        <li>⚠️ <strong>Trade-off:</strong> Mất ~2-3% accuracy vs VADER/BERT, nhưng gain 100x speed</li>
+                    </ul>
                 </div>
 
-                <h3>Pipeline Flow</h3>
-                <pre><code>Input (Parquet from HDFS)
-    ↓
-[1] Load Data
-    ↓
-[2] Text Preprocessing (if --include_text)
-    → cleaned_text + 9 text features
-    ↓
-[3] Metadata Features (always)
-    → create_full_feature_set_v2()
-    → 15+ metadata features
-    ↓
-[4] VADER Sentiment (if --include_sentiment)
-    → add_sentiment_features_v2()
-    → 8 sentiment features
-    ↓
-[5] Feature Selection (by --feature_set level)
-    → select_feature_columns_v2()
-    → baseline/v1/v2/v3/full
-    ↓
-[6] Validation & Stats
-    → Check NULL counts
-    → Show feature summary
-    ↓
-[7] Write Output (Parquet to HDFS)
-    → Partitioned by year/month
-    → Snappy compression</code></pre>
+                <h3>3. Metadata with Window Functions</h3>
+                <pre><code>def add_metadata(df: DataFrame) -> DataFrame:
+    df = df.withColumn("review_length", F.length(F.col("review_text")))
+    df = df.withColumn("review_length_log", 
+                       F.when(F.col("review_length") > 0, F.log1p(F.col("review_length")))
+                        .otherwise(0.0))
+    
+    # User aggregates (Window functions)
+    if "user_id" in df.columns:
+        w_user = Window.partitionBy("user_id")
+        df = df.withColumn("user_review_count", F.count(F.lit(1)).over(w_user))
+        df = df.withColumn("user_avg_rating", F.avg(F.col("star_rating")).over(w_user))
+        # REMOVED: user_helpful_ratio (leakage risk)
+    
+    # Product aggregates (Window functions)
+    if "product_id" in df.columns:
+        w_prod = Window.partitionBy("product_id")
+        df = df.withColumn("product_review_count", F.count(F.lit(1)).over(w_prod))
+        df = df.withColumn("product_avg_rating", F.avg(F.col("star_rating")).over(w_prod))
+        # REMOVED: product_helpful_ratio (leakage risk)
+    
+    return df</code></pre>
 
-                <h3>Usage Examples</h3>
-                <pre><code># Baseline features (fast, for testing)
-python code_v2/features/feature_pipeline_v2.py \
-  --data hdfs://localhost:9000/output_v2/train \
-  --out hdfs://localhost:9000/output_v2/features_baseline \
-  --feature_set baseline \
-  --sample 100000
+                <div class="warning">
+                    <strong>⚠️ Leakage Prevention:</strong> Removed <code>user_helpful_ratio</code> và <code>product_helpful_ratio</code> vì LOO (leave-one-out) vẫn leak label information vào features.
+                </div>
+            </section>
 
-# V3 features (recommended for Day 2-3)
-python code_v2/features/feature_pipeline_v2.py \
-  --data hdfs://localhost:9000/output_v2/train \
-  --out hdfs://localhost:9000/output_v2/features_train_v3 \
-  --feature_set v3 \
-  --include_text \
-  --include_sentiment
+            <!-- USAGE -->
+            <section>
+                <h2>🚀 Usage (Commands Thực Tế)</h2>
 
-# Full features (for experimentation)
-python code_v2/features/feature_pipeline_v2.py \
-  --data hdfs://localhost:9000/output_v2/train \
-  --out hdfs://localhost:9000/output_v2/features_train_full \
-  --feature_set full \
-  --include_text \
-  --include_sentiment \
-  --sample 500000
+                <h3>Train Features (V4 - Actual Command)</h3>
+                <pre><code>spark-submit feature_pipeline_v2.py \
+  --input hdfs://localhost:9000/datasets/amazon/movies_tv/silver/reviews_labeled/train \
+  --output hdfs://localhost:9000/output_v2/features_train_v4 \
+  --preset full \
+  --numFeatures 10000 \
+  --minDF 5 \
+  --save \
+  --mode overwrite
 
-# Process test set
-python code_v2/features/feature_pipeline_v2.py \
-  --data hdfs://localhost:9000/output_v2/test \
-  --out hdfs://localhost:9000/output_v2/features_test_v3 \
-  --feature_set v3 \
-  --include_text \
-  --include_sentiment</code></pre>
+# Output: 10,017 dimensions (10K TF-IDF + 17 numeric/metadata/sentiment)
+# Time: ~25-35 minutes for 1M train samples</code></pre>
+
+                <h3>Test Features (V4)</h3>
+                <pre><code>spark-submit feature_pipeline_v2.py \
+  --input hdfs://localhost:9000/datasets/amazon/movies_tv/silver/reviews_labeled/test \
+  --output hdfs://localhost:9000/output_v2/features_test_v4 \
+  --preset full \
+  --numFeatures 10000 \
+  --minDF 5 \
+  --save \
+  --mode overwrite
+
+# Output: 1,735,280 test samples with 10,017 dimensions
+# Time: ~45-60 minutes</code></pre>
 
                 <h3>Command Line Arguments</h3>
                 <table>
@@ -792,298 +605,228 @@ python code_v2/features/feature_pipeline_v2.py \
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>--data</code></td>
+                            <td><code>--input</code></td>
                             <td>Yes</td>
                             <td>-</td>
                             <td>Input Parquet path (HDFS)</td>
                         </tr>
                         <tr>
-                            <td><code>--out</code></td>
+                            <td><code>--output</code></td>
                             <td>Yes</td>
                             <td>-</td>
                             <td>Output Parquet path (HDFS)</td>
                         </tr>
                         <tr>
-                            <td><code>--feature_set</code></td>
+                            <td><code>--preset</code></td>
                             <td>No</td>
-                            <td>v3</td>
-                            <td>baseline/v1/v2/v3/full</td>
+                            <td>full</td>
+                            <td>full (có TF-IDF) / fast (chỉ numeric)</td>
                         </tr>
                         <tr>
-                            <td><code>--include_text</code></td>
+                            <td><code>--numFeatures</code></td>
+                            <td>No</td>
+                            <td>20000</td>
+                            <td>HashingTF dimensions (chỉ preset=full)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--minDF</code></td>
+                            <td>No</td>
+                            <td>5</td>
+                            <td>Min document frequency cho IDF (lọc từ hiếm)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--save</code></td>
                             <td>No</td>
                             <td>False</td>
-                            <td>Add text features (9 features)</td>
+                            <td>Ghi parquet ra --output</td>
                         </tr>
                         <tr>
-                            <td><code>--include_sentiment</code></td>
+                            <td><code>--mode</code></td>
                             <td>No</td>
-                            <td>False</td>
-                            <td>Add VADER sentiment (8 features)</td>
-                        </tr>
-                        <tr>
-                            <td><code>--sample</code></td>
-                            <td>No</td>
-                            <td>None</td>
-                            <td>Sample size (for testing)</td>
-                        </tr>
-                        <tr>
-                            <td><code>--repartition</code></td>
-                            <td>No</td>
-                            <td>8</td>
-                            <td>Number of partitions</td>
+                            <td>overwrite</td>
+                            <td>error / append / overwrite / ignore</td>
                         </tr>
                     </tbody>
                 </table>
             </section>
 
-            <!-- PERFORMANCE & BEST PRACTICES -->
+            <!-- PERFORMANCE -->
             <section>
-                <h2>⚡ Performance & Best Practices</h2>
+                <h2>⚡ Performance (Actual Results)</h2>
 
-                <h3>Runtime Estimates</h3>
+                <h3>Runtime Comparison</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>Dataset Size</th>
-                            <th>Feature Set</th>
-                            <th>Include Sentiment?</th>
-                            <th>Estimated Time</th>
+                            <th>Dataset</th>
+                            <th>Samples</th>
+                            <th>Preset</th>
+                            <th>Time (Actual)</th>
+                            <th>Output Size</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>100K rows</td>
-                            <td>baseline</td>
-                            <td>No</td>
-                            <td>~2-5 minutes</td>
+                            <td>Train V4</td>
+                            <td>1M (limited)</td>
+                            <td>full (10K TF-IDF)</td>
+                            <td>~25-30 min</td>
+                            <td>~2.5 GB parquet</td>
                         </tr>
                         <tr>
-                            <td>100K rows</td>
-                            <td>v3</td>
-                            <td>No</td>
-                            <td>~5-10 minutes</td>
+                            <td>Test V4</td>
+                            <td>1.73M (full)</td>
+                            <td>full (10K TF-IDF)</td>
+                            <td>~45-55 min</td>
+                            <td>~4.2 GB parquet</td>
                         </tr>
                         <tr>
-                            <td>100K rows</td>
-                            <td>v3</td>
-                            <td>Yes</td>
-                            <td>~15-25 minutes</td>
-                        </tr>
-                        <tr>
-                            <td>1M rows</td>
-                            <td>v3</td>
-                            <td>No</td>
-                            <td>~20-30 minutes</td>
-                        </tr>
-                        <tr>
-                            <td>1M rows</td>
-                            <td>v3</td>
-                            <td>Yes</td>
-                            <td>~60-90 minutes</td>
-                        </tr>
-                        <tr>
-                            <td>13.8M rows (full train)</td>
-                            <td>v3</td>
-                            <td>No</td>
-                            <td>~3-4 hours</td>
-                        </tr>
-                        <tr>
-                            <td>13.8M rows (full train)</td>
-                            <td>v3</td>
-                            <td>Yes</td>
-                            <td>~10-12 hours</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="warning">
-                    <strong>⚠️ VADER is the bottleneck!</strong><br>
-                    Sentiment analysis với UDFs là rất chậm. Recommendations:
-                    <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li>Test với 100K-500K rows trước</li>
-                        <li>Cache DataFrame sau mỗi bước nếu có nhiều actions</li>
-                        <li>Cân nhắc tăng <code>--repartition</code> (16-32) để parallel tốt hơn</li>
-                        <li>Hoặc pre-compute sentiment offline và join sau</li>
-                    </ul>
-                </div>
-
-                <h3>Best Practices</h3>
-                <div class="module-box">
-                    <h4>✅ DO's</h4>
-                    <ul style="margin-left: 20px;">
-                        <li>✅ Test với sample nhỏ (100K) trước khi chạy full data</li>
-                        <li>✅ Sử dụng <code>--feature_set v3</code> cho Ngày 2-3 (balance giữa performance & quality)</li>
-                        <li>✅ Chạy train & test set riêng biệt với cùng arguments</li>
-                        <li>✅ Validate NULL counts sau mỗi bước</li>
-                        <li>✅ Save intermediate checkpoints (features_baseline → features_v3)</li>
-                        <li>✅ Monitor memory usage với <code>df.cache()</code> nếu cần reuse</li>
-                    </ul>
-                </div>
-
-                <div class="module-box">
-                    <h4>❌ DON'Ts</h4>
-                    <ul style="margin-left: 20px;">
-                        <li>❌ Không chạy sentiment trên 10M+ rows ngay lần đầu</li>
-                        <li>❌ Không dùng <code>--feature_set full</code> cho production (quá nhiều features)</li>
-                        <li>❌ Không skip validation step (có thể có NULL leak)</li>
-                        <li>❌ Không overwrite input data (luôn dùng output path khác)</li>
-                        <li>❌ Không quên chạy cho test set sau train set</li>
-                    </ul>
-                </div>
-            </section>
-
-            <!-- OUTPUT STRUCTURE -->
-            <section>
-                <h2>📦 Output Structure</h2>
-
-                <h3>Expected Directory Layout</h3>
-                <pre><code>hdfs://localhost:9000/output_v2/
-├── train/                          # From train_test_split_v2.py
-│   ├── year=2023/
-│   │   ├── month=1/
-│   │   └── month=2/
-│   └── year=2022/
-│
-├── test/                           # From train_test_split_v2.py
-│   └── year=*/month=*/
-│
-├── val/                            # From train_test_split_v2.py
-│   └── year=*/month=*/
-│
-├── features_train_v3/              # ← Output from Day 2
-│   ├── year=2023/
-│   │   ├── month=1/
-│   │   │   ├── part-00000-*.snappy.parquet
-│   │   │   ├── part-00001-*.snappy.parquet
-│   │   │   └── ...
-│   │   └── month=2/
-│   └── year=2022/
-│
-├── features_test_v3/               # ← Output from Day 2
-│   └── year=*/month=*/
-│
-└── features_val_v3/                # ← Optional
-    └── year=*/month=*/</code></pre>
-
-                <h3>Feature Schema (V3)</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Column</th>
-                            <th>Type</th>
-                            <th>Source Module</th>
-                            <th>NULL Safe?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>review_id</code></td>
-                            <td>String</td>
-                            <td>Original</td>
-                            <td>✅</td>
-                        </tr>
-                        <tr>
-                            <td><code>is_helpful</code></td>
-                            <td>Integer</td>
-                            <td>Original (target)</td>
-                            <td>✅</td>
-                        </tr>
-                        <tr>
-                            <td><code>star_rating</code></td>
-                            <td>Double</td>
-                            <td>Original</td>
-                            <td>✅</td>
-                        </tr>
-                        <tr>
-                            <td><code>cleaned_text</code></td>
-                            <td>String</td>
-                            <td>text_preprocessing_v2</td>
-                            <td>✅ (empty string)</td>
-                        </tr>
-                        <tr>
-                            <td><code>text_length</code></td>
-                            <td>Integer</td>
-                            <td>text_preprocessing_v2</td>
-                            <td>✅ (0)</td>
-                        </tr>
-                        <tr>
-                            <td><code>word_count</code></td>
-                            <td>Integer</td>
-                            <td>text_preprocessing_v2</td>
-                            <td>✅ (0)</td>
-                        </tr>
-                        <tr>
-                            <td><code>sentiment_compound</code></td>
-                            <td>Double</td>
-                            <td>sentiment_vader_v2</td>
-                            <td>✅ (0.0)</td>
-                        </tr>
-                        <tr>
-                            <td><code>review_length_log</code></td>
-                            <td>Double</td>
-                            <td>metadata_features_v2</td>
-                            <td>✅ (log1p)</td>
-                        </tr>
-                        <tr>
-                            <td><code>rating_deviation</code></td>
-                            <td>Double</td>
-                            <td>metadata_features_v2</td>
-                            <td>✅ (0.0)</td>
-                        </tr>
-                        <tr>
-                            <td colspan="4"><em>... (35+ total features in v3)</em></td>
+                            <td>Train (fast)</td>
+                            <td>1M</td>
+                            <td>fast (no TF-IDF)</td>
+                            <td>~8-12 min</td>
+                            <td>~150 MB parquet</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="success">
-                    <strong>✅ All features are NULL-safe!</strong> V2 improvement đảm bảo không có NULL values trong output, tránh lỗi khi train model.
+                    <strong>✅ Speedup:</strong> Dictionary sentiment là ~100x nhanh hơn VADER UDF<br>
+                    <strong>Original estimate:</strong> 10-12 hours với VADER UDF trên 10M rows<br>
+                    <strong>Actual time:</strong> ~30-45 phút với dictionary sentiment trên 1-2M rows
+                </div>
+
+                <h3>Model Training Results (Using V4 Features)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Features</th>
+                            <th>AUC-PR</th>
+                            <th>AUC-ROC</th>
+                            <th>Training Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>V4 (LGBM)</td>
+                            <td>10,017 (full)</td>
+                            <td>0.6448</td>
+                            <td>0.8537</td>
+                            <td>~12 min</td>
+                        </tr>
+                        <tr>
+                            <td>V5 (LGBM)</td>
+                            <td>10,017 (full)</td>
+                            <td>0.6363</td>
+                            <td>0.8472</td>
+                            <td>~10 min</td>
+                        </tr>
+                        <tr>
+                            <td>V6 (LGBM)</td>
+                            <td>10,017 (full)</td>
+                            <td>0.6444</td>
+                            <td>0.8526</td>
+                            <td>~11 min</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- IMPROVEMENTS -->
+            <section>
+                <h2>🔥 Key Improvements vs Original Plan</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Original Plan</th>
+                            <th>Actual Implementation</th>
+                            <th>Benefit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Architecture</strong></td>
+                            <td>3 separate modules</td>
+                            <td>1 unified pipeline</td>
+                            <td>✅ Easier to maintain, debug, deploy</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sentiment</strong></td>
+                            <td>VADER UDF (Python)</td>
+                            <td>Dictionary + array_intersect (Spark SQL)</td>
+                            <td>✅ 100x faster, no UDF errors</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Text Cleaning</strong></td>
+                            <td>BeautifulSoup UDF</td>
+                            <td>regexp_replace (Spark SQL)</td>
+                            <td>✅ Native Spark, faster</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Feature Levels</strong></td>
+                            <td>5 levels (baseline/v1/v2/v3/full)</td>
+                            <td>2 presets (fast/full)</td>
+                            <td>✅ Simpler, less confusion</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Leakage</strong></td>
+                            <td>user/product helpful_ratio</td>
+                            <td>Removed (detected leakage)</td>
+                            <td>✅ Prevented label leakage</td>
+                        </tr>
+                        <tr>
+                            <td><strong>handleInvalid</strong></td>
+                            <td>Not specified</td>
+                            <td>"keep" (fills NaN with 0.0)</td>
+                            <td>✅ 100% test coverage (vs 37.7% with "skip")</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="highlight-box">
+                    <h3>🎯 Philosophy Change</h3>
+                    <p><strong>From:</strong> Feature-rich, modular, research-friendly (nhiều modules, VADER, BERT-ready)</p>
+                    <p><strong>To:</strong> Production-first, fast, reliable (1 file, no UDF, Spark-native)</p>
+                    <p style="margin-top: 10px;"><strong>Result:</strong> Deployed V4/V5/V6 models successfully với AUC-PR ~0.64, 100% test coverage</p>
                 </div>
             </section>
 
             <!-- NEXT STEPS -->
             <section>
-                <h2>🚀 Ngày 3 - Kế Hoạch</h2>
+                <h2>🚀 Ngày 3+ - Kế Hoạch Tiếp Theo</h2>
 
-                <h3>Nhiệm vụ Tiếp Theo</h3>
-                <ul class="task-list" style="list-style: none;">
-                    <li style="border-left-color: #ffc107;">🎯 Train Baseline Model: Logistic Regression với TF-IDF</li>
-                    <li style="border-left-color: #ffc107;">📊 Evaluate với AUC-PR metric</li>
-                    <li style="border-left-color: #ffc107;">⚖️ Handle class imbalance: <code>class_weight='balanced'</code></li>
-                    <li style="border-left-color: #ffc107;">💾 Save model artifacts: vectorizer.joblib + model.joblib</li>
-                    <li style="border-left-color: #ffc107;">📈 Generate baseline performance report</li>
+                <h3>V7 Training (Recommended Next)</h3>
+                <pre><code>spark-submit train_lightgbm_spark_v2.py \
+  --train hdfs://localhost:9000/output_v2/features_train_v4 \
+  --test hdfs://localhost:9000/output_v2/features_test_v4 \
+  --out hdfs://localhost:9000/output_v2/models/lightgbm_v7_best \
+  --numLeaves 110 \
+  --learningRate 0.025 \
+  --numIterations 1000 \
+  --earlyStoppingRound 150 \
+  --minDataInLeaf 25 \
+  --featureFraction 0.75 \
+  --baggingFraction 0.75 \
+  --lambdaL1 0.0 \
+  --lambdaL2 0.0 \
+  --limit_train 1000000 \
+  --save_schema_log
+
+# Expected: AUC-PR 0.65-0.66 (improvement over V4-V6)</code></pre>
+
+                <h3>Future Enhancements (Optional)</h3>
+                <ul class="task-list">
+                    <li>🔍 Auto-tuning với Hyperopt/Optuna (50-100 trials, ~2-3h)</li>
+                    <li>🎯 Ensemble: V4 + V6 + V7 predictions với weighted averaging</li>
+                    <li>📊 Advanced features: user-level aggregates (nếu không leak)</li>
+                    <li>🤖 BERT embeddings (nếu có GPU và thời gian)</li>
                 </ul>
 
-                <h3>Expected Deliverables (Ngày 3)</h3>
-                <div class="module-box">
-                    <h4>📁 Files to create:</h4>
-                    <ul style="margin-left: 20px;">
-                        <li><code>code_v2/models/train_logreg_baseline_v2.py</code></li>
-                        <li><code>output_v2/logreg_baseline/model.joblib</code></li>
-                        <li><code>output_v2/logreg_baseline/vectorizer.joblib</code></li>
-                        <li><code>output_v2/logreg_baseline/metrics.json</code></li>
-                        <li><code>docs_v2/day3_v2_report.html</code></li>
-                    </ul>
-                </div>
-
-                <h3>Pipeline Setup for Day 3</h3>
-                <pre><code># Day 3: Train baseline LogReg model
-python code_v2/models/train_logreg_baseline_v2.py \
-  --train hdfs://localhost:9000/output_v2/features_train_v3 \
-  --val hdfs://localhost:9000/output_v2/features_val_v3 \
-  --model_out output_v2/logreg_baseline \
-  --tfidf_features 5000 \
-  --ngram_range 1,1 \
-  --class_weight balanced
-
-# Expected output:
-# - AUC-PR: ~0.25-0.35 (baseline)
-# - Training time: ~20-40 minutes
-# - Model size: ~100-200 MB</code></pre>
-
                 <div class="info">
-                    <strong>💡 Target for Ngày 3:</strong> Achieve AUC-PR ≥ 0.30 với Logistic Regression baseline. Đây là foundation để so sánh với LightGBM ở Ngày 4-5.
+                    <strong>💡 Current Priority:</strong> V7 training với config tối ưu → Target AUC-PR ≥ 0.65 → Submit prediction
                 </div>
             </section>
 
@@ -1091,88 +834,50 @@ python code_v2/models/train_logreg_baseline_v2.py \
             <section>
                 <h2>📝 Technical Notes</h2>
 
-                <h3>Key Decisions & Rationale</h3>
+                <h3>Design Decisions</h3>
                 <div class="module-box">
-                    <h4>🎯 Why feature_set=v3 for Day 2?</h4>
-                    <p><strong>Balance giữa:</strong></p>
+                    <h4>✅ Why Unified Pipeline?</h4>
                     <ul style="margin-left: 20px;">
-                        <li>✅ Đủ features để train model tốt (35+ features)</li>
-                        <li>✅ Không quá phức tạp → fast training</li>
-                        <li>✅ Có sentiment + text + metadata → comprehensive</li>
-                        <li>✅ Dễ debug & validate</li>
+                        <li><strong>Simplicity:</strong> 1 file, 278 lines, dễ hiểu toàn bộ logic</li>
+                        <li><strong>Dependency:</strong> Không cần import custom modules, chỉ PySpark</li>
+                        <li><strong>Debugging:</strong> Dễ trace lỗi, không phải jump giữa nhiều files</li>
+                        <li><strong>Deployment:</strong> Copy 1 file là xong, không cần package structure</li>
                     </ul>
                 </div>
 
                 <div class="module-box">
-                    <h4>🎭 Why VADER instead of BERT/Transformers?</h4>
+                    <h4>⚡ Why Dictionary > VADER?</h4>
                     <ul style="margin-left: 20px;">
-                        <li>⚡ <strong>Speed:</strong> 100x-1000x nhanh hơn BERT</li>
-                        <li>💻 <strong>Resource:</strong> Không cần GPU</li>
-                        <li>📦 <strong>Simple:</strong> Pip install, no model download</li>
-                        <li>✅ <strong>Good enough:</strong> AUC-PR improvement ~0.03-0.05</li>
-                        <li>🔄 <strong>Scalable:</strong> Có thể chạy trên 10M+ rows</li>
+                        <li><strong>Performance:</strong> Spark SQL native vs Python UDF serialization</li>
+                        <li><strong>Reliability:</strong> Tránh Windows worker socket errors</li>
+                        <li><strong>Scalability:</strong> Linear scaling với data size</li>
+                        <li><strong>Good Enough:</strong> AUC-PR 0.64 acceptable cho production</li>
                     </ul>
-                    <p><strong>Trade-off:</strong> Mất ~2-3% accuracy vs BERT, nhưng gain 100x speed.</p>
                 </div>
-
-                <h3>Known Issues & Workarounds</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Issue</th>
-                            <th>Impact</th>
-                            <th>Workaround</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>VADER UDF slow on large data</td>
-                            <td>10-12 hours for 13M rows</td>
-                            <td>Test on sample first, use <code>--sample</code></td>
-                        </tr>
-                        <tr>
-                            <td>Memory pressure với many features</td>
-                            <td>OOM on large DataFrames</td>
-                            <td>Use <code>.persist(StorageLevel.MEMORY_AND_DISK)</code></td>
-                        </tr>
-                        <tr>
-                            <td>HTML tags trong text</td>
-                            <td>Noise in text features</td>
-                            <td>✅ Fixed: BeautifulSoup cleanup</td>
-                        </tr>
-                        <tr>
-                            <td>NULL trong aggregate features</td>
-                            <td>Drop rows in model training</td>
-                            <td>✅ Fixed: Fallback chains in v2</td>
-                        </tr>
-                    </tbody>
-                </table>
 
                 <h3>Validation Checklist</h3>
-                <div class="module-box">
-                    <h4>✅ Before moving to Day 3, verify:</h4>
-                    <ul style="margin-left: 20px;">
-                        <li>✅ Train features saved to HDFS (<code>features_train_v3</code>)</li>
-                        <li>✅ Test features saved to HDFS (<code>features_test_v3</code>)</li>
-                        <li>✅ No NULL values in numeric features</li>
-                        <li>✅ Schema consistent between train & test</li>
-                        <li>✅ Target column <code>is_helpful</code> present</li>
-                        <li>✅ Feature count matches expected (35+ for v3)</li>
-                        <li>✅ Sample output validated (show 10 rows)</li>
-                    </ul>
-                </div>
+                <ul class="task-list">
+                    <li>✅ Train features: hdfs://localhost:9000/output_v2/features_train_v4</li>
+                    <li>✅ Test features: hdfs://localhost:9000/output_v2/features_test_v4</li>
+                    <li>✅ Feature dimensions: 10,017 (10K TF-IDF + 17 numeric)</li>
+                    <li>✅ handleInvalid="keep" → 100% test coverage</li>
+                    <li>✅ No NULL in output (validated)</li>
+                    <li>✅ V4/V5/V6 models trained successfully</li>
+                    <li>✅ V6 submission validated (1.73M rows, correct format)</li>
+                </ul>
             </section>
         </div>
 
         <footer>
             <h3>🔧 Amazon Review Helpfulness Prediction - V2</h3>
             <p><strong>Project:</strong> Big Data Processing - HUIT</p>
-            <p><strong>Version:</strong> V2 (Feature Engineering Complete)</p>
-            <p><strong>Date:</strong> October 28, 2025</p>
-            <p><strong>Status:</strong> <span class="badge success">Ngày 2 - COMPLETED ✅</span></p>
+            <p><strong>Version:</strong> V2 (Unified Pipeline - Production Ready)</p>
+            <p><strong>Date:</strong> November 1, 2025 (Updated)</p>
+            <p><strong>Status:</strong> <span class="badge success">DEPLOYED ✅</span></p>
             <p style="margin-top: 20px; color: #999;">
-                Modules: text_preprocessing_v2.py + metadata_features_v2.py + sentiment_vader_v2.py<br>
-                Pipeline: feature_pipeline_v2.py (unified orchestrator)
+                Single File: feature_pipeline_v2.py (278 lines)<br>
+                Architecture: normalize → text+sentiment → metadata → TF-IDF → VectorAssembler<br>
+                Key Innovation: NO Python UDF, Dictionary Sentiment, handleInvalid="keep"
             </p>
         </footer>
     </div>

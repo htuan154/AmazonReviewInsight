@@ -260,10 +260,15 @@ def plot_simple_pie(df, col, out_path):
     plt.close()
 
 def main():
-    # Paths
-    submission_path = "output_v2/submission_final.csv"
-    out_dir = Path("output_v2/analysis")
-    out_dir.mkdir(exist_ok=True)
+    # Paths - Updated for V7 submissions
+    import sys
+    if len(sys.argv) > 1:
+        submission_path = sys.argv[1]
+    else:
+        submission_path = "output_final/submission_v7.csv"  # Default to V7 baseline
+    
+    out_dir = Path("output_final/analysis")
+    out_dir.mkdir(exist_ok=True, parents=True)
     
     # Load
     df = load_submission(submission_path)

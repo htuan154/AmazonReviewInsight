@@ -291,11 +291,11 @@ def main():
     reviews = (
         spark.read.json(args.reviews, multiLine=False)
         .select(
-            F.col("asin").alias("review_id"),
+            F.col("asin").alias("review_id"),  # asin = unique review identifier
             F.col("text").alias("review_text"),
             F.col("rating").alias("star_rating"),
             F.col("helpful_vote").alias("helpful_votes"),
-            F.col("user_id").alias("user_id"),
+            F.col("user_id"),
             F.col("parent_asin").alias("product_id"),
             F.col("timestamp").alias("ts_raw")
         )
@@ -304,12 +304,26 @@ def main():
     # Chuẩn hoá kiểu dữ liệu
     reviews = (
         reviews
+        .withColumn("review_id", F.col("review_id").cast("string"))  # Ensure string type
         .withColumn("star_rating", F.col("star_rating").cast("double"))
         .withColumn("helpful_votes", F.col("helpful_votes").cast("long"))
         .withColumn("review_text", F.col("review_text").cast("string"))
         .withColumn("ts", safe_parse_ts(F.col("ts_raw")))
         .drop("ts_raw")
     )
+    
+    # Verify review_id uniqueness
+    total_count = reviews.count()
+    unique_count = reviews.select("review_id").distinct().count()
+    
+    print(f"[INFO] Total reviews: {total_count:,}")
+    print(f"[INFO] Unique review_ids: {unique_count:,}")
+    
+    if total_count != unique_count:
+        print(f"[ERROR] review_id NOT unique! Duplicates: {total_count - unique_count:,}")
+        raise ValueError("review_id (asin) must be unique for each review")
+    else:
+        print(f"[OK] review_id is unique ✓")
 
     # Cột phân vùng
     reviews = (
