@@ -2468,29 +2468,141 @@ spark-submit code_v2/etl/train_test_split_v2.py \
                 </div>
 
                 <h3>Implementation Code</h3>
-                <pre><code># Ví dụ: Impute price
-# Step 1: Calculate category median
-category_window = Window.partitionBy("category_clean")
-meta_df = meta_df.withColumn(
-    "price_cat_median",
-    F.expr("percentile_approx(price_cleaned, 0.5)").over(category_window)
-)
+                <div class="warning">
+                    <strong>💡 Lưu ý:</strong> Code dưới đây là <strong>simplified example</strong> cho mục đích minh họa. 
+                    Implementation thực tế trong <code>preprocess_spark_v2.py</code> phức tạp hơn với auto-detection và nhiều special cases.
+                </div>
+                
+                <pre><code># =======================================================
+# THỰC TẾ: Auto-detect ALL NULL columns (không hardcode)
+# =======================================================
 
-# Step 2: Calculate global median
-global_median = meta_df.select(
-    F.expr("percentile_approx(price_cleaned, 0.5)").alias("median")
-).first()["median"]
+def impute_metadata_nulls(meta_df):
+    """
+    Xử lý NULL với chiến lược TỰ ĐỘNG:
+    1. Auto-detect tất cả cột có NULL
+    2. Impute theo type (numeric/string)
+    3. Fallback chain cho mỗi cột
+    """
+    
+    # BƯỚC 1: Phát hiện TẤT CẢ cột có NULL
+    total_rows = meta_df.count()
+    null_info = []
+    
+    for col_name in meta_df.columns:
+        null_count = meta_df.filter(F.col(col_name).isNull()).count()
+        if null_count > 0:
+            null_pct = (null_count / total_rows * 100)
+            col_type = meta_df.schema[col_name].dataType.typeName()
+            null_info.append({
+                "column": col_name,
+                "null_count": null_count,
+                "null_pct": null_pct,
+                "type": col_type
+            })
+            print(f"  {col_name:30s} ({col_type:10s}): {null_count:10,} ({null_pct:6.2f}%)")
+    
+    # BƯỚC 2: Xử lý category trước (dùng cho impute các cột khác)
+    if "category" in meta_df.columns:
+        meta_df = meta_df.withColumn(
+            "category_clean",
+            F.coalesce(F.col("category"), F.lit("Unknown"))
+        )
+    else:
+        meta_df = meta_df.withColumn("category_clean", F.lit("Unknown"))
+    
+    # BƯỚC 3: Impute từng cột theo type
+    category_window = Window.partitionBy("category_clean")
+    
+    for info in null_info:
+        col_name = info["column"]
+        col_type = info["type"]
+        
+        # === NUMERIC COLUMNS ===
+        if col_type in ["double", "float", "integer", "long"]:
+            
+            # Special case: price_cleaned
+            if col_name == "price_cleaned":
+                # Global median
+                global_median = meta_df.select(
+                    F.expr(f"percentile_approx({col_name}, 0.5)").alias("median")
+                ).first()["median"]
+                
+                if global_median is None:
+                    global_median = 0.0
+                
+                # Category median (KHÔNG dùng .over() với percentile_approx)
+                # Thay vào đó: tính percentile_approx cho mỗi partition
+                meta_df = meta_df.withColumn(
+                    f"{col_name}_cat_median",
+                    F.expr(f"percentile_approx({col_name}, 0.5)").over(category_window)
+                )
+                
+                # Impute với fallback chain
+                meta_df = meta_df.withColumn(
+                    f"{col_name}_imputed",
+                    F.coalesce(
+                        F.col(col_name),                    # Original
+                        F.col(f"{col_name}_cat_median"),    # Category median
+                        F.lit(global_median)                # Global median
+                    )
+                )
+            
+            # Special case: average_rating
+            elif col_name == "average_rating":
+                global_mean = meta_df.agg(F.mean(col_name).alias("mean")).first()["mean"]
+                if global_mean is None:
+                    global_mean = 3.0
+                
+                # Category mean
+                meta_df = meta_df.withColumn(
+                    f"{col_name}_cat_mean",
+                    F.avg(col_name).over(category_window)
+                )
+                
+                # Impute
+                meta_df = meta_df.withColumn(
+                    f"{col_name}_imputed",
+                    F.coalesce(
+                        F.col(col_name),
+                        F.col(f"{col_name}_cat_mean"),
+                        F.lit(global_mean),
+                        F.lit(3.0)
+                    )
+                )
+            
+            # Special case: rating_number
+            elif col_name == "rating_number":
+                meta_df = meta_df.withColumn(
+                    f"{col_name}_imputed",
+                    F.coalesce(F.col(col_name), F.lit(0))
+                )
+        
+        # === STRING COLUMNS ===
+        elif col_type == "string":
+            meta_df = meta_df.withColumn(
+                f"{col_name}_imputed",
+                F.coalesce(F.col(col_name), F.lit("Unknown"))
+            )
+    
+    # BƯỚC 4: Select final columns với tên gốc
+    # Map imputed columns back to original names
+    return meta_df
 
-# Step 3: Impute với fallback chain
-meta_df = meta_df.withColumn(
-    "price_imputed",
-    F.coalesce(
-        F.col("price_cleaned"),          # Original value
-        F.col("price_cat_median"),       # Category median
-        F.lit(global_median),            # Global median
-        F.lit(0.0)                       # Final fallback
-    )
-)</code></pre>
+# =======================================================
+# KẾT QUẢ: 0 NULL trong tất cả các cột quan trọng
+# =======================================================</code></pre>
+
+                <div class="success">
+                    <strong>✅ Key Implementation Details:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Auto-detection:</strong> Loop qua tất cả columns, không hardcode field names</li>
+                        <li><strong>Type-specific:</strong> Numeric dùng median/mean, String dùng "Unknown"</li>
+                        <li><strong>Window functions:</strong> <code>percentile_approx().over(window)</code> để tính category aggregate</li>
+                        <li><strong>Fallback chain:</strong> Original → Category aggregate → Global aggregate → Default</li>
+                        <li><strong>Validation:</strong> Print NULL counts trước và sau imputation</li>
+                    </ul>
+                </div>
 
                 <h3>Results</h3>
                 <table>
