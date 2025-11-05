@@ -52,7 +52,7 @@ def validate_data_quality(df, name="Dataset"):
                 has_nulls = True
     
     if not has_nulls:
-        print(f"  ✓ No NULLs in key columns")
+        print(f"  [OK] No NULLs in key columns")
     
     return not has_nulls
 
@@ -200,9 +200,9 @@ def main():
     print(f"Train: {train_path}")
     print(f"Test: {test_path}")
     print("\nKey improvements in V2:")
-    print("  ✓ NULL validation before and after split")
-    print("  ✓ Detailed data quality checks")
-    print("  ✓ Summary statistics for EDA")
+    print("  [OK] NULL validation before and after split")
+    print("  [OK] Detailed data quality checks")
+    print("  [OK] Summary statistics for EDA")
     
     spark.stop()
 

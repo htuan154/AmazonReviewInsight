@@ -1,0 +1,195 @@
+
+AmazonReviewInsight — Tham số chạy V2 (Giải thích chi tiết)
+===========================================================
+
+MỤC LỤC
+-------
+1) Biến môi trường Python/Spark
+2) Tham số chung của spark-submit
+3) Dự đoán (predict_pipeline_v2.py) — lệnh "dự đoán"
+4) Auto-tune (train_lightgbm_spark_v2.py) — lệnh "auto tune"
+5) Huấn luyện thường (train_lightgbm_spark_v2.py) — lệnh "chạy thường"
+6) Trích đặc trưng TRAIN (feature_pipeline_v2.py) — lệnh "train"
+7) Trích đặc trưng TEST (feature_pipeline_v2.py) — lệnh "test"
+8) Gợi ý cấu hình & lỗi thường gặp
+
+---------------------------------------------
+1) BIẾN MÔI TRƯỜNG PYTHON / SPARK
+---------------------------------------------
+$env:PYSPARK_PYTHON
+  Đường dẫn Python cho executors (worker). Phải trỏ tới cùng phiên bản Python có đủ packages cần thiết.
+  Ví dụ: "C:\Users\<bạn>\AppData\Local\Programs\Python\Python311\python.exe"
+
+$env:PYSPARK_DRIVER_PYTHON
+  Python cho driver (máy điều khiển). Nên đặt cùng bản với PYSPARK_PYTHON để tránh sai khác môi trường.
+
+Lưu ý:
+- Trên Windows, nên dùng cùng 1 bản Python 3.11 cho cả driver/executor để tránh lỗi encoding/Arrow.
+- Nếu chạy trong container Spark thì 2 biến này có thể được set khác hoặc không cần set.
+
+---------------------------------------------
+2) THAM SỐ CHUNG CỦA spark-submit
+---------------------------------------------
+--master local[*]
+  Chạy chế độ local, dùng tất cả core sẵn có trên máy. Dùng khi bạn không có cluster standalone/YARN.
+
+--deploy-mode client
+  Driver chạy ở máy bạn. Phù hợp debug local. (cluster mode = driver chạy trên cluster).
+
+--packages com.microsoft.azure:synapseml-lightgbm_2.12:1.0.7
+  Tự động tải SynapseML LightGBM cho Scala 2.12, bản 1.0.7 (tương thích Spark 3.x). Cần Internet lần đầu.
+
+--driver-memory 11g / --executor-memory 11g
+  Giới hạn RAM cho driver/executor. Trên Windows, nếu RAM máy là 16GB, mức 11g là tương đối cao — đảm bảo còn dư cho hệ thống.
+
+--conf spark.driver.maxResultSize=4g
+  Kích thước tối đa kết quả trả về driver trong 1 action. Tăng để tránh "Max result size exceeded" khi collect lớn (không khuyến nghị collect).
+
+--conf spark.sql.shuffle.partitions=64
+  Số partition tạo ra ở các thao tác shuffle (groupBy/join). 64 phù hợp máy 8–16 core. Máy yếu → 32; máy mạnh → 128/256.
+
+--conf spark.sql.adaptive.enabled=true
+  Bật Adaptive Query Execution (AQE) để Spark tự tối ưu số shuffle partition, giảm skew.
+
+---------------------------------------------
+3) DỰ ĐOÁN — predict_pipeline_v2.py
+---------------------------------------------
+Lệnh:
+  --model_path "hdfs://.../models/lightgbm_v7_auto"
+    Thư mục model đã train (có model + metadata.json). predict script sẽ đọc numFeatures/id_col... từ metadata.
+
+  --test "hdfs://.../features_test_v4"
+    Parquet test features đã tạo từ feature_pipeline_v2.py. PHẢI cùng chiều 'features' với model.
+
+  --out "hdfs://.../predictions_v7_auto"
+    Thư mục output trên HDFS. Script ghi:
+      - predictions.parquet (review_id, probability_helpful)
+      - submission.csv (2 cột: review_id, probability_helpful)
+      - logs/ (schema, dim-check...)
+
+  --debug_samples 100
+    Lưu 100 dòng mẫu (schema, vài dự đoán đầu) để dễ kiểm tra.
+
+Cơ chế chính:
+- Kiểm tra numFeatures giữa model & test.
+- Trích xác suất helpful: vector_to_array(probability)[1] → fallback khác nếu cần.
+- Validate submission (2 cột, [0,1], không NULL).
+
+---------------------------------------------
+4) AUTO-TUNE — train_lightgbm_spark_v2.py
+---------------------------------------------
+Lệnh:
+  --train "hdfs://.../features_train_v4"   (đầu vào train features)
+  --test  "hdfs://.../features_test_v4"    (đầu vào test features)
+  --out   "hdfs://.../models/lightgbm_v7_auto" (thư mục model đầu ra)
+
+  --limit_train 5000000
+    (Tuỳ chọn) Chỉ lấy tối đa 5 triệu dòng để huấn luyện/tuning nhanh hơn.
+    Nếu bỏ cờ này → dùng full dataset.
+
+  --auto_tune
+    Bật chế độ tự động dò tham số (grid hoặc random).
+
+  --tune_preset quick
+    Mức độ tìm kiếm tham số:
+      - quick: lưới nhỏ (nhanh, 9–27 tổ hợp)
+      - thorough: lưới lớn (chậm hơn, chính xác hơn)
+
+  --save_schema_log
+    Ghi thông tin schema/numFeatures/label ratio ra logs để truy vết.
+
+Bên trong:
+- Tính tự động posWeight = N_neg / N_pos (chống mất cân bằng).
+- Stratified split/K-fold theo label (đảm bảo phân phối giống nhau).
+- Đánh giá bằng AUC-PR (ưu tiên), AUC-ROC, F1.
+- Lưu mô hình tốt nhất + metadata.json (numFeatures, id_col, tham số...).
+
+---------------------------------------------
+5) HUẤN LUYỆN THƯỜNG — train_lightgbm_spark_v2.py
+---------------------------------------------
+Lệnh & tham số chính:
+  --numLeaves 120
+    Số lá tối đa cho mỗi cây (LightGBM). Tăng → mô hình phức tạp hơn, dễ overfit. Phổ biến: 31–255.
+
+  --learningRate 0.03
+    Tốc độ học (shrinkage). Nhỏ → học chậm nhưng ổn định; lớn → nhanh nhưng dễ overfit. Phổ biến: 0.01–0.1.
+
+  --numIterations 1500
+    Số vòng lặp (số cây). Có thể dừng sớm bởi --earlyStoppingRound.
+
+  --earlyStoppingRound 200
+    Nếu AUC-PR trên validation không tăng sau 200 vòng → dừng sớm.
+
+  --minDataInLeaf 50
+    Số mẫu tối thiểu ở 1 lá. Tăng để giảm overfit (đặc biệt khi dữ liệu nhiễu).
+
+  --featureFraction 0.75
+    Mỗi cây chỉ dùng 75% số đặc trưng (feature bagging) → chống overfit.
+
+  --baggingFraction 0.75
+    Mỗi cây chỉ dùng 75% số mẫu (row bagging) → chống overfit.
+
+  --lambdaL1 0.1 / --lambdaL2 0.1
+    Regularization L1/L2. Tăng để mô hình bớt phức tạp (chống overfit).
+
+  --limit_train 5000000
+    Giới hạn số dòng để training nhanh (tùy RAM/thời gian).
+
+  --save_schema_log
+    Ghi lại schema & tỉ lệ nhãn để đối chiếu sau này.
+
+Ghi chú:
+- Vẫn áp dụng class weight (posWeight) cho mất cân bằng.
+- Vẫn chia stratified train/val nếu bật CV/validation.
+
+---------------------------------------------
+6) TRÍCH ĐẶC TRƯNG TRAIN — feature_pipeline_v2.py
+---------------------------------------------
+Lệnh:
+  --input  "hdfs://.../silver/reviews_labeled/train"
+    Nguồn Parquet đầu vào (đã ETL). Phải có label is_helpful hoặc sẽ suy diễn.
+
+  --output "hdfs://.../features_train_v3"
+    Thư mục đích. Sẽ chứa Parquet với cột 'features' (vector) và id_col.
+
+  --preset full
+    Chạy đầy đủ text + metadata:
+      - RegexTokenizer → HashingTF(numFeatures) → IDF(minDF)
+      - Numeric: word/char/avg_len, sentiment, price_log, rating_deviation, aggregates user/product…
+    Nếu máy yếu dùng --preset fast (bỏ TF-IDF, chỉ numeric + sentiment + aggregates).
+
+  --numFeatures 10000
+    Số chiều TF (trước IDF). 10K–20K là phổ biến. Giữ cố định giữa train/test để tránh mismatch.
+
+  --minDF 5
+    Tối thiểu tài liệu chứa từ trước khi tính IDF. Loại bỏ từ siêu hiếm.
+
+  --save
+    Yêu cầu ghi ra HDFS.
+
+  --mode overwrite
+    Ghi đè nếu thư mục đã tồn tại.
+
+---------------------------------------------
+7) TRÍCH ĐẶC TRƯNG TEST — feature_pipeline_v2.py
+---------------------------------------------
+Tương tự phần TRAIN, nhưng đổi --input là tập test và --output là thư mục test.
+Phải giữ cùng --preset/--numFeatures/--minDF như TRAIN để dimension khớp.
+
+---------------------------------------------
+8) GỢI Ý CẤU HÌNH & LỖI THƯỜNG GẶP
+---------------------------------------------
+• RAM:
+  - Nếu máy 16GB: driver/executor 8g–10g là an toàn; 11g chỉ dùng nếu máy ít ứng dụng nền.
+• partitions:
+  - spark.sql.shuffle.partitions=64 cho máy 8–16 core. Nếu lỗi OOM khi shuffle → hạ 32, bật AQE.
+• Dimension mismatch:
+  - Model numFeatures ≠ Test numFeatures → kiểm tra lại --preset/--numFeatures/--minDF.
+• Submission lỗi:
+  - Đảm bảo 2 cột: review_id, probability_helpful; giá trị [0,1], không NULL.
+• Hiệu năng TF-IDF:
+  - HashingTF nhanh vì không fit vocabulary; nếu cần giải thích từ quan trọng → cân nhắc CountVectorizer (tốn RAM hơn).
+
+KẾT THÚC
+--------
+Các tham số trên đã được tối ưu để chạy ổn định trên Windows + Spark 3.x cho đồ án Amazon Review Helpfulness V2.

@@ -1,0 +1,63 @@
+
+du doan
+$env:PYSPARK_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"; $env:PYSPARK_DRIVER_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"; & "$env:SPARK_HOME\bin\spark-submit.cmd" --master local[*] --deploy-mode client --packages com.microsoft.azure:synapseml-lightgbm_2.12:1.0.7 --driver-memory 11g --executor-memory 11g --conf spark.driver.maxResultSize=4g --conf spark.sql.shuffle.partitions=64 --conf spark.sql.adaptive.enabled=true "D:\HK7\AmazonReviewInsight\code_v2\models\predict_pipeline_v2.py" --model_path "hdfs://localhost:9000/output_v2/models/lightgbm_v7_auto" --test "hdfs://localhost:9000/output_v2/features_test_v4" --out "hdfs://localhost:9000/output_v2/predictions_v7_auto" --debug_samples 100
+
+auto tune
+$env:PYSPARK_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"
+$env:PYSPARK_DRIVER_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"
+
+& "$env:SPARK_HOME\bin\spark-submit.cmd" `
+  --master local[*] `
+  --deploy-mode client `
+  --packages com.microsoft.azure:synapseml-lightgbm_2.12:1.0.7 `
+  --driver-memory 11g `
+  --executor-memory 11g `
+  --conf spark.driver.maxResultSize=4g `
+  --conf spark.sql.shuffle.partitions=64 `
+  --conf spark.sql.adaptive.enabled=true `
+  "D:\HK7\AmazonReviewInsight\code_v2\models\train_lightgbm_spark_v2.py" `
+  --train "hdfs://localhost:9000/output_v2/features_train_v4" `
+  --test "hdfs://localhost:9000/output_v2/features_test_v4" `
+  --out "hdfs://localhost:9000/output_v2/models/lightgbm_v7_auto" `
+  --limit_train 5000000 `
+  --auto_tune `
+  --tune_preset quick `
+  --save_schema_log
+
+chay thuong
+# V7 Optimized - Memory cao + Sampling hợp lý
+$env:PYSPARK_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"
+$env:PYSPARK_DRIVER_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"
+
+& "$env:SPARK_HOME\bin\spark-submit.cmd" `
+  --master local[*] `
+  --deploy-mode client `
+  --packages com.microsoft.azure:synapseml-lightgbm_2.12:1.0.7 `
+  --driver-memory 11g `
+  --executor-memory 11g `
+  --conf spark.driver.maxResultSize=4g `
+  --conf spark.sql.shuffle.partitions=64 `
+  --conf spark.sql.adaptive.enabled=true `
+  "D:\HK7\AmazonReviewInsight\code_v2\models\train_lightgbm_spark_v2.py" `
+  --train "hdfs://localhost:9000/output_v2/features_train_v4" `
+  --test "hdfs://localhost:9000/output_v2/features_test_v4" `
+  --out "hdfs://localhost:9000/output_v2/models/lightgbm_v7" `
+  --limit_train 5000000 `
+  --numLeaves 120 `
+  --learningRate 0.03 `
+  --numIterations 1500 `
+  --earlyStoppingRound 200 `
+  --minDataInLeaf 50 `
+  --featureFraction 0.75 `
+  --baggingFraction 0.75 `
+  --lambdaL1 0.1 `
+  --lambdaL2 0.1 `
+  --save_schema_log
+
+
+train 
+$env:PYSPARK_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"; $env:PYSPARK_DRIVER_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"; & "$env:SPARK_HOME\bin\spark-submit.cmd" --master local[*] "D:\HK7\AmazonReviewInsight\code_v2\features\feature_pipeline_v2.py" --input "hdfs://localhost:9000/datasets/amazon/movies_tv/silver/reviews_labeled/train" --output "hdfs://localhost:9000/output_v2/features_train_v3" --preset full --numFeatures 10000 --minDF 5 --save --mode overwrite
+
+
+test 
+$env:PYSPARK_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"; $env:PYSPARK_DRIVER_PYTHON = "C:\Users\LeDangHoangTuan\AppData\Local\Programs\Python\Python311\python.exe"; & "$env:SPARK_HOME\bin\spark-submit.cmd" --master local[*] "D:\HK7\AmazonReviewInsight\code_v2\features\feature_pipeline_v2.py" --input "hdfs://localhost:9000/datasets/amazon/movies_tv/silver/reviews_labeled/test" --output "hdfs://localhost:9000/output_v2/features_test_v3" --preset full --numFeatures 10000 --minDF 5 --save --mode overwrite

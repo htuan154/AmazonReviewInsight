@@ -35,27 +35,59 @@ def calculate_metrics(y_true, y_pred_proba, threshold=0.5):
     return metrics
 
 def find_optimal_threshold(y_true, y_pred_proba, metric="f1"):
-    """Find optimal threshold based on metric"""
-    thresholds = np.arange(0.1, 0.9, 0.05)
+    """
+    Find optimal threshold based on metric
+    
+    Args:
+        y_true: True labels
+        y_pred_proba: Predicted probabilities
+        metric: 'f1', 'precision', 'recall', 'balanced', or 'precision_min'
+            - 'f1': Maximize F1 score
+            - 'precision': Maximize Precision
+            - 'recall': Maximize Recall
+            - 'balanced': Minimize |Precision - Recall| (cân bằng P-R)
+            - 'precision_min': F1 cao nhất với Precision >= 50%
+    
+    Returns:
+        best_threshold, scores
+    """
+    thresholds = np.arange(0.1, 0.9, 0.02)  # Tăng resolution: 0.05 -> 0.02
     scores = []
     
     for t in thresholds:
         y_pred = (y_pred_proba >= t).astype(int)
         
+        prec = precision_score(y_true, y_pred, zero_division=0)
+        rec = recall_score(y_true, y_pred, zero_division=0)
+        f1 = f1_score(y_true, y_pred, zero_division=0)
+        
         if metric == "f1":
-            score = f1_score(y_true, y_pred, zero_division=0)
+            score = f1
         elif metric == "precision":
-            score = precision_score(y_true, y_pred, zero_division=0)
+            score = prec
         elif metric == "recall":
-            score = recall_score(y_true, y_pred, zero_division=0)
+            score = rec
+        elif metric == "balanced":
+            # Cân bằng Precision-Recall: minimize difference
+            # Bonus cho F1 cao
+            score = f1 - 0.5 * abs(prec - rec)
+        elif metric == "precision_min":
+            # F1 cao nhất với constraint Precision >= 50%
+            if prec >= 0.50:
+                score = f1
+            else:
+                score = 0.0  # Penalty nếu Precision < 50%
         else:
             raise ValueError(f"Unknown metric: {metric}")
         
-        scores.append((t, score))
+        scores.append((t, score, prec, rec, f1))
     
-    best_threshold, best_score = max(scores, key=lambda x: x[1])
+    # Tìm best threshold
+    best_idx = max(range(len(scores)), key=lambda i: scores[i][1])
+    best_threshold, best_score, best_prec, best_rec, best_f1 = scores[best_idx]
     
-    print(f"[INFO] Optimal threshold for {metric}: {best_threshold:.2f} (score: {best_score:.4f})")
+    print(f"[INFO] Optimal threshold for '{metric}': {best_threshold:.2f}")
+    print(f"       -> Precision={best_prec:.4f}, Recall={best_rec:.4f}, F1={best_f1:.4f}")
     
     return best_threshold, scores
 

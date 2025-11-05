@@ -1,0 +1,46 @@
+================================================================================
+MODEL EVALUATION REPORT
+================================================================================
+
+Model Path: hdfs://localhost:9000/output_v2/models/lightgbm_v11
+Data Path: hdfs://localhost:9000/output_v2/features_train_final
+Timestamp: 2025-11-02 20:51:32
+
+Model Metadata:
+
+Dataset Statistics:
+  Total Samples: 3,002,242
+  Positive Class: 749,016 (24.95%)
+  Negative Class: 2,253,226 (75.05%)
+
+================================================================================
+METRICS AT THRESHOLD = 0.5
+================================================================================
+
+Confusion Matrix:
+  TN: 865,486  |  FP: 1,387,740
+  FN: 37,787  |  TP: 711,229
+
+  auc_pr: 0.6308
+  auc_roc: 0.8309
+  accuracy: 0.5252
+  precision: 0.3388
+  recall: 0.9496
+  f1_score: 0.4995
+  threshold: 0.5000
+
+================================================================================
+OPTIMAL THRESHOLD = 0.60
+================================================================================
+
+Confusion Matrix:
+  TN: 1,893,342  |  FP: 359,884
+  FN: 267,346  |  TP: 481,670
+
+  auc_pr: 0.6308
+  auc_roc: 0.8309
+  accuracy: 0.7911
+  precision: 0.5724
+  recall: 0.6431
+  f1_score: 0.6057
+  threshold: 0.6000

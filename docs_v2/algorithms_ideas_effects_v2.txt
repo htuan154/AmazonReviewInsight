@@ -1,0 +1,134 @@
+Amazon Review Helpfulness – Thuật toán, Tác dụng & Ý tưởng (V2)
+=================================================================
+
+🧠 I. Các thuật toán chính được sử dụng
+1️⃣ LightGBM (Light Gradient Boosting Machine)
+------------------------------------------------
+Đây là thuật toán lõi được dùng để huấn luyện mô hình phân loại nhị phân (is_helpful = 0/1).
+Là một dạng của Gradient Boosted Decision Tree (GBDT) – huấn luyện dãy cây quyết định (decision tree)
+liên tiếp, mỗi cây học từ lỗi còn sót lại của cây trước.
+
+🎯 Ý tưởng:
+- Dự đoán ban đầu bằng mô hình đơn giản → tính sai số → huấn luyện cây mới để dự đoán sai số này → cộng kết quả lại.
+- Cây sau sửa lỗi cây trước → dần dần giảm loss.
+- Giống như “mỗi cây là một chuyên gia bổ sung ý kiến để giảm lỗi tổng thể”.
+
+⚙️ Tác dụng:
+- Học được quan hệ phi tuyến tính rất mạnh.
+- Chống overfitting tốt nếu dùng lambdaL1, lambdaL2, minDataInLeaf, earlyStoppingRound.
+- Hiệu quả cao nhờ thuật toán histogram và kỹ thuật GOSS (Gradient-based One-Side Sampling).
+- Hỗ trợ chạy phân tán trên Spark qua synapse.ml.lightgbm.LightGBMClassifier.
+
+
+2️⃣ K-Means Clustering (Tùy chọn khi thiếu nhãn thật)
+-----------------------------------------------------
+Dùng trong hàm generate_synthetic_labels(method='clustering').
+Khi dữ liệu không có nhãn thật, KMeans được dùng để phân cụm tự nhiên (k=2) dựa trên vector đặc trưng.
+
+🎯 Ý tưởng:
+- Gom dữ liệu thành 2 cụm tự nhiên, giả định rằng:
+  • Một cụm chứa các review “hữu ích” (helpful).
+  • Cụm còn lại chứa “không hữu ích”.
+- Sau đó, map cụm tốt hơn (rating cao, sentiment cao) thành nhãn 1.
+
+⚙️ Tác dụng:
+- Tạo “pseudo label” (nhãn giả) cho dữ liệu chưa gán nhãn, giúp khởi động mô hình học bán giám sát (semi-supervised).
+
+
+3️⃣ Heuristic Labeling (Sinh nhãn dựa quy tắc)
+----------------------------------------------
+Cũng trong generate_synthetic_labels(), nếu method='heuristic'.
+Dùng các đặc trưng đơn giản: star_rating, review_length, sentiment_score, word_count, (tùy chọn) user_helpful_ratio.
+
+🎯 Ý tưởng:
+- Review dài, rating cao, cảm xúc tích cực → khả năng helpful = 1.
+- Review ngắn, rating thấp → khả năng helpful = 0.
+- Tính điểm tổng hợp có trọng số, sau đó dùng median để chia thành 2 lớp.
+
+⚙️ Tác dụng:
+- Giúp tạo nhãn giả nhanh, có cơ sở domain knowledge, dùng để warm-start LightGBM trước khi có nhãn thật.
+
+
+4️⃣ Pseudo-Labeling (Học bán giám sát – Semi-supervised Learning)
+------------------------------------------------------------------
+Được thực hiện ở hàm pseudo_label_iteration() và trong vòng lặp main().
+Mô hình ban đầu dự đoán nhãn cho dữ liệu test chưa gán nhãn, chọn những mẫu có xác suất cao nhất/thấp nhất
+để gán nhãn tạm, rồi huấn luyện lại mô hình.
+
+🎯 Ý tưởng:
+1) Huấn luyện trên dữ liệu có nhãn thật.
+2) Dự đoán dữ liệu chưa nhãn → chọn mẫu có xác suất cao (confident).
+3) Gán nhãn giả + trọng số nhỏ (weight=0.3).
+4) Bổ sung lại vào tập train → huấn luyện lại.
+5) Lặp vài vòng.
+
+⚙️ Tác dụng:
+- Tăng kích thước dữ liệu học.
+- Giúp mô hình học mạnh hơn, tổng quát hơn, đặc biệt khi dữ liệu có nhãn ít.
+
+
+5️⃣ Cross-Validation (Stratified K-Fold Split)
+----------------------------------------------
+Thực hiện trong hàm stratified_kfold_split() và hyperparameter_tuning().
+Chia dữ liệu thành nhiều “fold” sao cho tỉ lệ nhãn 0/1 ở mỗi fold giống nhau.
+
+⚙️ Tác dụng:
+- Đánh giá mô hình ổn định hơn (ít phụ thuộc ngẫu nhiên).
+- Giúp tối ưu siêu tham số (numLeaves, learningRate) bằng grid search.
+
+
+6️⃣ Auto Hyperparameter Tuning (Grid Search)
+--------------------------------------------
+Hàm hyperparameter_tuning() chạy thử nhiều tổ hợp siêu tham số:
+- numLeaves, learningRate, minDataInLeaf.
+Đo AUC-PR trung bình trên 3 fold → chọn bộ tốt nhất.
+
+⚙️ Tác dụng:
+- Tự động chọn cấu hình mô hình tối ưu, tránh underfit hoặc overfit.
+
+
+7️⃣ Class Weighting
+-------------------
+Hàm compute_class_weight() xử lý mất cân bằng nhãn (class imbalance).
+Tính posWeight = N_neg / N_pos → gán trọng số cao hơn cho lớp thiểu số.
+
+⚙️ Tác dụng:
+- Cân bằng ảnh hưởng của hai lớp khi huấn luyện.
+- Cải thiện Recall cho lớp dương tính (helpful = 1).
+
+
+🧩 II. Các kỹ thuật hỗ trợ khác
+===============================
+Kỹ thuật                          | Mục đích                                      | Tác dụng
+----------------------------------|-----------------------------------------------|------------------------------
+Stratified Split (sampleBy)       | Giữ cân bằng nhãn giữa train/val              | Tránh bias khi đánh giá
+VectorAssembler                   | Gom cột số thành vector đặc trưng             | Chuẩn bị đầu vào cho LightGBM
+Drop Leaky Columns                | Xóa các cột rò rỉ label (helpful_votes, ...)  | Giữ tính công bằng, tránh overfit
+Feature Dimension Validation      | Kiểm tra train/test cùng số chiều              | Ngăn lỗi mô hình
+Early Stopping                    | Dừng khi AUC-PR không tăng                    | Tiết kiệm thời gian, tránh overfit
+Regularization (L1, L2)           | Ràng buộc trọng số                            | Làm mượt cây, tăng tổng quát
+Evaluation Metrics                | AUC-PR, AUC-ROC, F1, Precision, Recall        | Đánh giá đa chiều hiệu năng
+Logging (metadata, schema, error) | Ghi cấu hình, siêu tham số, lỗi               | Phục vụ tái hiện và phân tích
+
+
+⚡️ III. Tóm tắt toàn bộ “Thuật toán + Ý tưởng + Tác dụng”
+==========================================================
+Nhóm                 | Thuật toán / Kỹ thuật           | Ý tưởng                              | Tác dụng
+---------------------|----------------------------------|--------------------------------------|------------------------------
+1. Học chính         | LightGBM (GBDT)                  | Học dãy cây để giảm lỗi dần          | Hiệu năng cao, tổng quát tốt
+2. Sinh nhãn giả     | Heuristic Labeling               | Dựa rating + sentiment + length      | Khởi tạo nhãn khi thiếu ground truth
+                     | KMeans Clustering                | Gom cụm tự nhiên k=2                 | Gán nhãn giả theo hành vi tự nhiên
+3. Học bán giám sát  | Pseudo-Labeling                  | Tự gán nhãn cho mẫu chưa biết        | Tăng lượng dữ liệu, cải thiện mô hình
+4. Đánh giá & tuning | Stratified CV + Grid Search      | Chọn tham số tốt nhất bằng AUC-PR    | Tránh overfit, đảm bảo hiệu năng
+5. Xử lý mất cân bằng| Class Weighting                  | Trọng số theo tỷ lệ lớp              | Cải thiện Recall cho lớp nhỏ
+6. Chính quy hóa     | L1, L2, minDataInLeaf            | Giới hạn độ phức tạp mô hình         | Giảm overfitting
+7. Kiểm soát dừng sớm| Early Stopping                   | Dừng khi AUC không tăng              | Tăng hiệu quả huấn luyện
+8. Hạ tầng           | Spark + SynapseML                | Phân tán, tính song song             | Chạy nhanh, xử lý dữ liệu lớn
+
+
+🏁 IV. Kết luận
+==============
+Hệ thống huấn luyện này là một pipeline học bán giám sát (semi-supervised) dựa trên LightGBM —
+kết hợp tự sinh nhãn (heuristic hoặc KMeans), tự chọn siêu tham số (grid search),
+huấn luyện phân tầng (stratified), và pseudo-labeling nhiều vòng để tối đa hóa AUC-PR
+trên dữ liệu mất cân bằng, vận hành hiệu quả trên Spark phân tán.

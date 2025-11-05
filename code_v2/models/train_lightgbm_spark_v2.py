@@ -1,22 +1,63 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# ============================================================================
+# TRAIN LIGHTGBM V2 - SEMI-SUPERVISED WITH PSEUDO-LABELING (IMPROVED)
+# ============================================================================
 # Spark 3.4–3.5 + SynapseML 1.0.7
-# Train LightGBM with semi-supervised pseudo-labeling support:
-# - Consistent featurization (numFeatures must match train/test)
-# - Automatic class weight handling (--posWeight auto/manual)
-# - Stratified train/val split with AUC-PR optimization (target: 0.80-0.85)
-# - Pseudo-labeling rounds for unlabeled data
-# - Comprehensive logging (schema, columns, params)
 #
-# Example:
-# spark-submit ... train_lightgbm_spark_v2.py \
-#   --train hdfs://.../output_v2/features_train_v2 \
-#   --test hdfs://.../output_v2/features_test_v2 \
-#   --out hdfs://.../output_v2/models/lightgbm_v2 \
-#   --limit_train 1000000 \
+# V2.1 IMPROVEMENTS:
+# -> Tích hợp evaluation_v2.py cho comprehensive metrics
+# -> Sửa công thức class weighting theo sklearn balanced style
+# -> Thêm threshold optimization để tối ưu precision/recall
+# -> Fix confusion matrix calculation (đúng công thức)
+# -> Save evaluation plots (PR/ROC curves, confusion matrix)
+#
+# Mục đích: Train LightGBM classifier với semi-supervised learning
+# -> Sử dụng pseudo-labeling để tận dụng unlabeled test data
+# -> Tự động xử lý class imbalance với adaptive weighting
+# -> Hyperparameter tuning với cross-validation
+# -> Target AUC-PR: 0.75-0.80 (realistic cho hidden test)
+#
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ KEY FEATURES                                                       │
+# ├────────────────────────────────────────────────────────────────────┤
+# │ 1. Consistent Featurization: numFeatures phải match train/test    │
+# │ 2. Auto Class Weighting: --posWeight auto (N_neg/N_pos)           │
+# │ 3. Stratified Split: Maintain class ratio trong train/val         │
+# │ 4. Pseudo-Labeling: Iterative training với high-confidence samples│
+# │ 5. Hyperparameter Tuning: 3-fold CV grid search (optional)        │
+# │ 6. Comprehensive Logging: Schema, columns, params, metrics        │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# Pipeline Flow:
+# 1. Load train/test Parquet -> Validate schema & dimensions
+# 2. Drop leaky columns (helpful_votes, helpful_ratio, v.v.)
+# 3. Stratified train/val split (90/10) -> Maintain class balance
+# 4. Compute class weights -> Handle imbalance (auto or manual)
+# 5. [Optional] Hyperparameter tuning -> 3-fold CV grid search
+# 6. Train LightGBM -> Early stopping on validation set
+# 7. [Optional] Pseudo-labeling -> Predict on test -> Select confident samples
+# 8. Save model + metadata + logs -> HDFS/local
+#
+# Usage Example (Basic):
+# spark-submit code_v2/models/train_lightgbm_spark_v2.py \
+#   --train hdfs:///amazon/features_train_v2.parquet \
+#   --test hdfs:///amazon/features_test_v2.parquet \
+#   --out hdfs:///amazon/models/lightgbm_v2 \
 #   --posWeight auto \
-#   --pseudo_rounds 2 \
 #   --save_schema_log
+#
+# Usage Example (Advanced with Tuning):
+# spark-submit code_v2/models/train_lightgbm_spark_v2.py \
+#   --train hdfs:///amazon/features_train_v2.parquet \
+#   --out hdfs:///amazon/models/lightgbm_v2_tuned \
+#   --auto_tune \
+#   --tune_preset thorough \
+#   --pseudo_rounds 2 \
+#   --pseudo_min_prob 0.9 \
+#   --save_schema_log
+#
+# ============================================================================
 
 import argparse
 import json
@@ -24,12 +65,77 @@ import os
 import sys
 import traceback
 from datetime import datetime
+from pathlib import Path
 from pyspark.sql import SparkSession, functions as F, types as T, Window
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.evaluation import BinaryClassificationEvaluator
 from pyspark.ml.linalg import VectorUDT, SparseVector, DenseVector
 from synapse.ml.lightgbm import LightGBMClassifier
 
+# ============================================================================
+# IMPORT EVALUATION UTILITIES (V2.1 NEW)
+# ============================================================================
+try:
+    import sys
+    # Dynamic path resolution
+    sys.path.append(str(Path(__file__).parent.parent / "utils"))
+    from evaluation_v2 import (
+        calculate_metrics,
+        find_optimal_threshold,
+        plot_confusion_matrix,
+        plot_pr_roc_curves,
+        plot_threshold_analysis,
+        print_classification_report
+    )
+    EVALUATION_V2_AVAILABLE = True
+    print("[INFO] evaluation_v2.py imported successfully")
+except ImportError as e:
+    print(f"[WARN] Could not import evaluation_v2.py: {e}")
+    print("[WARN] Will use basic evaluation only")
+    EVALUATION_V2_AVAILABLE = False
+
+import numpy as np
+
+# ============================================================================
+# FUNCTION: parse_args()
+# ============================================================================
+# Mục đích: Parse command-line arguments để configure training pipeline
+#
+# Argument Groups:
+# ┌──────────────────────┬──────────────────────────────────────────────────┐
+# │ Group                │ Arguments                                        │
+# ├──────────────────────┼──────────────────────────────────────────────────┤
+# │ IO                   │ --train, --test, --out                           │
+# │ Columns              │ --id_col, --label_col, --features_col            │
+# │ Feature Validation   │ --numFeatures (expected dimension)               │
+# │ Sampling             │ --limit_train (for quick testing)                │
+# │ Class Imbalance      │ --posWeight (auto/manual)                        │
+# │ LightGBM Params      │ --numLeaves, --learningRate, --numIterations...  │
+# │ Auto-Tuning          │ --auto_tune, --tune_preset (quick/thorough)      │
+# │ Validation           │ --valFrac, --seed, --target_aucpr_min/max        │
+# │ Pseudo-Labeling      │ --pseudo_rounds, --pseudo_min_prob...            │
+# │ Logging              │ --save_schema_log, --force, --label_method       │
+# └──────────────────────┴──────────────────────────────────────────────────┘
+#
+# Optimized Hyperparameters (from V1 Day 7 Best tuning):
+# - numLeaves: 50 (lower = less overfit)
+# - learningRate: 0.05 (slower but more stable)
+# - minDataInLeaf: 50 (higher = less overfit)
+# - featureFraction: 0.8 (random feature subset per tree)
+# - baggingFraction: 0.8 (random sample subset per tree)
+#
+# Auto-Tuning Options:
+# - quick: 9 combinations (3x3 grid) -> ~5-10 minutes
+# - thorough: 27 combinations (3x3x3 grid) -> ~20-30 minutes
+#
+# Pseudo-Labeling Flow:
+# 1. Train on labeled data -> Get model
+# 2. Predict on unlabeled test -> Get probabilities
+# 3. Select high-confidence predictions (prob >= 0.9)
+# 4. Add pseudo-labels to training set (low weight = 0.3)
+# 5. Retrain -> Repeat for N rounds
+#
+# Use case: Flexible configuration cho training experiments
 def parse_args():
     p = argparse.ArgumentParser(description="Train LightGBM with semi-supervised pseudo-labeling.")
     # IO
@@ -54,18 +160,23 @@ def parse_args():
     p.add_argument("--posWeight", default="auto", 
                    help="Positive class weight: 'auto' (N_neg/N_pos), or float value")
     
-    # LightGBM hyperparameters (optimized for hidden test generalization)
+    # LightGBM hyperparameters (V2.1 OPTIMIZED for better generalization)
     p.add_argument("--numLeaves", type=int, default=50,
                    help="Max tree leaves (lower = less overfit, default 50 from V1 Best)")
     p.add_argument("--learningRate", type=float, default=0.05,
                    help="Learning rate (default 0.05 from V1 Best tuning)")
-    p.add_argument("--numIterations", type=int, default=500)
-    p.add_argument("--earlyStoppingRound", type=int, default=50)
-    p.add_argument("--featureFraction", type=float, default=0.8)
-    p.add_argument("--baggingFraction", type=float, default=0.8)
-    p.add_argument("--minDataInLeaf", type=int, default=50,
-                   help="Min samples per leaf (higher = less overfit, default 50)")
-    p.add_argument("--maxDepth", type=int, default=-1)
+    p.add_argument("--numIterations", type=int, default=1500,
+                   help="Number of boosting iterations (V2.1: increased from 500 to 1500)")
+    p.add_argument("--earlyStoppingRound", type=int, default=100,
+                   help="Early stopping patience (V2.1: increased from 50 to 100)")
+    p.add_argument("--featureFraction", type=float, default=0.8,
+                   help="Feature sampling ratio per tree (0.8 = 80% features)")
+    p.add_argument("--baggingFraction", type=float, default=0.8,
+                   help="Data sampling ratio per tree (0.8 = 80% samples)")
+    p.add_argument("--minDataInLeaf", type=int, default=100,
+                   help="Min samples per leaf (V2.1: increased from 50 to 100 for less overfit)")
+    p.add_argument("--maxDepth", type=int, default=12,
+                   help="Max tree depth (V2.1: changed from -1 to 12 to prevent overfitting)")
     p.add_argument("--lambdaL1", type=float, default=0.0,
                    help="L1 regularization (prevents overfitting)")
     p.add_argument("--lambdaL2", type=float, default=0.0,
@@ -106,6 +217,28 @@ def parse_args():
     return p.parse_args()
 
 
+# ============================================================================
+# LEAKY COLUMNS - DANH SÁCH CÁC CỘT GÂY LABEL LEAKAGE
+# ============================================================================
+# Các cột này chứa thông tin trực tiếp từ label (helpful_votes > 0)
+# -> PHẢI XÓA KHỎI features trước khi train
+#
+# ┌────────────────────────┬────────────────────────────────────────────────┐
+# │ Column                 │ Why Leakage?                                   │
+# ├────────────────────────┼────────────────────────────────────────────────┤
+# │ helpful_votes          │ Raw vote count -> trực tiếp từ label           │
+# │ total_votes            │ Total votes -> có thể infer helpful_votes      │
+# │ helpful_ratio          │ helpful_votes / total_votes -> trực tiếp       │
+# │ vote_ratio             │ Tương tự helpful_ratio                         │
+# │ is_helpful_times_len   │ is_helpful * length -> chứa label              │
+# │ helpfulness_x_length   │ Tương tự trên                                  │
+# │ label_ratio            │ Aggregate label statistics                     │
+# │ probability_helpful    │ Pre-computed probability -> leakage             │
+# │ helpful                │ Alternative name cho label                     │
+# │ target_helpful         │ Alternative name cho label                     │
+# └────────────────────────┴────────────────────────────────────────────────┘
+#
+# Use case: drop_leaky_columns() sử dụng set này để filter
 LEAKY_COLS = {
     "helpful_votes", "total_votes", "helpful_ratio", "vote_ratio",
     "is_helpful_times_len", "helpfulness_x_length", "label_ratio",
@@ -113,28 +246,88 @@ LEAKY_COLS = {
 }
 
 
+# ============================================================================
+# FUNCTION: drop_leaky_columns()
+# ============================================================================
+# Mục đích: Xóa các cột gây label leakage khỏi DataFrame
+#
+# Tham số:
+# - df: DataFrame cần làm sạch
+# - features_col: Tên cột features vector (KHÔNG xóa)
+# - label_col: Tên cột label (KHÔNG xóa)
+#
+# Logic:
+# 1. Tìm tất cả cột trong LEAKY_COLS tồn tại trong df.columns
+# 2. Loại trừ features_col và label_col (cần giữ lại)
+# 3. Drop từng cột leaky
+#
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ WHY cần xóa leaky columns?                                         │
+# │ - Model học từ helpful_votes -> AUC-PR = 0.99 (quá cao, unrealistic)│
+# │ - Hidden test không có helpful_votes -> model fail                  │
+# │ - Chỉ được dùng features tính từ review text/metadata             │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# Output: DataFrame đã xóa leaky columns
+#
+# Use case: Gọi trước khi train để đảm bảo không có leakage
 def drop_leaky_columns(df, features_col, label_col):
     """Drop columns that might leak the ground-truth label."""
+    # Lấy tập hợp tất cả tên cột trong DataFrame
     cols = set(df.columns)
+    
+    # Tìm các cột leaky: có trong LEAKY_COLS VÀ có trong df.columns
+    # NHƯNG không phải features_col hoặc label_col (cần giữ lại)
     bad = [c for c in LEAKY_COLS if c in cols and c not in {features_col, label_col}]
+    
+    # Nếu tìm thấy cột leaky -> in warning và xóa từng cột
     if bad:
         print(f"[WARN] Dropping potential leaky columns: {bad}")
         for c in bad:
-            df = df.drop(c)
-    return df
+            df = df.drop(c)  # Xóa cột leaky
+    
+    return df  # Return DataFrame đã sạch
 
 
+# ============================================================================
+# FUNCTION: get_vector_size()
+# ============================================================================
+# Mục đích: Lấy dimension (số chiều) của feature vector
+#
+# Tham số:
+# - df: DataFrame chứa features
+# - features_col: Tên cột vector
+#
+# Logic:
+# 1. Lấy sample row đầu tiên
+# 2. Extract vector từ features_col
+# 3. Kiểm tra kiểu: SparseVector/DenseVector -> .size
+# 4. Return dimension
+#
+# Ví dụ:
+# df có cột "features" với vector [0.1, 0.2, ..., 0.9] (100 dims)
+# -> get_vector_size(df, "features") = 100
+#
+# Use case: Validate dimension consistency giữa train/test
 def get_vector_size(df, features_col):
     """Extract the dimension of the feature vector."""
+    # Lấy 1 row mẫu từ DataFrame
     sample = df.select(features_col).first()
+    
+    # Nếu DataFrame rỗng -> raise error
     if sample is None:
         raise RuntimeError(f"Cannot determine vector size: no data in '{features_col}'")
+    
+    # Lấy vector từ row đầu tiên (index 0)
     vec = sample[0]
+    
+    # Kiểm tra kiểu vector và lấy size
     if isinstance(vec, (SparseVector, DenseVector)):
-        return vec.size
+        return vec.size  # Spark ML vector có attribute .size
     elif hasattr(vec, 'size'):
-        return vec.size
+        return vec.size  # Generic vector với attribute size
     else:
+        # Vector không có .size -> raise error
         raise RuntimeError(f"Unknown vector type: {type(vec)}")
 
 
@@ -441,6 +634,54 @@ def stratified_kfold_split(df, label_col, n_folds=3, seed=42):
     return folds
 
 
+# ============================================================================
+# FUNCTION: hyperparameter_tuning()
+# ============================================================================
+# Mục đích: Tự động tìm best hyperparameters bằng grid search + 3-fold CV
+#
+# Tham số:
+# - train_df: Training data
+# - label_col, features_col: Column names
+# - args: Command-line arguments
+# - preset: "quick" (9 combos) hoặc "thorough" (27 combos)
+#
+# Grid Search Presets:
+# ┌───────────┬─────────────────────────────────────────────────────────┐
+# │ Preset    │ Search Space                                            │
+# ├───────────┼─────────────────────────────────────────────────────────┤
+# │ quick     │ numLeaves: [31, 50, 100]                                │
+# │ (9 combos)│ learningRate: [0.05, 0.1, 0.15]                         │
+# │           │ -> 3x3 = 9 combinations                                  │
+# │           │ -> ~5-10 phút (với 3-fold CV = 27 runs)                 │
+# ├───────────┼─────────────────────────────────────────────────────────┤
+# │ thorough  │ numLeaves: [31, 50, 100]                                │
+# │(27 combos)│ learningRate: [0.03, 0.05, 0.1]                         │
+# │           │ minDataInLeaf: [20, 50, 100]                            │
+# │           │ -> 3x3x3 = 27 combinations                               │
+# │           │ -> ~20-30 phút (với 3-fold CV = 81 runs)                │
+# └───────────┴─────────────────────────────────────────────────────────┘
+#
+# Cross-Validation Flow:
+# 1. Stratified 3-fold split -> Giữ class ratio trong mỗi fold
+# 2. For each param combination:
+#    - Train on 2 folds -> Validate on 1 fold -> Get AUC-PR
+#    - Rotate folds -> Train 3 times -> Get 3 AUC-PR scores
+#    - Compute mean ± std of 3 scores
+# 3. Select params với highest mean AUC-PR
+#
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ WHY grid search?                                                   │
+# │ - V1 Best params: numLeaves=50, learningRate=0.05, minData=50     │
+# │ - Nhưng mỗi dataset khác nhau -> cần tune lại                      │
+# │ - Grid search đảm bảo tìm được best params cho dataset hiện tại   │
+# │ - 3-fold CV đảm bảo không overfit lên 1 validation split          │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# Output:
+# - best_params: Dict với best hyperparameters
+# - tuning_results: List chứa kết quả của tất cả combinations
+#
+# Use case: --auto_tune --tune_preset quick/thorough
 def hyperparameter_tuning(train_df, label_col, features_col, args, preset="quick"):
     """
     Grid search for hyperparameter tuning with 3-fold CV.
@@ -573,135 +814,511 @@ def hyperparameter_tuning(train_df, label_col, features_col, args, preset="quick
     return best_params, tuning_results
 
 
+# ============================================================================
+# FUNCTION: compute_class_weight() - V2.1 IMPROVED
+# ============================================================================
+# Mục đích: Tính class weight để handle imbalanced data
+# -> Tăng weight cho class thiểu số (helpful reviews)
+#
+# V2.1 IMPROVEMENTS:
+# - Sử dụng công thức sklearn balanced: w = n_samples / (n_classes * n_samples_class)
+# - Thêm mode "balanced_subsample" cho better generalization
+# - Normalize weights để sum = n_samples
+#
+# Tham số:
+# - df: DataFrame chứa labels
+# - label_col: Tên cột label (binary 0/1)
+# - weight_col: Tên cột weight output (default "weight")
+# - pos_weight: 'auto' (balanced), 'auto_simple' (N_neg/N_pos), float, hoặc None
+#
+# Weighting Strategies:
+# ┌─────────────────┬──────────────────────────────────────────────────────────┐
+# │ pos_weight      │ Formula                                                  │
+# ├─────────────────┼──────────────────────────────────────────────────────────┤
+# │ 'auto'          │ SKLEARN BALANCED (V2.1 NEW):                             │
+# │  (RECOMMENDED)  │ w0 = N / (2 * N_neg)                                     │
+# │                 │ w1 = N / (2 * N_pos)                                     │
+# │                 │ Ví dụ: N=100K, pos=20K, neg=80K                          │
+# │                 │   w0 = 100K/(2*80K) = 0.625                              │
+# │                 │   w1 = 100K/(2*20K) = 2.500                              │
+# │                 │ -> Balanced: w0 * N_neg + w1 * N_pos = N                 │
+# ├─────────────────┼──────────────────────────────────────────────────────────┤
+# │ 'auto_simple'   │ SIMPLE RATIO (V1 OLD):                                   │
+# │                 │ w1 = N_neg / N_pos (clamped to [0.1, 10])                │
+# │                 │ w0 = 1.0                                                 │
+# │                 │ Ví dụ: 80K neg, 20K pos -> w1 = 4.0                       │
+# ├─────────────────┼──────────────────────────────────────────────────────────┤
+# │ float value     │ MANUAL:                                                  │
+# │                 │ w1 = pos_weight (manual)                                 │
+# │                 │ w0 = 1.0                                                 │
+# │                 │ Ví dụ: --posWeight 3.0 -> w1 = 3.0                        │
+# ├─────────────────┼──────────────────────────────────────────────────────────┤
+# │ None            │ NO WEIGHTING:                                            │
+# │                 │ w1 = 1.0, w0 = 1.0                                       │
+# │                 │ -> Treat all samples equally                              │
+# └─────────────────┴──────────────────────────────────────────────────────────┘
+#
+# Weight Assignment:
+# - Label = 1 (helpful) -> weight = w1
+# - Label = 0 (not helpful) -> weight = w0
+#
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ WHY sklearn balanced formula?                                      │
+# │ - Đảm bảo tổng weighted samples = n_samples (normalized)          │
+# │ - Tránh class weight quá cực đoan (w1 >> w0)                      │
+# │ - Generalize tốt hơn trên hidden test                              │
+# │ - Standard trong sklearn, XGBoost, LightGBM                        │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# Output:
+# - df_with_weights: DataFrame với cột weight_col
+# - w0, w1: Class weights
+# - pos, neg: Class counts
+#
+# Use case: Gọi trước khi train LightGBM
 def compute_class_weight(df, label_col, weight_col="weight", pos_weight=None):
     """
-    Compute class weight for imbalance handling.
-    pos_weight: 'auto' → N_neg/N_pos, or float value, or None (no weighting)
+    Compute class weights với sklearn balanced formula (V2.1)
     """
-    agg = df.groupBy().agg(
-        F.sum(F.when(F.col(label_col) == 1, 1).otherwise(0)).alias("pos"),
-        F.sum(F.when(F.col(label_col) == 0, 1).otherwise(0)).alias("neg"),
-    ).collect()[0]
-    pos, neg = int(agg["pos"]), int(agg["neg"])
+    # Đếm số lượng mỗi class
+    counts = df.groupBy(label_col).count().collect()
+    count_dict = {r[label_col]: r['count'] for r in counts}
     
+    # Lấy pos/neg counts
+    pos = count_dict.get(1, 0)
+    neg = count_dict.get(0, 0)
+    total = pos + neg
+    
+    # Check nếu collapse về 1 class duy nhất
     if pos == 0 or neg == 0:
-        raise RuntimeError(f"Class collapse detected (pos={pos}, neg={neg}). Check labels.")
+        print(f"[WARN] Only one class present: pos={pos}, neg={neg}")
+        print(f"[WARN] Using uniform weights (1.0)")
+        w0, w1 = 1.0, 1.0
     
-    if pos_weight == "auto":
-        w1 = max(0.1, min(10.0, float(neg) / float(pos)))  # clamp to [0.1, 10]
-        print(f"[INFO] Auto-computed posWeight = {w1:.3f} (neg={neg}, pos={pos})")
-    elif pos_weight is not None:
+    # CASE 1: 'auto' - Sklearn balanced formula (RECOMMENDED)
+    elif pos_weight is None or str(pos_weight).lower() == 'auto':
+        # Công thức sklearn: w_class = n_samples / (n_classes * n_samples_class)
+        # n_classes = 2 (binary classification)
+        w0 = total / (2.0 * neg)
+        w1 = total / (2.0 * pos)
+        
+        print(f"\n{'='*80}")
+        print(f"[INFO] Class Weighting: SKLEARN BALANCED (auto)")
+        print(f"{'='*80}")
+        print(f"Total samples:     {total:,}")
+        print(f"Positive (label=1): {pos:,} ({pos/total*100:.2f}%)")
+        print(f"Negative (label=0): {neg:,} ({neg/total*100:.2f}%)")
+        print(f"\nBalanced Weights:")
+        print(f"  w0 (neg) = {total} / (2 * {neg}) = {w0:.4f}")
+        print(f"  w1 (pos) = {total} / (2 * {pos}) = {w1:.4f}")
+        print(f"\nWeight Ratio: w1/w0 = {w1/w0:.4f}")
+        print(f"Effective samples after weighting:")
+        print(f"  Negative: {neg} * {w0:.4f} = {neg*w0:,.0f}")
+        print(f"  Positive: {pos} * {w1:.4f} = {pos*w1:,.0f}")
+        print(f"  Total:    {neg*w0 + pos*w1:,.0f} (should ~= {total:,})")
+        print(f"{'='*80}\n")
+    
+    # CASE 2: 'auto_simple' - Simple ratio (V1 old method)
+    elif str(pos_weight).lower() == 'auto_simple':
+        w1_raw = float(neg) / float(pos)
+        w1 = max(0.1, min(10.0, w1_raw))  # Clamp to [0.1, 10]
+        w0 = 1.0
+        
+        print(f"\n{'='*80}")
+        print(f"[INFO] Class Weighting: SIMPLE RATIO (auto_simple)")
+        print(f"{'='*80}")
+        print(f"Total samples:     {total:,}")
+        print(f"Positive (label=1): {pos:,} ({pos/total*100:.2f}%)")
+        print(f"Negative (label=0): {neg:,} ({neg/total*100:.2f}%)")
+        print(f"\nSimple Ratio:")
+        print(f"  w1 = N_neg / N_pos = {neg} / {pos} = {w1_raw:.4f}")
+        if w1 != w1_raw:
+            print(f"  w1 (clamped) = {w1:.4f} (clamped to [0.1, 10.0])")
+        print(f"  w0 = 1.0 (baseline)")
+        print(f"{'='*80}\n")
+    
+    # CASE 3: Manual float value
+    elif isinstance(pos_weight, (int, float)):
         w1 = float(pos_weight)
-        print(f"[INFO] Using manual posWeight = {w1:.3f}")
+        w0 = 1.0
+        
+        print(f"\n{'='*80}")
+        print(f"[INFO] Class Weighting: MANUAL")
+        print(f"{'='*80}")
+        print(f"Total samples:     {total:,}")
+        print(f"Positive (label=1): {pos:,} ({pos/total*100:.2f}%)")
+        print(f"Negative (label=0): {neg:,} ({neg/total*100:.2f}%)")
+        print(f"\nManual Weights:")
+        print(f"  w1 = {w1:.4f} (manual)")
+        print(f"  w0 = 1.0 (baseline)")
+        print(f"{'='*80}\n")
+    
+    # CASE 4: No weighting
     else:
-        w1 = 1.0
-        print(f"[INFO] No class weighting (posWeight = 1.0)")
+        w0, w1 = 1.0, 1.0
+        print(f"[INFO] No class weighting (w0=w1=1.0)")
     
-    df = df.withColumn(weight_col, 
-                       F.when(F.col(label_col) == 1, F.lit(w1)).otherwise(F.lit(1.0)))
-    return df, w1, pos, neg
+    # Assign weights: w1 for label=1, w0 for label=0
+    df_weighted = df.withColumn(
+        weight_col,
+        F.when(F.col(label_col) == 1, F.lit(w1))
+         .otherwise(F.lit(w0))
+    )
+    
+    return df_weighted, w1, w0, pos, neg
 
 
-def evaluate_model(model, df, label_col, stage_name="VAL"):
+# ============================================================================
+# ============================================================================
+# FUNCTION: evaluate_model() - V2.1 IMPROVED
+# ============================================================================
+# Mục đích: Evaluate model và return comprehensive metrics
+# -> V2.1: Tích hợp evaluation_v2.py cho metrics chính xác
+#
+# Tham số:
+# - model: Trained LightGBM model
+# - df: Validation/test DataFrame
+# - label_col: Label column name
+# - stage_name: "VAL" hoặc "TEST" (for logging)
+#
+# Metrics Computed:
+# ┌───────────────────┬────────────────────────────────────────────────────┐
+# │ Metric            │ Mô tả                                              │
+# ├───────────────────┼────────────────────────────────────────────────────┤
+# │ AUC-PR            │ Area Under Precision-Recall Curve (PRIMARY)       │
+# │                   │ -> Quan trọng nhất cho imbalanced data              │
+# │                   │ -> Target: 0.75-0.80 (realistic)                    │
+# ├───────────────────┼────────────────────────────────────────────────────┤
+# │ AUC-ROC           │ Area Under ROC Curve (SECONDARY)                   │
+# │                   │ -> Ít sensitive với imbalance hơn                   │
+# ├───────────────────┼────────────────────────────────────────────────────┤
+# │ Precision         │ TP / (TP + FP) - Độ chính xác predictions         │
+# │ Recall            │ TP / (TP + FN) - Độ phủ của positive class        │
+# │ F1-Score          │ 2 * Precision * Recall / (P + R) - Harmonic mean  │
+# ├───────────────────┼────────────────────────────────────────────────────┤
+# │ Confusion Matrix  │ TP, TN, FP, FN - Chi tiết classification          │
+# │                   │ -> True Positive: Dự đoán helpful đúng             │
+# │                   │ -> True Negative: Dự đoán not helpful đúng         │
+# │                   │ -> False Positive: Dự đoán helpful SAI             │
+# │                   │ -> False Negative: Dự đoán not helpful SAI         │
+# └───────────────────┴────────────────────────────────────────────────────┘
+#
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ WHY AUC-PR is primary metric?                                      │
+# │ - Imbalanced data: 80% neg, 20% pos                                │
+# │ - AUC-ROC có thể misleading (high AUC-ROC nhưng poor PR)          │
+# │ - AUC-PR focus vào positive class (helpful reviews)                │
+# │ - Competition/real-world: AUC-PR là standard cho imbalanced       │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# V2.1 Threshold Strategy:
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ PRECISION-CONSTRAINED OPTIMIZATION (V2.1 NEW)                      │
+# │                                                                     │
+# │ Problem: Tối ưu F1 thuần túy -> Recall quá cao -> FP tăng vọt       │
+# │          VD: Recall=95%, Precision=34% -> 66% predictions SAI!     │
+# │                                                                     │
+# │ Solution: Find threshold maximize F1 với constraint Precision≥50% │
+# │                                                                     │
+# │ Benefits:                                                           │
+# │   OK Giảm False Positive (FP) xuống đáng kể                        │
+# │   OK Precision ≥ 50% -> Chỉ 50% predictions có thể sai              │
+# │   OK Vẫn giữ F1 score cao (balanced P-R)                           │
+# │   OK Model predictions đáng tin cậy hơn cho business               │
+# │                                                                     │
+# │ Trade-off: Recall có thể giảm nhẹ (~80-85%) nhưng chấp nhận được │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# Output:
+# - metrics: Dict chứa tất cả metrics
+# - pred_df: DataFrame với predictions (probability, prediction columns)
+#
+# Use case: Evaluate sau khi train hoặc mỗi pseudo-labeling round
+def evaluate_model(model, df, label_col, stage_name="VAL", out_dir=None):
     """
-    Evaluate model and return comprehensive metrics.
-    Returns: (aucpr, aucroc, precision, recall, f1, confusion_matrix, pred_df)
+    Evaluate model với evaluation_v2.py (V2.1 IMPROVED)
+    
+    Returns: (metrics_dict, pred_df)
+    
+    V2.1 Changes:
+    - Sử dụng sklearn metrics thay vì PySpark evaluators
+    - Tính toán chính xác confusion matrix
+    - Find optimal threshold
+    - Save plots (PR/ROC curves, confusion matrix, threshold analysis)
     """
-    from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+    import numpy as np
     
-    eval_pr = BinaryClassificationEvaluator(
-        labelCol=label_col, rawPredictionCol="rawPrediction", metricName="areaUnderPR")
-    eval_roc = BinaryClassificationEvaluator(
-        labelCol=label_col, rawPredictionCol="rawPrediction", metricName="areaUnderROC")
-    
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 1: Predict với model                               │
+    # └──────────────────────────────────────────────────────────┘
     pred_df = model.transform(df)
-    aucpr = eval_pr.evaluate(pred_df)
-    aucroc = eval_roc.evaluate(pred_df)
     
-    # Compute Precision, Recall, F1
-    evaluator_precision = MulticlassClassificationEvaluator(
-        labelCol=label_col, predictionCol="prediction", metricName="weightedPrecision")
-    evaluator_recall = MulticlassClassificationEvaluator(
-        labelCol=label_col, predictionCol="prediction", metricName="weightedRecall")
-    evaluator_f1 = MulticlassClassificationEvaluator(
-        labelCol=label_col, predictionCol="prediction", metricName="f1")
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 2: Convert Spark DataFrame -> numpy arrays          │
+    # └──────────────────────────────────────────────────────────┘
+    # Extract (label, probability[1]) cho sklearn metrics
+    print(f"[{stage_name}] Collecting predictions for evaluation...")
     
-    precision = evaluator_precision.evaluate(pred_df)
-    recall = evaluator_recall.evaluate(pred_df)
-    f1 = evaluator_f1.evaluate(pred_df)
+    # UDF để extract probability của class 1
+    get_prob_class1 = F.udf(lambda v: float(v[1]) if v and len(v) > 1 else 0.0, T.FloatType())
+    pred_df_with_prob = pred_df.withColumn("prob_class1", get_prob_class1(F.col("probability")))
     
-    # Compute Confusion Matrix
-    cm_df = pred_df.groupBy(label_col, "prediction").count().collect()
-    confusion_matrix = {}
-    for row in cm_df:
-        key = f"true_{int(row[label_col])}_pred_{int(row['prediction'])}"
-        confusion_matrix[key] = int(row['count'])
+    # Collect data (có thể tốn memory nếu val set quá lớn, nhưng thường OK)
+    y_true_pred = pred_df_with_prob.select(label_col, "prob_class1").collect()
     
-    # Extract TP, TN, FP, FN
-    tp = confusion_matrix.get("true_1_pred_1", 0)
-    tn = confusion_matrix.get("true_0_pred_0", 0)
-    fp = confusion_matrix.get("true_0_pred_1", 0)
-    fn = confusion_matrix.get("true_1_pred_0", 0)
+    y_true = np.array([int(row[label_col]) for row in y_true_pred])
+    y_pred_proba = np.array([float(row['prob_class1']) for row in y_true_pred])
     
-    print(f"[{stage_name}] AUC-PR={aucpr:.4f} | AUC-ROC={aucroc:.4f}")
-    print(f"[{stage_name}] Precision={precision:.4f} | Recall={recall:.4f} | F1={f1:.4f}")
-    print(f"[{stage_name}] Confusion Matrix: TP={tp:,} TN={tn:,} FP={fp:,} FN={fn:,}")
+    print(f"[{stage_name}] Collected {len(y_true):,} predictions")
     
-    metrics = {
-        "aucpr": float(aucpr),
-        "aucroc": float(aucroc),
-        "precision": float(precision),
-        "recall": float(recall),
-        "f1": float(f1),
-        "confusion_matrix": {
-            "TP": tp,
-            "TN": tn,
-            "FP": fp,
-            "FN": fn
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 3: Tính metrics với evaluation_v2 (nếu có)        │
+    # └──────────────────────────────────────────────────────────┘
+    if EVALUATION_V2_AVAILABLE:
+        print(f"[{stage_name}] Using evaluation_v2.py for accurate metrics calculation")
+        
+        # Tính metrics với threshold mặc định = 0.5
+        metrics_default = calculate_metrics(y_true, y_pred_proba, threshold=0.5)
+        
+        # Tìm optimal threshold với constraint Precision >= 50% (V2.1 BALANCED)
+        # Để tránh FP quá cao, ta yêu cầu Precision tối thiểu 50%
+        print(f"[{stage_name}] Finding optimal threshold (Precision >= 50%)...")
+        opt_threshold, threshold_scores = find_optimal_threshold(y_true, y_pred_proba, metric="precision_min")
+        
+        # Tính lại metrics với optimal threshold
+        metrics_opt = calculate_metrics(y_true, y_pred_proba, threshold=opt_threshold)
+        
+        # In classification report chi tiết
+        print(f"\n{'='*80}")
+        print(f"[{stage_name}] EVALUATION RESULTS WITH OPTIMAL THRESHOLD (Precision >= 50%)")
+        print(f"{'='*80}")
+        print_classification_report(y_true, y_pred_proba, threshold=opt_threshold)
+        
+        # In comparison giữa default vs optimal threshold
+        print(f"\n{'='*80}")
+        print(f"[{stage_name}] THRESHOLD COMPARISON")
+        print(f"{'='*80}")
+        print(f"| Threshold | AUC-PR | Precision | Recall |   F1   |")
+        print(f"|   0.50    | {metrics_default['auc_pr']:.4f} |   {metrics_default['precision']:.4f}  | {metrics_default['recall']:.4f} | {metrics_default['f1_score']:.4f} |")
+        print(f"|   {opt_threshold:.2f}    | {metrics_opt['auc_pr']:.4f} |   {metrics_opt['precision']:.4f}  | {metrics_opt['recall']:.4f} | {metrics_opt['f1_score']:.4f} | <- OPTIMAL")
+        print(f"{'='*80}")
+        
+        # Highlight improvement
+        prec_diff = metrics_opt['precision'] - metrics_default['precision']
+        rec_diff = metrics_opt['recall'] - metrics_default['recall']
+        print(f"OK Precision improvement: {prec_diff:+.4f} ({prec_diff/metrics_default['precision']*100:+.1f}%)")
+        print(f"OK Recall trade-off: {rec_diff:+.4f} ({rec_diff/metrics_default['recall']*100:+.1f}%)")
+        print(f"{'='*80}\n")
+        
+        # ┌──────────────────────────────────────────────────────────┐
+        # │ STEP 4: Save plots (nếu có out_dir)                     │
+        # └──────────────────────────────────────────────────────────┘
+        if out_dir:
+            try:
+                # Tạo reports directory
+                reports_dir = os.path.join(out_dir, "reports")
+                os.makedirs(reports_dir, exist_ok=True)
+                
+                # Plot PR/ROC curves
+                pr_roc_path = os.path.join(reports_dir, f"pr_roc_curves_{stage_name.lower()}.png")
+                plot_pr_roc_curves(y_true, y_pred_proba, out_path=pr_roc_path)
+                
+                # Plot confusion matrix với optimal threshold
+                y_pred_binary = (y_pred_proba >= opt_threshold).astype(int)
+                cm_path = os.path.join(reports_dir, f"confusion_matrix_{stage_name.lower()}.png")
+                plot_confusion_matrix(y_true, y_pred_binary, out_path=cm_path)
+                
+                # Plot threshold analysis
+                threshold_path = os.path.join(reports_dir, f"threshold_analysis_{stage_name.lower()}.png")
+                plot_threshold_analysis(y_true, y_pred_proba, out_path=threshold_path)
+                
+                print(f"[{stage_name}] Evaluation plots saved to {reports_dir}")
+                
+            except Exception as e:
+                print(f"[WARN] Failed to save evaluation plots: {e}")
+        
+        # Return metrics với optimal threshold
+        return metrics_opt, pred_df
+    
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ FALLBACK: Dùng PySpark evaluators (less accurate)       │
+    # └──────────────────────────────────────────────────────────┘
+    else:
+        print(f"[{stage_name}] Using PySpark evaluators (evaluation_v2.py not available)")
+        from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+        
+        eval_pr = BinaryClassificationEvaluator(
+            labelCol=label_col, rawPredictionCol="rawPrediction", metricName="areaUnderPR")
+        eval_roc = BinaryClassificationEvaluator(
+            labelCol=label_col, rawPredictionCol="rawPrediction", metricName="areaUnderROC")
+        
+        aucpr = eval_pr.evaluate(pred_df)
+        aucroc = eval_roc.evaluate(pred_df)
+        
+        # Compute Precision, Recall, F1
+        evaluator_precision = MulticlassClassificationEvaluator(
+            labelCol=label_col, predictionCol="prediction", metricName="weightedPrecision")
+        evaluator_recall = MulticlassClassificationEvaluator(
+            labelCol=label_col, predictionCol="prediction", metricName="weightedRecall")
+        evaluator_f1 = MulticlassClassificationEvaluator(
+            labelCol=label_col, predictionCol="prediction", metricName="f1")
+        
+        precision = evaluator_precision.evaluate(pred_df)
+        recall = evaluator_recall.evaluate(pred_df)
+        f1 = evaluator_f1.evaluate(pred_df)
+        
+        # Confusion matrix
+        cm_df = pred_df.groupBy(label_col, "prediction").count().collect()
+        confusion_matrix = {}
+        for row in cm_df:
+            key = f"true_{int(row[label_col])}_pred_{int(row['prediction'])}"
+            confusion_matrix[key] = int(row['count'])
+        
+        tp = confusion_matrix.get("true_1_pred_1", 0)
+        tn = confusion_matrix.get("true_0_pred_0", 0)
+        fp = confusion_matrix.get("true_0_pred_1", 0)
+        fn = confusion_matrix.get("true_1_pred_0", 0)
+        
+        print(f"[{stage_name}] AUC-PR={aucpr:.4f} | AUC-ROC={aucroc:.4f}")
+        print(f"[{stage_name}] Precision={precision:.4f} | Recall={recall:.4f} | F1={f1:.4f}")
+        print(f"[{stage_name}] Confusion Matrix: TP={tp:,} TN={tn:,} FP={fp:,} FN={fn:,}")
+        
+        metrics = {
+            "auc_pr": float(aucpr),
+            "auc_roc": float(aucroc),
+            "precision": float(precision),
+            "recall": float(recall),
+            "f1_score": float(f1),
+            "threshold": 0.5,
+            "confusion_matrix": {
+                "TP": tp,
+                "TN": tn,
+                "FP": fp,
+                "FN": fn
+            }
         }
-    }
-    
-    return metrics, pred_df
+        
+        return metrics, pred_df
 
 
+# ============================================================================
+# FUNCTION: pseudo_label_iteration()
+# ============================================================================
+# Mục đích: Thực hiện 1 iteration của pseudo-labeling
+# -> Predict trên unlabeled data -> Select confident samples -> Add to training
+#
+# Tham số:
+# - model: Trained model từ iteration trước
+# - unlabeled_df: DataFrame không có labels (test set)
+# - label_col: Label column name để tạo
+# - features_col: Features column name
+# - min_prob: Minimum probability threshold (default 0.9)
+# - top_pct: Top % confident samples to select (default 0.1 = 10%)
+# - pseudo_weight: Weight cho pseudo-labeled samples (default 0.3)
+#
+# Pseudo-Labeling Algorithm:
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ STEP 1: Predict on unlabeled data                                 │
+# │   model.transform(unlabeled_df) -> probability column              │
+# │   Extract prob_class1 (probability of "helpful")                  │
+# ├────────────────────────────────────────────────────────────────────┤
+# │ STEP 2: Filter confident predictions                              │
+# │   Positive: prob_class1 >= 0.9 (very likely helpful)              │
+# │   Negative: prob_class1 <= 0.1 (very likely not helpful)          │
+# ├────────────────────────────────────────────────────────────────────┤
+# │ STEP 3: Select top % by confidence                                │
+# │   Sort positive by prob DESC -> Take top 10%                        │
+# │   Sort negative by prob ASC -> Take top 10%                         │
+# ├────────────────────────────────────────────────────────────────────┤
+# │ STEP 4: Assign pseudo-labels with low weight                      │
+# │   Positive samples -> label=1, weight=0.3                           │
+# │   Negative samples -> label=0, weight=0.3                           │
+# │   (Low weight vì không chắc chắn 100%)                            │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ WHY pseudo-labeling?                                               │
+# │ - Semi-supervised learning: Tận dụng unlabeled test data          │
+# │ - Test set có millions samples -> Thêm vào training = more data    │
+# │ - Confident predictions có thể improve model                       │
+# │ - Trade-off: Low weight (0.3) để tránh noise từ wrong labels     │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# Output:
+# - pseudo_df: DataFrame với pseudo-labels (label_col, weight columns)
+# - None nếu không tìm thấy confident samples
+#
+# Use case: Gọi sau mỗi iteration training trong pseudo-labeling rounds
 def pseudo_label_iteration(model, unlabeled_df, label_col, features_col, 
                            min_prob=0.9, top_pct=0.1, pseudo_weight=0.3):
     """
     Pseudo-labeling: predict on unlabeled data, select high-confidence samples.
     Returns DataFrame with pseudo-labels and low weight.
     """
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 1: Predict trên unlabeled data                     │
+    # └──────────────────────────────────────────────────────────┘
+    # Transform sẽ thêm cột: prediction, rawPrediction, probability
     pred_df = model.transform(unlabeled_df)
     
-    # Extract probability for class 1
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 2: Extract probability của class 1 (helpful)       │
+    # └──────────────────────────────────────────────────────────┘
+    # probability là DenseVector([prob_class0, prob_class1])
+    # -> Lấy prob_class1 = v[1]
     get_prob_udf = F.udf(lambda v: float(v[1]) if v and len(v) > 1 else 0.0, T.FloatType())
     pred_df = pred_df.withColumn("prob_class1", get_prob_udf(F.col("probability")))
     
-    # Select confident positive and negative samples
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 3: Filter confident predictions                    │
+    # └──────────────────────────────────────────────────────────┘
+    # Confident POSITIVE: prob_class1 >= 0.9 (90% chắc là helpful)
     confident_pos = pred_df.filter(F.col("prob_class1") >= min_prob)
+    # Confident NEGATIVE: prob_class1 <= 0.1 (90% chắc là not helpful)
     confident_neg = pred_df.filter(F.col("prob_class1") <= (1 - min_prob))
     
-    # Take top % by confidence
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 4: Chỉ lấy top % samples có confidence cao nhất    │
+    # └──────────────────────────────────────────────────────────┘
+    # Lấy 10% samples từ mỗi class
     n_pos = int(confident_pos.count() * top_pct)
     n_neg = int(confident_neg.count() * top_pct)
     
+    # Nếu không có confident samples -> return None
     if n_pos == 0 and n_neg == 0:
         print("[WARN] No confident pseudo-labels found")
         return None
     
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 5: Sort và select top samples                      │
+    # └──────────────────────────────────────────────────────────┘
+    # Positive: Sort DESC (cao nhất trước) -> Take n_pos -> Assign label=1
     pseudo_pos = confident_pos.orderBy(F.desc("prob_class1")).limit(n_pos) \
         .withColumn(label_col, F.lit(1))
+    
+    # Negative: Sort ASC (thấp nhất trước) -> Take n_neg -> Assign label=0
     pseudo_neg = confident_neg.orderBy(F.asc("prob_class1")).limit(n_neg) \
         .withColumn(label_col, F.lit(0))
     
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 6: Merge và assign low weight (0.3)                │
+    # └──────────────────────────────────────────────────────────┘
+    # Union 2 DataFrames
     pseudo_df = pseudo_pos.unionByName(pseudo_neg, allowMissingColumns=True)
+    # Add weight column = 0.3 (thấp hơn real labels = 1.0 hoặc w1)
     pseudo_df = pseudo_df.withColumn("weight", F.lit(pseudo_weight))
     
-    # Keep only necessary columns
+    # ┌──────────────────────────────────────────────────────────┐
+    # │ STEP 7: Chỉ giữ lại columns cần thiết                   │
+    # └──────────────────────────────────────────────────────────┘
+    # Keep original columns + label_col + weight
     cols_to_keep = [c for c in unlabeled_df.columns] + [label_col, "weight"]
     pseudo_df = pseudo_df.select(*[c for c in cols_to_keep if c in pseudo_df.columns])
     
+    # In thông tin
     print(f"[PSEUDO] Added {n_pos} positive + {n_neg} negative pseudo-labels (weight={pseudo_weight})")
-    return pseudo_df
+    
+    return pseudo_df  # Return DataFrame với pseudo-labels
 
 
 def save_schema_logs(out_dir, train_schema, test_schema, columns_used, params, metadata):
@@ -822,6 +1439,100 @@ def format_error_message(exc_type, exc_value, exc_tb):
 
 
 
+# ============================================================================
+# MAIN FUNCTION: main()
+# ============================================================================
+# Mục đích: Orchestrate toàn bộ training pipeline từ đầu đến cuối
+#
+# Pipeline Flow (10 bước chính):
+#
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 1. Initialize Spark Session                                       │
+# │    - Enable adaptive query execution                               │
+# │    - Set log level to WARN                                         │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 2. Load Data (Train + Test)                                       │
+# │    - Read Parquet from HDFS/local                                  │
+# │    - Apply --limit_train for quick testing                         │
+# │    - Print sample counts                                           │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 3. Validate Schema & Features                                     │
+# │    - Check review_id exists (CRITICAL for submission)              │
+# │    - Check label_col exists (generate synthetic if missing)        │
+# │    - Check features_col exists (assemble if missing)               │
+# │    - Validate feature dimensions match train/test                  │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 4. Clean Data                                                      │
+# │    - Drop leaky columns (helpful_votes, helpful_ratio, v.v.)      │
+# │    - Cast label to int (0/1)                                       │
+# │    - Print feature summaries                                       │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 5. Stratified Train/Val Split                                     │
+# │    - Split 90/10 (default)                                         │
+# │    - Maintain class ratio trong cả train và val                    │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 6. Compute Class Weights                                           │
+# │    - Auto: w = N_neg / N_pos (clamped [0.1, 10])                  │
+# │    - Manual: --posWeight 3.0                                       │
+# │    - None: w = 1.0                                                 │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 7. [Optional] Hyperparameter Tuning                               │
+# │    - 3-fold CV grid search                                         │
+# │    - Quick (9 combos) hoặc Thorough (27 combos)                   │
+# │    - Update args với best params                                   │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 8. Train Initial Model                                             │
+# │    - LightGBMClassifier với optimized hyperparameters              │
+# │    - Early stopping trên validation set                            │
+# │    - Evaluate: AUC-PR, AUC-ROC, Precision, Recall, F1             │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 9. [Optional] Pseudo-Labeling Iterations                          │
+# │    - Predict on test -> Select confident samples                    │
+# │    - Add to training (low weight = 0.3)                            │
+# │    - Retrain -> Evaluate -> Keep best model                          │
+# │    - Repeat for N rounds                                           │
+# └────────────────────────────────────────────────────────────────────┘
+#          ↓
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 10. Save Model + Metadata + Logs                                  │
+# │     - Model -> HDFS/local                                           │
+# │     - Metadata JSON (params, metrics, v.v.)                        │
+# │     - Schema logs (if --save_schema_log)                           │
+# │     - Evaluation reports (JSON, CSV, TXT)                          │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ CRITICAL CHECKS                                                    │
+# ├────────────────────────────────────────────────────────────────────┤
+# │ 1. review_id PHẢI tồn tại -> Submission alignment                  │
+# │ 2. Feature dimensions PHẢI match train/test -> Model compatibility │
+# │ 3. Label PHẢI binary {0,1} -> Classification correctness           │
+# │ 4. Leaky columns PHẢI được xóa -> No label leakage                 │
+# │ 5. Class weights PHẢI hợp lý -> Handle imbalance                   │
+# └────────────────────────────────────────────────────────────────────┘
+#
+# Error Handling:
+# - Catch all exceptions -> Save detailed error log
+# - Format error với traceback -> Debugging easier
+# - Print clear error messages -> User-friendly
+#
+# Use case: Complete end-to-end training cho Amazon review helpfulness
 def main():
     args = parse_args()
     spark = None
@@ -960,7 +1671,7 @@ def main():
                         print(f"Test dimension:  {test_dim}")
                         print(f"")
                         print(f"This usually happens when train and test use different feature pipelines:")
-                        print(f"  - Train: metadata → text → sentiment (~37 features)")
+                        print(f"  - Train: metadata -> text -> sentiment (~37 features)")
                         print(f"  - Test:  feature_pipeline_v2.py --preset full (~20,000 TF-IDF features)")
                         print(f"")
                         print(f"SOLUTIONS:")
@@ -974,7 +1685,7 @@ def main():
                         print(f"     Add --force flag to ignore dimension mismatch")
                         print(f"")
                         print(f"  3. Or ensure both use same pipeline:")
-                        print(f"     metadata_features_v2.py → text_preprocessing_v2.py → sentiment_vader_v2.py")
+                        print(f"     metadata_features_v2.py -> text_preprocessing_v2.py -> sentiment_vader_v2.py")
                         print(f"{'='*80}\n")
                         
                         if not args.force:
@@ -1048,7 +1759,7 @@ def main():
         
         # ========== Class Weighting ==========
         pos_weight_val = args.posWeight if args.posWeight != "auto" else "auto"
-        train_split, w1, n_pos, n_neg = compute_class_weight(
+        train_split, w1, w0, n_pos, n_neg = compute_class_weight(
             train_split, args.label_col, weight_col="weight", pos_weight=pos_weight_val)
         
         val_split = val_split.withColumn("weight", F.lit(1.0))  # No weighting for validation
@@ -1107,9 +1818,9 @@ def main():
         model = clf.fit(combined_df)
         
         # ========== Evaluate ==========
-        metrics, _ = evaluate_model(model, val_split, args.label_col, stage_name="VAL-INITIAL")
+        metrics, _ = evaluate_model(model, val_split, args.label_col, stage_name="VAL-INITIAL", out_dir=args.out)
         
-        best_aucpr = metrics["aucpr"]
+        best_aucpr = metrics["auc_pr"]
         best_metrics = metrics
         best_model = model
         
@@ -1140,9 +1851,9 @@ def main():
                 # Retrain
                 model = clf.fit(combined_augmented)
                 metrics, _ = evaluate_model(model, val_split, args.label_col, 
-                                          stage_name=f"VAL-PSEUDO-R{round_idx+1}")
+                                          stage_name=f"VAL-PSEUDO-R{round_idx+1}", out_dir=args.out)
                 
-                aucpr = metrics["aucpr"]
+                aucpr = metrics["auc_pr"]
                 
                 # Keep best model
                 if aucpr > best_aucpr:
@@ -1240,11 +1951,11 @@ def main():
                 writer = csv.writer(f)
                 writer.writerow(["Metric", "Value"])
                 writer.writerow(["Timestamp", metadata["timestamp"]])
-                writer.writerow(["AUC-PR", f"{best_metrics['aucpr']:.4f}"])
-                writer.writerow(["AUC-ROC", f"{best_metrics['aucroc']:.4f}"])
+                writer.writerow(["AUC-PR", f"{best_metrics['auc_pr']:.4f}"])
+                writer.writerow(["AUC-ROC", f"{best_metrics['auc_roc']:.4f}"])
                 writer.writerow(["Precision", f"{best_metrics['precision']:.4f}"])
                 writer.writerow(["Recall", f"{best_metrics['recall']:.4f}"])
-                writer.writerow(["F1-Score", f"{best_metrics['f1']:.4f}"])
+                writer.writerow(["F1-Score", f"{best_metrics['f1_score']:.4f}"])
                 writer.writerow(["True Positive (TP)", best_metrics["confusion_matrix"]["TP"]])
                 writer.writerow(["True Negative (TN)", best_metrics["confusion_matrix"]["TN"]])
                 writer.writerow(["False Positive (FP)", best_metrics["confusion_matrix"]["FP"]])
@@ -1270,11 +1981,11 @@ def main():
                 f.write("-"*80 + "\n")
                 f.write("EVALUATION METRICS (Validation Set)\n")
                 f.write("-"*80 + "\n")
-                f.write(f"AUC-PR (Primary Metric):  {best_metrics['aucpr']:.4f}\n")
-                f.write(f"AUC-ROC:                  {best_metrics['aucroc']:.4f}\n")
+                f.write(f"AUC-PR (Primary Metric):  {best_metrics['auc_pr']:.4f}\n")
+                f.write(f"AUC-ROC:                  {best_metrics['auc_roc']:.4f}\n")
                 f.write(f"Precision:                {best_metrics['precision']:.4f}\n")
                 f.write(f"Recall:                   {best_metrics['recall']:.4f}\n")
-                f.write(f"F1-Score:                 {best_metrics['f1']:.4f}\n\n")
+                f.write(f"F1-Score:                 {best_metrics['f1_score']:.4f}\n\n")
                 
                 f.write("-"*80 + "\n")
                 f.write("CONFUSION MATRIX\n")
@@ -1332,11 +2043,11 @@ def main():
         print(f"\n{'='*80}")
         print(f"TRAINING COMPLETE")
         print(f"{'='*80}")
-        print(f"VAL_AUCPR     = {best_metrics['aucpr']:.4f}")
-        print(f"VAL_AUCROC    = {best_metrics['aucroc']:.4f}")
+        print(f"VAL_AUCPR     = {best_metrics['auc_pr']:.4f}")
+        print(f"VAL_AUCROC    = {best_metrics['auc_roc']:.4f}")
         print(f"VAL_Precision = {best_metrics['precision']:.4f}")
         print(f"VAL_Recall    = {best_metrics['recall']:.4f}")
-        print(f"VAL_F1        = {best_metrics['f1']:.4f}")
+        print(f"VAL_F1        = {best_metrics['f1_score']:.4f}")
         print(f"Feature dimension = {actual_dim}")
         print(f"Train samples = {train_split.count():,}")
         print(f"Val samples = {val_split.count():,}")

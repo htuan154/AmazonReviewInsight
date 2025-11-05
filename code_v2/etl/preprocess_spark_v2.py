@@ -288,18 +288,59 @@ def main():
 
     # ===== 1) Đọc reviews JSONL =====
     print(f"\n[INFO] Reading reviews from {args.reviews}")
-    reviews = (
-        spark.read.json(args.reviews, multiLine=False)
-        .select(
-            F.col("asin").alias("review_id"),  # asin = unique review identifier
-            F.col("text").alias("review_text"),
-            F.col("rating").alias("star_rating"),
-            F.col("helpful_vote").alias("helpful_votes"),
-            F.col("user_id"),
-            F.col("parent_asin").alias("product_id"),
-            F.col("timestamp").alias("ts_raw")
+    reviews_raw = spark.read.json(args.reviews, multiLine=False)
+    
+    # Check if helpful_vote and id columns exist
+    has_helpful_vote = "helpful_vote" in reviews_raw.columns
+    has_id = "id" in reviews_raw.columns
+    print(f"[INFO] helpful_vote column exists: {has_helpful_vote}")
+    print(f"[INFO] id column exists: {has_id}")
+    
+    # Select columns based on availability
+    if has_helpful_vote:
+        reviews = (
+            reviews_raw
+            .select(
+                F.col("text").alias("review_text"),
+                F.col("rating").alias("star_rating"),
+                F.col("helpful_vote").alias("helpful_votes"),
+                F.col("user_id"),
+                F.col("parent_asin").alias("product_id"),
+                F.col("timestamp").alias("ts_raw")
+            )
         )
-    )
+    else:
+        print("[WARNING] helpful_vote not found, setting helpful_votes=0 for all rows")
+        reviews = (
+            reviews_raw
+            .select(
+                F.col("text").alias("review_text"),
+                F.col("rating").alias("star_rating"),
+                F.col("user_id"),
+                F.col("parent_asin").alias("product_id"),
+                F.col("timestamp").alias("ts_raw")
+            )
+            .withColumn("helpful_votes", F.lit(0).cast("long"))
+        )
+    
+    # Create review_id: use 'id' column if exists, otherwise generate from user_id + timestamp
+    if has_id:
+        print("[INFO] Using existing 'id' column as review_id")
+        reviews_raw_with_id = reviews_raw.select(F.col("id"))
+        reviews = reviews.withColumn("row_idx", F.monotonically_increasing_id())
+        reviews_raw_with_id = reviews_raw_with_id.withColumn("row_idx", F.monotonically_increasing_id())
+        reviews = reviews.join(reviews_raw_with_id, on="row_idx", how="left").drop("row_idx")
+        reviews = reviews.withColumn("review_id", F.col("id").cast("string")).drop("id")
+    else:
+        print("[INFO] Generating review_id from user_id + timestamp + sequence")
+        window_spec = Window.partitionBy("user_id", "ts_raw").orderBy("ts_raw")
+        reviews = reviews.withColumn(
+            "review_id",
+            F.concat_ws("_", 
+                        F.col("user_id"), 
+                        F.col("ts_raw").cast("string"),
+                        F.row_number().over(window_spec).cast("string"))
+        )
 
     # Chuẩn hoá kiểu dữ liệu
     reviews = (
@@ -321,9 +362,9 @@ def main():
     
     if total_count != unique_count:
         print(f"[ERROR] review_id NOT unique! Duplicates: {total_count - unique_count:,}")
-        raise ValueError("review_id (asin) must be unique for each review")
+        raise ValueError("review_id must be unique for each review")
     else:
-        print(f"[OK] review_id is unique ✓")
+        print(f"[OK] review_id is unique (PASS)")
 
     # Cột phân vùng
     reviews = (
@@ -447,10 +488,14 @@ def main():
     cls_dist_path = f"{args.out}/eda_class_ratio_csv"
     cls_dist.coalesce(1).write.mode("overwrite").option("header", True).csv(cls_dist_path)
     
-    # Category distribution
-    cat_dist = reviews.groupBy("category").count().orderBy(F.desc("count"))
-    cat_path = f"{args.out}/eda_category_dist_csv"
-    cat_dist.coalesce(1).write.mode("overwrite").option("header", True).csv(cat_path)
+    # Category distribution (only if metadata exists)
+    cat_path = None
+    if "category" in reviews.columns:
+        cat_dist = reviews.groupBy("category").count().orderBy(F.desc("count"))
+        cat_path = f"{args.out}/eda_category_dist_csv"
+        cat_dist.coalesce(1).write.mode("overwrite").option("header", True).csv(cat_path)
+    else:
+        print("[INFO] Skipping category EDA (no metadata joined)")
 
     # ===== 5) Ghi Parquet =====
     out_reviews = f"{args.out}/reviews"
@@ -469,7 +514,8 @@ def main():
     print(f"Parquet (V2 - NULL handled) -> {out_reviews}")
     print(f"EDA helpful_votes CSV -> {hv_path}")
     print(f"EDA class ratio CSV -> {cls_dist_path}")
-    print(f"EDA category dist CSV -> {cat_path}")
+    if cat_path:
+        print(f"EDA category dist CSV -> {cat_path}")
     print("\nKey improvements:")
     print("  ✓ NULL values imputed (price, rating, rating_number)")
     print("  ✓ No records dropped due to handleInvalid='skip'")
